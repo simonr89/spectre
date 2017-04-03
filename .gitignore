@@ -1,0 +1,6 @@
+invgen
+*.o
+parser/GclParser.hpp
+parser/GclParser.cpp
+parser/GclScanner.cpp
+parser/stack.hh
