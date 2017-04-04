@@ -2,7 +2,7 @@
 
 namespace logic {
 
-  std::string Sort::name() {
+  std::string Sort::name() const {
     if (_userDefined)
       return _name;
 
@@ -34,6 +34,11 @@ namespace logic {
     } else {
       return !o._userDefined && _name == o._name;
     }
+  }
+
+  std::ostream& operator<<(std::ostream& ostr, const Sort& s) {
+    ostr << s.name();
+    return ostr;
   }
 
 }

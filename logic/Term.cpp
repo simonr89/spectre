@@ -4,37 +4,34 @@ namespace logic {
 
   unsigned LVariable::freshId = 0;
 
-  std::ostream& FuncTerm::toStream(std::ostream& ostr) const {
+  std::string FuncTerm::toTPTP() const {
     if (_head->arity() == 0) {
-      ostr << _head->name();
+      return _head->name();
     } else {
-      ostr << _head->name() << "(";
+      std::string str = _head->name() + "(";
       for (unsigned i = 0; i < _subterms.size() - 1; i++) {
-        ostr << *_subterms[i] << ",";
+        str += _subterms[i]->toTPTP() + ",";
       }
-      ostr << *_subterms[_subterms.size() - 1];
-      ostr << ")";
+      str += _subterms[_subterms.size() - 1]->toTPTP() + ")";
+      return str;
     }
-    return ostr;
   }
 
-  std::ostream& LVariable::toStream(std::ostream& ostr) const {
-    ostr << "X" << _id;
-    return ostr;
+  std::string LVariable::toTPTP() const {
+    return "X" + std::to_string(_id) + " : " + _s->name();
   }
 
-  std::ostream& PredTerm::toStream(std::ostream& ostr) const {
+  std::string PredTerm::toTPTP() const {
     if (_head->arity() == 0) {
-      ostr << _head->name();
+      return _head->name();
     } else {
-      ostr << _head->name() << "(";
+      std::string str = _head->name() + "(";
       for (unsigned i = 0; i < _subterms.size() - 1; i++) {
-        ostr << *_subterms[i] << ",";
+        str += _subterms[i]->toTPTP() + ",";
       }
-      ostr << *_subterms[_subterms.size() - 1];
-      ostr << ")";
+      str += _subterms[_subterms.size() - 1]->toTPTP() + ")";
+      return str;
     }
-    return ostr;
   }
 }
 

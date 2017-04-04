@@ -14,7 +14,7 @@ namespace logic {
   class Term
   {
   public:
-    virtual std::ostream& toStream(std::ostream& ostr) const = 0;
+    virtual std::string toTPTP() const = 0;
   };
 
   class FuncTerm : public Term {
@@ -29,7 +29,7 @@ namespace logic {
 
     ~FuncTerm() {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     Symbol* _head;
@@ -45,7 +45,11 @@ namespace logic {
 
     ~LVariable() {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string name() { return "X" + std::to_string(_id); }
+
+    Sort* sort() { return _s; }
+
+    std::string toTPTP() const;
     
   protected:
     unsigned _id;
@@ -68,14 +72,14 @@ namespace logic {
 
     ~PredTerm() {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
 
   protected:
     Symbol* _head;
     std::vector<Term*> _subterms;
   };
 
-  inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { return e.toStream(ostr); }
+  inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { ostr << e.toTPTP(); return ostr; }
 }
 
 #endif

@@ -1,9 +1,10 @@
 #ifndef __Signature__
 #define __Signature__
 
-#include <list>
+#include <initializer_list>
 #include <map>
 #include <string>
+#include <vector>
 #include "logic/Sort.hpp"
 
 namespace logic {
@@ -19,7 +20,7 @@ namespace logic {
       _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, 0), this));
     }
     
-    Symbol(std::string name, std::list<Sort*> argSorts, Sort* rngSort) :
+    Symbol(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort) :
       _name(name),
       _argSorts(argSorts),
       _rngSort(rngSort),
@@ -44,7 +45,7 @@ namespace logic {
     
   protected:
     std::string _name;
-    std::list<Sort*> _argSorts;
+    std::vector<Sort*> _argSorts;
     Sort* _rngSort;
     bool _colored;
 

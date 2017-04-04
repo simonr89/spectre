@@ -10,8 +10,8 @@ namespace logic {
 
   class Formula {
   public:
-    virtual std::ostream& toStream(std::ostream& ostr) const = 0;
-
+    virtual std::string toTPTP() const = 0;
+    
     static Formula* quantify(const Formula& f);
   };
 
@@ -24,7 +24,7 @@ namespace logic {
     ~PredicateFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     PredTerm* _p;
@@ -41,7 +41,7 @@ namespace logic {
     ~EqualityFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     bool _polarity;
@@ -67,7 +67,7 @@ namespace logic {
     ~ConjunctionFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     std::vector<Formula*> _conj;
@@ -91,7 +91,7 @@ namespace logic {
     ~DisjunctionFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     std::vector<Formula*> _disj;
@@ -106,7 +106,7 @@ namespace logic {
     ~NegationFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     Formula *_f;
@@ -132,7 +132,7 @@ namespace logic {
     ~ExistentialFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     std::vector<LVariable*> _vars;
@@ -159,7 +159,7 @@ namespace logic {
     ~UniversalFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     std::vector<LVariable*> _vars;
@@ -176,14 +176,14 @@ namespace logic {
     ~ImplicationFormula()
     {}
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::string toTPTP() const;
     
   protected:
     Formula* _f1;
     Formula* _f2;
   };
 
-  inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { return e.toStream(ostr); }
+  inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }
 }
 
 #endif

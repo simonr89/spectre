@@ -51,35 +51,33 @@ namespace logic {
   }
 
   Symbol* Theory::getSymbol(InterpretedSymbol s) {
-    static std::list<Sort*> unaryInt = { Sort::intSort() };
-    static std::list<Sort*> binaryInt = { Sort::intSort(), Sort::intSort() };
     switch (s) {
     case InterpretedSymbol::INT_PLUS:
-      static Symbol plus("$plus", binaryInt, Sort::intSort());
+      static Symbol plus("$plus", { Sort::intSort(), Sort::intSort() }, Sort::intSort());
       return &plus;
     case InterpretedSymbol::INT_MINUS:
-      static Symbol minus("$minus", binaryInt, Sort::intSort());
+      static Symbol minus("$minus", { Sort::intSort(), Sort::intSort() }, Sort::intSort());
       return &minus;
     case InterpretedSymbol::INT_MULTIPLY:
-      static Symbol times("$times", binaryInt, Sort::intSort());
+      static Symbol times("$times", { Sort::intSort(), Sort::intSort() }, Sort::intSort());
       return &times;
     case InterpretedSymbol::INT_QUOTIENT_E:
-      static Symbol divide("$divide", binaryInt, Sort::intSort());
+      static Symbol divide("$divide", { Sort::intSort(), Sort::intSort() }, Sort::intSort());
       return &divide;
     case InterpretedSymbol::INT_UNARY_MINUS:
-      static Symbol uminus("$uminus", unaryInt, Sort::intSort());
+      static Symbol uminus("$uminus", { Sort::intSort() } , Sort::intSort());
       return &uminus;
     case InterpretedSymbol::INT_GREATER:
-      static Symbol greater("$greater", binaryInt, Sort::boolSort());
+      static Symbol greater("$greater", { Sort::intSort(), Sort::intSort() }, Sort::boolSort());
       return &greater;
     case InterpretedSymbol::INT_GREATER_EQUAL:
-      static Symbol greatereq("$greatereq", binaryInt, Sort::boolSort());
+      static Symbol greatereq("$greatereq", { Sort::intSort(), Sort::intSort() }, Sort::boolSort());
       return &greatereq;
     case InterpretedSymbol::INT_LESS:
-      static Symbol less("$less", binaryInt, Sort::boolSort());
+      static Symbol less("$less", { Sort::intSort(), Sort::intSort() }, Sort::boolSort());
       return &less;
     case InterpretedSymbol::INT_LESS_EQUAL:
-      static Symbol lesseq("$lesseq", binaryInt, Sort::boolSort());
+      static Symbol lesseq("$lesseq", { Sort::intSort(), Sort::intSort() }, Sort::boolSort());
       return &lesseq;
     default:
       assert(0); //unreachable
@@ -88,13 +86,13 @@ namespace logic {
   }
 
   FuncTerm* Theory::integerConstant(int i) {
-    Symbol *s = new Symbol(std::to_string(i), {}, Sort::intSort());
+    Symbol *s = new Symbol(std::to_string(i), Sort::intSort());
     return new FuncTerm(s, {});
   }
 
   PredTerm* Theory::booleanConstant(bool b) {
-    static Symbol t("$true", {}, Sort::boolSort());
-    static Symbol f("$false", {}, Sort::boolSort());
+    static Symbol t("$true", Sort::boolSort());
+    static Symbol f("$false", Sort::boolSort());
     return b ? new PredTerm(&t, {}) : new PredTerm(&f, {});
   }
 }

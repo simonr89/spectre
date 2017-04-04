@@ -7,53 +7,64 @@ namespace logic {
     return nullptr;
   }
 
-  //TODO
-  std::ostream& PredicateFormula::toStream(std::ostream& ostr) const
+  std::string PredicateFormula::toTPTP() const
   {
-    ostr << *_p;
-    return ostr;
+    return _p->toTPTP();
   }
 
-  std::ostream& EqualityFormula::toStream(std::ostream& ostr) const
+  std::string EqualityFormula::toTPTP() const
   {
-    ostr << "(" << *_left << " == " << _right << ")";
-    return ostr;
+    return "(" + _left->toTPTP() + " == " + _right->toTPTP() + ")";
   }
 
-  std::ostream& ConjunctionFormula::toStream(std::ostream& ostr) const
+  std::string ConjunctionFormula::toTPTP() const
   {
-    ostr << "conj";
-    return ostr;
+    std::string str = "(";
+    for (unsigned i = 0; i < _conj.size() - 1; i++) {
+      str += _conj[i]->toTPTP() + " & ";
+    }
+    str += _conj[_conj.size() - 1]->toTPTP() + ")";
+    return str;
   }
 
-  std::ostream& DisjunctionFormula::toStream(std::ostream& ostr) const
+  std::string DisjunctionFormula::toTPTP() const
   {
-    ostr << "disj";
-    return ostr;
+    std::string str = "(";
+    for (unsigned i = 0; i < _disj.size() - 1; i++) {
+      str += _disj[i]->toTPTP() + " | ";
+    }
+    str += _disj[_disj.size() - 1]->toTPTP() + ")";
+    return str;
   }
 
-  std::ostream& NegationFormula::toStream(std::ostream& ostr) const
+  std::string NegationFormula::toTPTP() const
   {
-    ostr << "neg";
-    return ostr;
+    return "~(" + _f->toTPTP() + ")";
   }
 
-  std::ostream& ExistentialFormula::toStream(std::ostream& ostr) const
+  std::string ExistentialFormula::toTPTP() const
   {
-    ostr << "ex";
-    return ostr;
+    std::string str = "? [";
+    for (unsigned i = 0; i < _vars.size() - 1; i++) {
+      str += _vars[i]->toTPTP() + ",";
+    }
+    str += _vars[_vars.size() - 1]->toTPTP() + "] (" + _f->toTPTP() + ")";
+    return str;
   }
 
-  std::ostream& UniversalFormula::toStream(std::ostream& ostr) const
+  std::string UniversalFormula::toTPTP() const
   {
-    ostr << "forall";
-    return ostr;
+    std::string str = "! [";
+    for (unsigned i = 0; i < _vars.size() - 1; i++) {
+      str += _vars[i]->toTPTP() + ",";
+    }
+    str += _vars[_vars.size() - 1]->toTPTP() + "] (" + _f->toTPTP() + ")";
+    return str;
   }
 
-  std::ostream& ImplicationFormula::toStream(std::ostream& ostr) const
+  std::string ImplicationFormula::toTPTP() const
   {
-    ostr << "imp";
-    return ostr;
+    return "(" + _f1->toTPTP() + " ==> " + _f2->toTPTP() + ")";
   }
 
 }

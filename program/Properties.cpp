@@ -55,7 +55,7 @@ namespace program {
     }
 
     for (auto it = goalUnits.begin(); it != goalUnits.end(); ++it) {
-      std::cout << *it << std::endl;
+      std::cout << **it << std::endl;
     }
     // TODO print output
   }
@@ -108,7 +108,7 @@ namespace program {
                                 : InterpretedSymbol::INT_MINUS);
     Term* v0 = v->toTerm(Theory::integerConstant(0));
     Term* lhsTerm = v->toTerm(i);
-    PredTerm* rhsTerm = new PredTerm(Theory::getSymbol(interp), {v0, i});
+    FuncTerm* rhsTerm = new FuncTerm(Theory::getSymbol(interp), {v0, i});
     return Formula::quantify(EqualityFormula(true, lhsTerm, rhsTerm));
   }
 

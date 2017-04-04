@@ -20,7 +20,7 @@ namespace logic {
 
     ~Sort() {}
     
-    std::string name();
+    std::string name() const;
 
     static Sort* boolSort();
     static Sort* intSort();
@@ -37,6 +37,8 @@ namespace logic {
     DefaultSort _d;
     std::string _name;
   };
+
+  std::ostream& operator<<(std::ostream& ostr, const Sort& s);
 
 }
 
