@@ -12,7 +12,12 @@ namespace logic {
   public:
     virtual std::string toTPTP() const = 0;
     
-    static Formula* quantify(const Formula& f);
+    Formula* quantify(bool univ = true) const;
+
+    virtual std::list<LVariable*> freeVariables() const = 0;
+
+    virtual Formula* clone() const = 0;
+  protected:
   };
 
   class PredicateFormula : public Formula {
@@ -25,8 +30,13 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new PredicateFormula(*this); }
+    
+    std::list<LVariable*> freeVariables() const;
     
   protected:
+
     PredTerm* _p;
   };
 
@@ -42,11 +52,16 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new EqualityFormula(*this); }
     
+    std::list<LVariable*> freeVariables() const;
+
   protected:
     bool _polarity;
     Term* _left;
     Term* _right;
+
   };
 
   class ConjunctionFormula : public Formula {
@@ -68,9 +83,14 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new ConjunctionFormula(*this); }
+
+    std::list<LVariable*> freeVariables() const;
     
   protected:
     std::vector<Formula*> _conj;
+
   };
 
   class DisjunctionFormula : public Formula {
@@ -92,9 +112,14 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new DisjunctionFormula(*this); }
+
+    std::list<LVariable*> freeVariables() const;
     
   protected:
     std::vector<Formula*> _disj;
+    
   };
 
   class NegationFormula : public Formula {
@@ -107,9 +132,14 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new NegationFormula(*this); }
     
+    std::list<LVariable*> freeVariables() const;
+
   protected:
     Formula *_f;
+
   };
 
   class ExistentialFormula : public Formula {
@@ -133,10 +163,15 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new ExistentialFormula(*this); }
     
+    std::list<LVariable*> freeVariables() const;
+
   protected:
     std::vector<LVariable*> _vars;
     Formula* _f;
+
   };
 
   class UniversalFormula : public Formula {
@@ -160,10 +195,15 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new UniversalFormula(*this); }
     
+    std::list<LVariable*> freeVariables() const;
+
   protected:
     std::vector<LVariable*> _vars;
     Formula* _f;
+
   };
 
   class ImplicationFormula : public Formula {
@@ -177,10 +217,15 @@ namespace logic {
     {}
 
     std::string toTPTP() const;
+
+    Formula* clone() const { return new ImplicationFormula(*this); }
     
+    std::list<LVariable*> freeVariables() const;
+
   protected:
     Formula* _f1;
     Formula* _f2;
+
   };
 
   inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }

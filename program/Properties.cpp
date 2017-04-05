@@ -54,7 +54,7 @@ namespace program {
       goalUnits.push_front(new NegationFormula(f));
     }
 
-    for (auto it = goalUnits.begin(); it != goalUnits.end(); ++it) {
+    for (auto it = _properties.begin(); it != _properties.end(); ++it) {
       std::cout << **it << std::endl;
     }
     // TODO print output
@@ -94,7 +94,7 @@ namespace program {
   }
 
   /** forall i, v(i) = v(0) + i [v(0) - i if v is decreasing] */
-  Formula *Properties::denseStrictProp(PVariable *v)
+  Formula* Properties::denseStrictProp(PVariable *v)
   {
     assert(v->isUpdated());
     assert(v->isMonotonic());
@@ -109,7 +109,7 @@ namespace program {
     Term* v0 = v->toTerm(Theory::integerConstant(0));
     Term* lhsTerm = v->toTerm(i);
     FuncTerm* rhsTerm = new FuncTerm(Theory::getSymbol(interp), {v0, i});
-    return Formula::quantify(EqualityFormula(true, lhsTerm, rhsTerm));
+    return EqualityFormula(true, lhsTerm, rhsTerm).quantify();
   }
 
   /** forall i j, j > i => v(j) > v(i) [v(j) < v(i) if v is
@@ -131,7 +131,7 @@ namespace program {
                                                              {j, i})),
                            new PredicateFormula(new PredTerm(Theory::getSymbol(interp),
                                                              { v->toTerm(j), v->toTerm(i) })));
-    return Formula::quantify(imp);
+    return imp.quantify();
   }
 
   /** forall i j, j >= i => v(i) + j >= v(j) + i [v(j) + j >= v(i) + i
@@ -155,7 +155,7 @@ namespace program {
                                                              { j, i })),
                            new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
                                                              { lhs, rhs })));
-    return Formula::quantify(imp);
+    return imp.quantify();
   }
 
   /** forall i j, j >= i => v(j) >= v(i) [v(j) <= v(i) if v is
@@ -176,7 +176,7 @@ namespace program {
                                                              { i, j })),
                            new PredicateFormula(new PredTerm(Theory::getSymbol(interp),
                                                              { v->toTerm(i), v->toTerm(j) })));
-    return Formula::quantify(imp);
+    return imp.quantify();
   }
 
   /*
@@ -502,7 +502,7 @@ namespace program {
                                       v,
                                       a->toTerm(loopCounterSymbol(), p));
     
-    return Formula::quantify(ImplicationFormula(fb, fc));
+    return ImplicationFormula(fb, fc).quantify();
   }
 
   /** forall i p v, (iter(i) & update_a(i, p, v) & (forall j, iter(j) & j > i => !update_a(j, p))) => a(n, p) = v */
@@ -572,7 +572,7 @@ namespace program {
       rhsInit = new FuncTerm(s, {});
     }    
     
-    addProperty(Formula::quantify(EqualityFormula(true, lhsCounter, rhsCounter)));
-    addProperty(Formula::quantify(EqualityFormula(true, lhsInit, rhsInit)));
+    addProperty(EqualityFormula(true, lhsCounter, rhsCounter).quantify());
+    addProperty(EqualityFormula(true, lhsInit, rhsInit).quantify());
   }
 }

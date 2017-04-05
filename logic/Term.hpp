@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <initializer_list>
+#include <list>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -11,10 +12,40 @@
 
 namespace logic {
 
+  class LVariable;
+
   class Term
   {
   public:
     virtual std::string toTPTP() const = 0;
+
+    virtual std::list<LVariable*> freeVariables() const = 0;
+  };
+
+  class LVariable : public Term {
+  public:
+    LVariable(Sort* s) :
+      _id(freshId++),
+      _s(s)
+    {}
+
+    ~LVariable() {}
+
+    unsigned id() { return _id; }
+
+    std::string name() const { return "X" + std::to_string(_id); }
+
+    Sort* sort() const { return _s; }
+
+    std::string toTPTP() const;
+
+    std::list<LVariable*> freeVariables() const;
+    
+  protected:
+    unsigned _id;
+    Sort* _s;
+
+    static unsigned freshId;
   };
 
   class FuncTerm : public Term {
@@ -30,32 +61,12 @@ namespace logic {
     ~FuncTerm() {}
 
     std::string toTPTP() const;
+
+    std::list<LVariable*> freeVariables() const;
     
   protected:
     Symbol* _head;
     std::vector<Term*> _subterms;
-  };
-
-  class LVariable : public Term {
-  public:
-    LVariable(Sort* s) :
-      _id(freshId++),
-      _s(s)
-    {}
-
-    ~LVariable() {}
-
-    std::string name() { return "X" + std::to_string(_id); }
-
-    Sort* sort() { return _s; }
-
-    std::string toTPTP() const;
-    
-  protected:
-    unsigned _id;
-    Sort* _s;
-
-    static unsigned freshId;
   };
 
   // taking the FOOL approach, predicates are alse terms
@@ -73,6 +84,8 @@ namespace logic {
     ~PredTerm() {}
 
     std::string toTPTP() const;
+
+    std::list<LVariable*> freeVariables() const;
 
   protected:
     Symbol* _head;

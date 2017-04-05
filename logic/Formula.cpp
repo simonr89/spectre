@@ -1,11 +1,8 @@
 #include "Formula.hpp"
 
-namespace logic {
+#include <functional>
 
-  Formula* Formula::quantify(const Formula& f) {
-    // TODO
-    return nullptr;
-  }
+namespace logic {
 
   std::string PredicateFormula::toTPTP() const
   {
@@ -20,10 +17,11 @@ namespace logic {
   std::string ConjunctionFormula::toTPTP() const
   {
     std::string str = "(";
-    for (unsigned i = 0; i < _conj.size() - 1; i++) {
-      str += _conj[i]->toTPTP() + " & ";
+    for (unsigned i = 0; i < _conj.size(); i++) {
+      str += _conj[i]->toTPTP();
+      if (i != _conj.size() - 1) { str += " & "; }
     }
-    str += _conj[_conj.size() - 1]->toTPTP() + ")";
+    str += ")";
     return str;
   }
 
@@ -31,9 +29,10 @@ namespace logic {
   {
     std::string str = "(";
     for (unsigned i = 0; i < _disj.size() - 1; i++) {
-      str += _disj[i]->toTPTP() + " | ";
+      str += _disj[i]->toTPTP();
+      if (i != _disj.size() - 1) { str += " | "; }
     }
-    str += _disj[_disj.size() - 1]->toTPTP() + ")";
+    str += ")";
     return str;
   }
 
@@ -45,26 +44,114 @@ namespace logic {
   std::string ExistentialFormula::toTPTP() const
   {
     std::string str = "? [";
-    for (unsigned i = 0; i < _vars.size() - 1; i++) {
-      str += _vars[i]->toTPTP() + ",";
+    for (unsigned i = 0; i < _vars.size(); i++) {
+      str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
+      if (i != _vars.size() - 1) { str += ", "; }
     }
-    str += _vars[_vars.size() - 1]->toTPTP() + "] (" + _f->toTPTP() + ")";
+    str += "] : " + _f->toTPTP();
     return str;
   }
 
   std::string UniversalFormula::toTPTP() const
   {
     std::string str = "! [";
-    for (unsigned i = 0; i < _vars.size() - 1; i++) {
-      str += _vars[i]->toTPTP() + ",";
+    for (unsigned i = 0; i < _vars.size(); i++) {
+      str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
+      if (i != _vars.size() - 1) { str += ", "; }
     }
-    str += _vars[_vars.size() - 1]->toTPTP() + "] (" + _f->toTPTP() + ")";
+    str += "] : " + _f->toTPTP();
     return str;
   }
 
   std::string ImplicationFormula::toTPTP() const
   {
     return "(" + _f1->toTPTP() + " ==> " + _f2->toTPTP() + ")";
+  }
+
+  bool compareLVarPointers(LVariable* p1, LVariable* p2) {
+    return p1->id() < p2->id();
+  }
+
+  bool eqLVarPointers(LVariable* p1, LVariable* p2) {
+    return p1->id() == p2->id();
+  }
+
+  Formula* Formula::quantify(bool univ) const
+  {
+    std::list<LVariable*> vars = freeVariables();
+    vars.sort(compareLVarPointers);
+    vars.unique(eqLVarPointers);
+    Formula *f = clone();
+
+    if (vars.empty()) {
+      return f;
+    }
+    
+    if (univ) {
+      return new UniversalFormula(vars, f);
+    } else {
+      return new ExistentialFormula(vars, f);
+    }
+  }
+
+  std::list<LVariable*> PredicateFormula::freeVariables() const
+  {
+    return _p->freeVariables();
+  }
+
+  std::list<LVariable*> EqualityFormula::freeVariables() const
+  {
+    std::list<LVariable*> l = _left->freeVariables();
+    l.splice(l.end(), _right->freeVariables());
+    return l;
+  }
+
+  std::list<LVariable*> ConjunctionFormula::freeVariables() const
+  {
+    std::list<LVariable*> l;
+    for (unsigned i = 0; i < _conj.size(); i++) {
+      l.splice(l.end(), _conj[i]->freeVariables());
+    }
+    return l;
+  }
+
+  std::list<LVariable*> DisjunctionFormula::freeVariables() const
+  {
+    std::list<LVariable*> l;
+    for (unsigned i = 0; i < _disj.size(); i++) {
+      l.splice(l.end(), _disj[i]->freeVariables());
+    }
+    return l;
+  }
+
+  std::list<LVariable*> NegationFormula::freeVariables() const
+  {
+    return _f->freeVariables();
+  }
+
+  std::list<LVariable*> ExistentialFormula::freeVariables() const
+  {
+    std::list<LVariable*> l = _f->freeVariables();
+    for (auto it = _vars.begin(); it != _vars.end(); ++it) {
+      l.remove_if(std::bind(eqLVarPointers, *it, std::placeholders::_1));
+    }
+    return l;
+  }
+
+  std::list<LVariable*> UniversalFormula::freeVariables() const
+  {
+    std::list<LVariable*> l = _f->freeVariables();
+    for (auto it = _vars.begin(); it != _vars.end(); ++it) {
+      l.remove_if(std::bind(eqLVarPointers, *it, std::placeholders::_1));
+    }
+    return l;
+  }
+
+  std::list<LVariable*> ImplicationFormula::freeVariables() const
+  {
+    std::list<LVariable*> l = _f1->freeVariables();
+    l.splice(l.end(), _f2->freeVariables());
+    return l;
   }
 
 }
