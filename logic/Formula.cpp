@@ -4,6 +4,11 @@
 
 namespace logic {
 
+  std::string Formula::declareTPTP(std::string decl) const
+  {
+    return "tff(" + decl + ", axiom, " + toTPTP() + ").";
+  }
+
   std::string PredicateFormula::toTPTP() const
   {
     return _p->toTPTP();

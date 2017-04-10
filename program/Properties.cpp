@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 
+#include "logic/Signature.hpp"
 #include "logic/Theory.hpp"
 
 using namespace logic;
@@ -41,7 +42,10 @@ namespace program {
     symbolEliminationAxioms();
     loopCounterHypothesis();
     loopConditionHypothesis();
+  }
 
+  void Properties::outputTPTP(std::ostream& ostr)
+  {
     std::list<Formula*> goalUnits {};
     if (! _postconditions.empty()) {
       // add negated loop condition to assumptions + negated goal (in non extended language)
@@ -54,10 +58,24 @@ namespace program {
       goalUnits.push_front(new NegationFormula(f));
     }
 
-    for (auto it = _properties.begin(); it != _properties.end(); ++it) {
-      std::cout << **it << std::endl;
+    unsigned i = 0;
+    for (auto it = Sort::sortsBegin(); it != Sort::sortsEnd(); ++it) {
+      if ((*it).isUserDefined())
+        ostr << (*it).declareTPTP("decl" + std::to_string(i++)) << std::endl;
     }
-    // TODO print output
+    
+    for (auto it = Symbol::sigBegin(); it != Symbol::sigEnd(); ++it) {
+      if ((*it).isUserDefined())
+        ostr << (*it).declareTPTP("decl" + std::to_string(i++)) << std::endl;
+    }
+
+    for (auto it = _properties.begin(); it != _properties.end(); ++it) {
+      ostr << (*it)->declareTPTP("decl" + std::to_string(i++)) << std::endl;
+    }
+
+    for (auto it = goalUnits.begin(); it != goalUnits.end(); ++it) {
+      ostr << (*it)->declareTPTP("decl" + std::to_string(i++)) << std::endl;
+    }
   }
 
   /*

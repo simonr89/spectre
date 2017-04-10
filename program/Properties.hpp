@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <ostream>
 #include "logic/Formula.hpp"
 #include "logic/Sort.hpp"
 #include "logic/Term.hpp"
@@ -31,6 +32,8 @@ namespace program {
     void addPostcondition(FExpression *e);
 
     void analyze();
+
+    void outputTPTP(std::ostream& ostr);
 
   protected:
     GuardedCommandCollection& _loop;

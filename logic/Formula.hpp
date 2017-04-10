@@ -11,6 +11,8 @@ namespace logic {
   class Formula {
   public:
     virtual std::string toTPTP() const = 0;
+
+    std::string declareTPTP(std::string decl) const;
     
     Formula* quantify(bool univ = true) const;
 

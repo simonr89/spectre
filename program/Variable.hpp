@@ -12,6 +12,7 @@
 #include <string>
 #include <ostream>
 #include "logic/Formula.hpp"
+#include "logic/Signature.hpp"
 #include "logic/Sort.hpp"
 #include "logic/Term.hpp"
 #include "program/Type.hpp"

@@ -6,7 +6,6 @@
 #include "Variable.hpp"
 
 #include <cassert>
-#include "logic/Signature.hpp"
 #include "logic/Theory.hpp"
 
 namespace program {
@@ -27,38 +26,6 @@ namespace program {
         _monotonic = 0;
     }
   }
-
-  /*unsigned Variable::symbolNumber(bool extended)
-  {
-    bool added, isPred;
-    int res;
-    switch (_type) {
-    case TY_INTEGER:
-    case TY_INTEGER_ARRAY:
-      isPred = false;
-      res = Lib::env.signature->addFunction(_name, arityOfSymbol(extended), added);
-      break;
-    case TY_BOOLEAN:
-    case TY_BOOLEAN_ARRAY:
-      isPred = true;
-      res = Lib::env.signature->addPredicate(_name, arityOfSymbol(extended), added);
-      break;
-    }
-    if (added) {
-      Kernel::Signature::Symbol* symb;
-      if (isPred)
-        symb = Lib::env.signature->getPredicate(res);
-      else
-        symb = Lib::env.signature->getFunction(res);
-      
-      symb->setType(typeOfSymbol(extended));
-      if (_updated && extended)
-        symb->addColor(Kernel::COLOR_LEFT);
-      symb->markIntroduced();
-    }
-
-    return res;
-    }*/
 
   unsigned PVariable::arityOfSymbol(bool extended)
   {

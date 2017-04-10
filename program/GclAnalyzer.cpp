@@ -112,7 +112,7 @@ namespace program {
     
     //saturation/symbol elimination
     props.analyze();
-    
+    props.outputTPTP(std::cout);
   }
 
   void GclAnalyzer::printInfo(std::ostream& ostr, GuardedCommandCollection &c) {

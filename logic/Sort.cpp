@@ -2,38 +2,29 @@
 
 namespace logic {
 
-  std::string Sort::name() const {
-    if (_userDefined)
-      return _name;
+  std::map<std::string, Sort*> Sort::_sorts;
 
-    switch (_d) {
-    case DefaultSort::SRT_INT:
-      return "$int";
-    case DefaultSort::SRT_BOOL:
-      return "$bool";
-    default:
-      return "";
+  Sort* Sort::fetchOrDeclare(std::string name, bool userDefined) {
+    auto it = _sorts.find(name);
+    
+    if (it == _sorts.end()) {
+      Sort* s = new Sort(name, userDefined);
+      _sorts.insert(std::pair<std::string, Sort*>(name, s)); 
+      return s;
+    } else {
+      return (*it).second;
     }
   }
 
-  Sort* Sort::boolSort() {
-    static Sort s(DefaultSort::SRT_BOOL);
+  std::string Sort::declareTPTP(std::string decl) const {
+    if (!_userDefined)
+      return "";
 
-    return &s;
-  }
-
-  Sort* Sort::intSort() {
-    static Sort s(DefaultSort::SRT_INT);
-
-    return &s;
+    return "tff(" + decl + ", type," + _name + " : $tType).";
   }
 
   bool Sort::operator==(Sort& o) {
-    if (_userDefined) {
-      return o._userDefined && _d == o._d;
-    } else {
-      return !o._userDefined && _name == o._name;
-    }
+    return _name == o._name;
   }
 
   std::ostream& operator<<(std::ostream& ostr, const Sort& s) {
