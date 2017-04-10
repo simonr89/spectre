@@ -50,6 +50,8 @@ using namespace program;
   ENSURES       "ensures"
   FORALL        "forall"
   EXISTS        "exists"
+  RECORD        "record"
+  NULL          "null"
   ASSIGN        "="
   COLS          "::"
   ARROW         "->"
@@ -57,8 +59,11 @@ using namespace program;
   RPAR          ")"
   LBRA          "["
   RBRA          "]"
+  LCUR          "{"
+  RCUR          "}"
   SCOL          ";"
   COMMA         ","
+  DOT           "."
   NOT           "!"
   MUL           "*"
   DIV           "/"
@@ -105,12 +110,25 @@ using namespace program;
 %start program;
 
 program:
-  var_declaration_list assertion_list loop_body { }
+  declaration_list assertion_list loop_body { }
 ;
 
-var_declaration_list:
+declaration_list:
   %empty
-| var_declaration_list var_declaration { }
+| declaration_list rec_declaration { }
+| declaration_list var_declaration { }
+;
+
+rec_declaration:
+  RECORD ID LCUR attr_declaration_list RCUR { }
+;
+
+attr_declaration_list:
+  attr_declaration
+| attr_declaration_list attr_declaration { }
+
+attr_declaration:
+  type_id ID SCOL { }
 ;
 
 var_declaration:
@@ -119,7 +137,8 @@ var_declaration:
 ;
 
 type_id:
-  TYPE            { if ($1 == "int")
+  ID              { $$ = Type::TY_INTEGER; }
+| TYPE            { if ($1 == "int")
                       $$ = Type::TY_INTEGER;
                     else if ($1 == "bool")
                       $$ = Type::TY_BOOLEAN;
@@ -179,6 +198,7 @@ formula:
 
 expr:
   location                 { $$ = $1; }
+| NULL                     { $$ = nullptr; /* TODO */ }
 | INTEGER                  { $$ = ArithmeticExpression::mkConstantInteger($1);
                              if (!$$) error(@1, "Ill-typed expression"); }
 | LPAR expr RPAR           { $$ = $2; }
@@ -285,6 +305,7 @@ location:
                         error(@1, "Undeclared variable");
                       }
                     }
+| location DOT ID { $$ = nullptr; }
 ;
 
 %%

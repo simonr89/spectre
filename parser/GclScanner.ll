@@ -53,12 +53,17 @@ requires     { return parser::GclParser::make_REQUIRES(loc); }
 ensures      { return parser::GclParser::make_ENSURES(loc); }
 forall       { return parser::GclParser::make_FORALL(loc); }
 exists       { return parser::GclParser::make_EXISTS(loc); }
+record       { return parser::GclParser::make_RECORD(loc); }
+null         { return parser::GclParser::make_NULL(loc); }
 "("          { return parser::GclParser::make_LPAR(loc); }
 ")"          { return parser::GclParser::make_RPAR(loc); }
 "["          { return parser::GclParser::make_LBRA(loc); }
 "]"          { return parser::GclParser::make_RBRA(loc); }
+"{"          { return parser::GclParser::make_LCUR(loc); }
+"}"          { return parser::GclParser::make_RCUR(loc); }
 ";"          { return parser::GclParser::make_SCOL(loc); }
 ","          { return parser::GclParser::make_COMMA(loc); }
+"."          { return parser::GclParser::make_DOT(loc); }
 "="          { return parser::GclParser::make_ASSIGN(loc); }
 "::"         { return parser::GclParser::make_COLS(loc); }
 "->"         { return parser::GclParser::make_ARROW(loc); }
