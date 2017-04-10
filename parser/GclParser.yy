@@ -50,6 +50,7 @@ using namespace program;
   ENSURES       "ensures"
   FORALL        "forall"
   EXISTS        "exists"
+  RECORD        "record"
   ASSIGN        "="
   COLS          "::"
   ARROW         "->"
@@ -57,10 +58,13 @@ using namespace program;
   RPAR          ")"
   LBRA          "["
   RBRA          "]"
+  LCUR          "{"
+  RCUR          "}"
   SCOL          ";"
   COMMA         ","
+  DOT           "."
   NOT           "!"
-  MUL           "*"
+  STAR          "*"
   DIV           "/"
   PLUS          "+"
   MINUS         "-"
@@ -105,7 +109,24 @@ using namespace program;
 %start program;
 
 program:
-  var_declaration_list assertion_list loop_body { }
+  rec_declaration_list var_declaration_list assertion_list loop_body { }
+;
+
+rec_declaration_list:
+  %empty
+| rec_declaration_list rec_declaration { }
+;
+
+rec_declaration:
+  RECORD ID LCUR attr_declaration_list RCUR { }
+;
+
+attr_declaration_list:
+  attr_declaration_list attr_declaration { }
+;
+
+attr_declaration:
+  type_id ID SCOL
 ;
 
 var_declaration_list:
@@ -129,6 +150,7 @@ type_id:
                     else if ($1 == "bool")
                       $$ = Type::TY_BOOLEAN_ARRAY;
                   }
+| ID              { /*TODO*/ $$ = Type::TY_INTEGER; }
 ;
 
 var_declarators:
@@ -184,7 +206,7 @@ expr:
 | LPAR expr RPAR           { $$ = $2; }
 | NOT expr                 { $$ = BooleanExpression::mkNegation($2);
                              if (!$$) error(@1, "Ill-typed expression"); }
-| expr MUL expr            { $$ = ArithmeticExpression::mkMul($1, $3);
+| expr STAR expr           { $$ = ArithmeticExpression::mkMul($1, $3);
                              if (!$$) error(@1, "Ill-typed expression"); }
 | expr DIV expr            { $$ = ArithmeticExpression::mkDiv($1, $3);
                              if (!$$) error(@1, "Ill-typed expression"); }
@@ -285,6 +307,7 @@ location:
                         error(@1, "Undeclared variable");
                       }
                     }
+| ID DOT ID         { /* TODO */ $$ = nullptr; }
 ;
 
 %%
