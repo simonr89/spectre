@@ -16,30 +16,32 @@ namespace logic {
 
   std::string EqualityFormula::toTPTP() const
   {
-    return "(" + _left->toTPTP() + " == " + _right->toTPTP() + ")";
+    if (_polarity)
+      return "(" + _left->toTPTP() + " = " + _right->toTPTP() + ")";
+    else
+      return "(" + _left->toTPTP() + " ~= " + _right->toTPTP() + ")";
   }
 
   std::string ConjunctionFormula::toTPTP() const
-  {
+  {   
     std::string str = "(";
     for (unsigned i = 0; i < _conj.size(); i++) {
       str += _conj[i]->toTPTP();
-      if (i != _conj.size() - 1) { str += " & "; }
+      
+      str += (i == _conj.size() - 1) ? ")" : " & ";
     }
-    str += ")";
     return str;
   }
 
   std::string DisjunctionFormula::toTPTP() const
   {
     std::string str = "(";
-    for (unsigned i = 0; i < _disj.size() - 1; i++) {
+    for (unsigned i = 0; i < _disj.size(); i++) {
       str += _disj[i]->toTPTP();
-      if (i != _disj.size() - 1) { str += " | "; }
+      
+      str += (i == _disj.size() - 1) ? ")" : " | ";
     }
-    str += ")";
-    return str;
-  }
+    return str;  }
 
   std::string NegationFormula::toTPTP() const
   {
@@ -70,7 +72,7 @@ namespace logic {
 
   std::string ImplicationFormula::toTPTP() const
   {
-    return "(" + _f1->toTPTP() + " ==> " + _f2->toTPTP() + ")";
+    return "(" + _f1->toTPTP() + " => " + _f2->toTPTP() + ")";
   }
 
   bool compareLVarPointers(LVariable* p1, LVariable* p2) {

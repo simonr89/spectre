@@ -17,7 +17,8 @@ SRC=main.cpp\
     program/GuardedCommandCollection.cpp\
     program/Properties.cpp\
     program/Variable.cpp\
-    program/Type.cpp
+    program/Type.cpp\
+    util/Options.cpp
 OBJ=$(SRC:.cpp=.o)
 
 all: $(EXEC) parser_src

@@ -20,8 +20,10 @@ namespace logic {
 
     // fetch a sort or declare it
     static Sort* getSort(std::string name) { return fetchOrDeclare(name, true); }
+    static Sort* defaultSort() { return fetchOrDeclare("$i", false); }
     static Sort* boolSort() { return fetchOrDeclare("$o", false); }
     static Sort* intSort() { return fetchOrDeclare("$int", false); }
+    
 
     class const_iterator {
     public:

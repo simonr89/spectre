@@ -191,7 +191,8 @@ namespace program {
 
     enum class LocationExprKind {
       EXP_VAR_LOC,
-      EXP_ARRAY_LOC
+      EXP_ARRAY_LOC,
+      EXP_FIELD_LOC
     };
 
     bool equivToVPlusX(PVariable *v, int &value) override;
@@ -210,8 +211,9 @@ namespace program {
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
-    static LocationExpression * mkArrayApp(PVariable *v, Expression *e);
-    static LocationExpression * mkVariable(PVariable *v);
+    static LocationExpression * mkVariable(PVariable* v);
+    static LocationExpression * mkArrayApp(PVariable* v, Expression* e2);
+    static LocationExpression * mkFieldAccess(Expression *e, Expression* e2); 
 
   protected:
 

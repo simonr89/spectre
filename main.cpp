@@ -1,18 +1,21 @@
 #include <iostream>
 #include <string>
 #include "program/GclAnalyzer.hpp"
+#include "util/Options.hpp"
+
+void outputUsage() {
+  std::cout << "Usage: invgen <filename>" << std::endl;
+}
 
 int main(int argc, char *argv[]) {
   if (argc <= 1) {
-    if (argv[0]) {
-      std::cout << "Usage: " << argv[0] << " <filename>" << std::endl;
-    } else {
-      std::cout << "Usage: invgen <filename>" << std::endl;
-    }
+    outputUsage();
   } else {
-    std::string f = argv[1];
-    program::GclAnalyzer gcla;
-    gcla.parse(f);
+    if (util::Configuration::instance().setAllValues(argc, argv)) {
+      std::string inputFile = argv[argc - 1];
+      program::GclAnalyzer gcla;
+      gcla.parse(inputFile);
+    }
     return 0;
   }
 }

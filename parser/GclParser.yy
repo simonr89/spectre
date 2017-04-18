@@ -291,20 +291,20 @@ location:
                       }
                     }
 | ID LBRA expr RBRA { Variable *v = gcla.getVariable($1);
-                      if (v) {
-                        if (isArrayType(v->vtype())) {
-                          if ($3->etype() == Type::TY_INTEGER) {
-                            $$ = LocationExpression::mkArrayApp(static_cast<PVariable*>(v), $3);
-                          } else {
-                            error(@1, "Array index does not have type int");
-                          }
-                        } else {
-                          error(@1, "Not an array");
-                        }
-                      } else {
-                        error(@1, "Undeclared variable");
-                      }
-                    }
+                              if (v) {
+                                if (isArrayType(v->vtype())) {
+                                  if ($3->etype() == Type::TY_INTEGER) {
+                                    $$ = LocationExpression::mkArrayApp(static_cast<PVariable*>(v), $3);
+                                  } else {
+                                    error(@1, "Array index does not have type int");
+                                  }
+                                } else {
+                                  error(@1, "Not an array");
+                                }
+                              } else {
+                                error(@1, "Undeclared variable");
+                              }
+                            }
 | location DOT ID { $$ = nullptr; }
 ;
 

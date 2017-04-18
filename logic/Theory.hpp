@@ -18,15 +18,13 @@ namespace logic {
     INT_LESS,
     INT_LESS_EQUAL,
 
-    //ARRAY_SELECT,
-    //ARRAY_STORE
+    ARRAY_SELECT,
+    ARRAY_STORE
   };
   
   class Theory {
   public:
 
-    static unsigned getArity(InterpretedSymbol s);
-    static std::string getString(InterpretedSymbol s);
     static Symbol* getSymbol(InterpretedSymbol s);
 
     static FuncTerm* integerConstant(int i);
