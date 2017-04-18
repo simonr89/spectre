@@ -33,6 +33,12 @@ namespace logic {
     case InterpretedSymbol::INT_LESS_EQUAL:
       static Symbol lesseq("$lesseq", { Sort::intSort(), Sort::intSort() }, Sort::boolSort(), false);
       return &lesseq;
+    case InterpretedSymbol::ARRAY_SELECT:
+      static Symbol select("$select", { Sort::defaultSort(), Sort::defaultSort() }, Sort::defaultSort(), false);
+      return &select;
+    case InterpretedSymbol::ARRAY_STORE:
+      static Symbol store("$store", { Sort::defaultSort(), Sort::defaultSort(), Sort::defaultSort() }, Sort::defaultSort(), false);
+      return &store;
     default:
       assert(0); //unreachable
       return nullptr;

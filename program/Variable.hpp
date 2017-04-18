@@ -44,22 +44,7 @@ namespace program {
   public:
   
     /** the main constructors */
-    PVariable(const std::string& name, Type ty) :
-      Variable(name, ty),
-      _updated(false),
-      _monotonic(false),
-      _strict(false),
-      _dense(false)
-    {
-      if (isArrayType(ty)) {
-        _symbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
-        _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
-      } else {
-        _symbol = new logic::Symbol(name, { }, toSort(ty));
-        _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
-
-      }
-    }
+    PVariable(const std::string& name, Type ty);
 
     ~PVariable() {}
 

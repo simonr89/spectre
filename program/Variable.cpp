@@ -5,12 +5,40 @@
 
 #include "Variable.hpp"
 
+#include <iostream>
 #include <cassert>
 #include "logic/Theory.hpp"
+#include "util/Options.hpp"
 
 namespace program {
 
+  using namespace logic;
+
   Variable::~Variable() {}
+
+  /** the main constructors */
+  PVariable::PVariable(const std::string& name, Type ty) :
+    Variable(name, ty),
+    _updated(false),
+    _monotonic(false),
+    _strict(false),
+    _dense(false)
+  {
+    if (isArrayType(ty)) {
+      if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
+        // representation of arrays as function
+        _symbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
+        _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
+      } else {
+        // representation of using array axioms
+        _symbol = new logic::Symbol(name, {}, logic::Sort::arraySort());
+        _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort() }, logic::Sort::arraySort());
+      }
+    } else {
+      _symbol = new logic::Symbol(name, { }, toSort(ty));
+      _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
+    }
+  }
 
   void PVariable::recordScalarIncrement(int n)
   {
@@ -35,46 +63,65 @@ namespace program {
     return arity;
   }
 
-  /*Kernel::BaseType * Variable::typeOfSymbol(bool extended)
-  {
-    return mkBaseType(arityOfSymbol(extended), _type);
-    }*/
-
-  logic::Term* PVariable::toTerm(logic::Term* index)
+  Term* PVariable::toTerm(Term* index)
   {
     assert(_type == Type::TY_BOOLEAN || _type == Type::TY_INTEGER);
     if (_updated && index) {
       // extended symbol (and the variable is not constant)
       if (_type == Type::TY_BOOLEAN) {
-        return new logic::PredTerm(logic::Symbol::getSymbol(_name, 1), { index });
+        return new PredTerm(Symbol::getSymbol(_name, 1), { index });
       } else {
-        return new logic::FuncTerm(logic::Symbol::getSymbol(_name, 1), { index });
+        return new FuncTerm(Symbol::getSymbol(_name, 1), { index });
       }
     } else {
       if (_type == Type::TY_BOOLEAN) {
-        return new logic::PredTerm(logic::Symbol::getSymbol(_name, 0), { });
+        return new PredTerm(Symbol::getSymbol(_name, 0), { });
       } else {
-        return new logic::FuncTerm(logic::Symbol::getSymbol(_name, 0), { });
+        return new FuncTerm(Symbol::getSymbol(_name, 0), { });
       }
     }
   }
 
-  logic::Term* PVariable::toTerm(logic::Term* index, logic::Term* arrayIndex)
+  Term* PVariable::toTerm(Term* index, Term* arrayIndex)
   {
     assert(_type == Type::TY_BOOLEAN_ARRAY || _type == Type::TY_INTEGER_ARRAY);
 
-    if (_updated && index) {
-      // extended symbol (and the array is not constant)
-      if (_type == Type::TY_BOOLEAN) {
-        return new logic::PredTerm(logic::Symbol::getSymbol(_name, 2), { index, arrayIndex });
+    Symbol *sym = nullptr;
+    
+    if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
+      // representation of arrays as function
+      sym = Symbol::getSymbol(_name, _updated && index ? 2 : 1);
+      assert(sym);
+      if (_updated && index) {
+        if (_type == Type::TY_BOOLEAN) {
+          return new PredTerm(sym, { index, arrayIndex });
+        } else {
+          return new FuncTerm(sym, { index, arrayIndex });
+        }
       } else {
-        return new logic::FuncTerm(logic::Symbol::getSymbol(_name, 2), { index, arrayIndex });
+        if (_type == Type::TY_BOOLEAN) {
+          return new PredTerm(sym, { arrayIndex });
+        } else {
+          return new FuncTerm(sym, { arrayIndex });
+        }
       }
     } else {
-      if (_type == Type::TY_BOOLEAN) {
-        return new logic::PredTerm(logic::Symbol::getSymbol(_name, 1), { arrayIndex });
+      // representation using array axioms
+      Term *array;
+      sym = Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT);
+      assert(sym);
+      
+      if (_updated && index) {
+        array = new FuncTerm(Symbol::getSymbol(_name, 1), { index });
       } else {
-        return new logic::FuncTerm(logic::Symbol::getSymbol(_name, 1), { arrayIndex });
+        array = new FuncTerm(Symbol::getSymbol(_name, 0), {});
+      }
+      assert(array);
+
+      if (_type == Type::TY_BOOLEAN) {
+        return new PredTerm(sym, { array, arrayIndex });
+      } else {
+        return new FuncTerm(sym, { array, arrayIndex });
       }
     }
   }
