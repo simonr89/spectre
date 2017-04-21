@@ -23,7 +23,7 @@ namespace logic {
     static Sort* defaultSort() { return fetchOrDeclare("$i", false); }
     static Sort* boolSort() { return fetchOrDeclare("$o", false); }
     static Sort* intSort() { return fetchOrDeclare("$int", false); }
-    static Sort* arraySort() { return fetchOrDeclare("$array", false); }
+    static Sort* intArraySort() { return fetchOrDeclare("$array($int, $int)", false); }
     
 
     class const_iterator {

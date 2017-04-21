@@ -5,6 +5,7 @@
 
 #include "logic/Signature.hpp"
 #include "logic/Theory.hpp"
+#include "util/Options.hpp"
 
 using namespace logic;
 
@@ -289,15 +290,31 @@ namespace program {
         continue;
 
       if (isArrayType(v->vtype())) {
-        for (auto itAsg = c->assignments().begin();
-             itAsg != c->assignments().end();
-             ++itAsg) {
-          a = *itAsg;
-          if (a->hasLhs(*v))
-            conj.push_front(arrayAssignment(a, i, iPlusOne));
+        if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
+          // representation of arrays as functions
+          for (auto itAsg = c->assignments().begin();
+               itAsg != c->assignments().end();
+               ++itAsg) {
+            a = *itAsg;
+            if (a->hasLhs(*v))
+              conj.push_front(arrayAssignment(a, i, iPlusOne));
+          }
+          conj.push_front(arrayNonAssignment(v, c, i, iPlusOne));
+        } else {
+          // representation using array axiomatization
+          Term *store = v->toTerm(i);
+          for (auto itAsg = c->assignments().begin();
+               itAsg != c->assignments().end();
+               ++itAsg) {
+            a = *itAsg;
+            if (a->hasLhs(*v))
+              store = new FuncTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_STORE),
+                                   { store, a->lhs()->child(0)->toTerm(i), a->rhs()->toTerm(i) });
+          }
+          conj.push_front(new EqualityFormula(true,
+                                              v->toTerm(iPlusOne),
+                                              store));
         }
-        // arrayNonAssignment needlessly complicates the prover's life 
-        conj.push_front(arrayNonAssignment(v, c, i, iPlusOne));
       } else {
         // only one assignment to a given scalar variable is possible
         // in a command (unlike array variables)
@@ -359,7 +376,6 @@ namespace program {
   }
 
   /** Given an array variable v, return the formula forall j, cond => v(i+1, j) = v(i, j) */
-  // TODO Currently not used
   Formula* Properties::arrayNonAssignment(PVariable *v,
                                           GuardedCommand *gc,
                                           Term* index,

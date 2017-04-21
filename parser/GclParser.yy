@@ -86,7 +86,7 @@ using namespace program;
 %type <program::Type> type_id
 %type <program::Expression*> expr
 %type <program::FExpression*> formula
-%type <program::LocationExpression*> location
+%type <program::FExpression*> location
 %type <program::GuardedCommandCollection*> guarded_command_list
 %type <program::GuardedCommand*> guarded_command
 %type <program::Assignment*> assignment
@@ -275,7 +275,7 @@ assignment_list:
 ;
 
 assignment:
-  location ASSIGN expr { $$ = new Assignment($1, $3); $$->recordLhsInfo(); }
+  location ASSIGN expr { $$ = new Assignment(static_cast<LocationExpression*>($1), $3); $$->recordLhsInfo(); }
 ;
 
 location:
@@ -284,27 +284,31 @@ location:
                         if (isArrayType(v->vtype())) {
                           error(@1, "Not a valid location");
                         } else {
-                          $$ = LocationExpression::mkVariable(static_cast<PVariable*>(v));
+                          if (v->isProgramVariable()) {
+                            $$ = LocationExpression::mkProgramVariable(static_cast<PVariable*>(v));
+                          } else {
+                            $$ = VariableExpression::mkQuantifiedVariable(static_cast<QVariable*>(v));
+                          }
                         }
                       } else {
                         error(@1, "Undeclared variable");
                       }
                     }
 | ID LBRA expr RBRA { Variable *v = gcla.getVariable($1);
-                              if (v) {
-                                if (isArrayType(v->vtype())) {
-                                  if ($3->etype() == Type::TY_INTEGER) {
-                                    $$ = LocationExpression::mkArrayApp(static_cast<PVariable*>(v), $3);
-                                  } else {
-                                    error(@1, "Array index does not have type int");
-                                  }
-                                } else {
-                                  error(@1, "Not an array");
-                                }
-                              } else {
-                                error(@1, "Undeclared variable");
-                              }
-                            }
+                      if (v) {
+                        if (isArrayType(v->vtype())) {
+                          if ($3->etype() == Type::TY_INTEGER) {
+                            $$ = LocationExpression::mkArrayApp(static_cast<PVariable*>(v), $3);
+                          } else {
+                            error(@1, "Array index does not have type int");
+                          }
+                        } else {
+                          error(@1, "Not an array");
+                        }
+                      } else {
+                        error(@1, "Undeclared variable");
+                      }
+                    }
 | location DOT ID { $$ = nullptr; }
 ;
 

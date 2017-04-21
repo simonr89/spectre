@@ -3,6 +3,7 @@
 #include <cassert>
 #include "logic/Sort.hpp"
 #include "logic/Theory.hpp"
+#include "util/Options.hpp"
 
 namespace program {
   
@@ -156,10 +157,16 @@ namespace program {
     return nullptr;
   }
 
+  logic::Term* VariableExpression::toTerm(logic::Term* index)
+  {
+    return _var->toTerm(index);
+  }
+
   logic::Term* BooleanExpression::toTerm(logic::Term* index)
   {
     //TODO check original implementation
     //return toFormula(index);
+    assert(0);
     return nullptr;
   }
 
@@ -228,6 +235,11 @@ namespace program {
     }
     assert(0); // unreachable
     return nullptr;
+  }
+
+  logic::Formula* VariableExpression::toFormula(logic::Term* index)
+  {
+    return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
   }
 
   logic::Formula* QuantifiedExpression::toFormula(logic::Term* index)
@@ -422,17 +434,19 @@ namespace program {
   {
     if (!isArrayType(v->vtype()) || e->etype() != Type::TY_INTEGER)
       return nullptr;
-    LocationExpression* r = new LocationExpression(LocationExprKind::EXP_ARRAY_LOC, 1);
+    LocationExpression* r = new LocationExpression(LocationExprKind::EXP_ARRAY_LOC, v, 1);
     r->_children[0] = e;
-    r->_var = v;
     return r;
   }
 
-  LocationExpression* LocationExpression::mkVariable(PVariable* v)
+  LocationExpression* LocationExpression::mkProgramVariable(PVariable* v)
   {
-    LocationExpression* r = new LocationExpression(LocationExprKind::EXP_VAR_LOC);
-    r->_var = v;
-    return r;
+    return new LocationExpression(LocationExprKind::EXP_VAR_LOC, v);
+  }
+
+  VariableExpression* VariableExpression::mkQuantifiedVariable(QVariable* v)
+  {
+    return new VariableExpression(v); 
   }
 
   QuantifiedExpression* QuantifiedExpression::mkForall(QVariable *v, Expression *e)
@@ -525,6 +539,12 @@ namespace program {
       ostr << _var->name();
       break;
     }
+    return ostr;
+  }
+
+  std::ostream& VariableExpression::toStream(std::ostream& ostr) const
+  {
+    ostr << _var->name();
     return ostr;
   }
 

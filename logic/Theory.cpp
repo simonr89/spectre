@@ -34,10 +34,10 @@ namespace logic {
       static Symbol lesseq("$lesseq", { Sort::intSort(), Sort::intSort() }, Sort::boolSort(), false);
       return &lesseq;
     case InterpretedSymbol::ARRAY_SELECT:
-      static Symbol select("$select", { Sort::defaultSort(), Sort::defaultSort() }, Sort::defaultSort(), false);
+      static Symbol select("$select", { Sort::intArraySort(), Sort::intSort() }, Sort::intSort(), false);
       return &select;
     case InterpretedSymbol::ARRAY_STORE:
-      static Symbol store("$store", { Sort::defaultSort(), Sort::defaultSort(), Sort::defaultSort() }, Sort::defaultSort(), false);
+      static Symbol store("$store", { Sort::intArraySort(), Sort::intSort(), Sort::intSort() }, Sort::intArraySort(), false);
       return &store;
     default:
       assert(0); //unreachable

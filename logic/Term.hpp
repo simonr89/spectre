@@ -54,6 +54,7 @@ namespace logic {
       _head(head),
       _subterms(subterms)
     {
+      assert(head);
       assert(!head->isPredicateSymbol());
       assert(head->arity() == subterms.size());
     }
@@ -77,6 +78,7 @@ namespace logic {
       _head(head),
       _subterms(subterms)
     {
+      assert(head);
       assert(head->isPredicateSymbol());
       assert(head->arity() == subterms.size());
     }

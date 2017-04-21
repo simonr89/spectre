@@ -21,8 +21,10 @@ namespace program {
 
   class Variable {
   public:
-    virtual ~Variable() = 0;
+    virtual bool isProgramVariable() = 0;
 
+    virtual logic::Term *toTerm(logic::Term* i) = 0;
+    
     /** the name of this variable */
     const std::string& name() { return _name; }
 
@@ -47,6 +49,8 @@ namespace program {
     PVariable(const std::string& name, Type ty);
 
     ~PVariable() {}
+
+    bool isProgramVariable() { return true; }
 
     /** true if the variable is on the LHS of at least one assignment in
         the loop */
@@ -147,6 +151,10 @@ namespace program {
     }
 
     ~QVariable() {}
+
+    bool isProgramVariable() { return false; }
+
+    logic::Term *toTerm(logic::Term* i) { return _lvariable; }
 
     logic::LVariable* toVar() { return _lvariable; }
     

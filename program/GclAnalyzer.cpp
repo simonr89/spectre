@@ -1,6 +1,8 @@
 #include "GclAnalyzer.hpp"
 
+#include <fstream>
 #include "program/Properties.hpp"
+#include "util/Options.hpp"
 
 namespace program {
 
@@ -31,6 +33,7 @@ namespace program {
 
   QVariable* GclAnalyzer::openLocalScope(const std::string& name, Type t)
   {
+    // TODO prevent variable capture (disallow same name)
     QVariable *v = new QVariable(name, t);
     _localScopes.push_front(v);
     return v;
@@ -112,7 +115,20 @@ namespace program {
     
     //saturation/symbol elimination
     props.analyze();
-    props.outputTPTP(std::cout);
+
+    std::string path = util::Configuration::instance().outputFile().getValue();
+    if (path == "") {
+      props.outputTPTP(std::cout);
+    } else {
+      std::ofstream f;
+      f.open(path);
+      if (f.is_open()) {
+        props.outputTPTP(f);
+        f.close();
+      } else {
+        std::cerr << "Unable to open file " << path << std::endl;
+      }
+    }
   }
 
   void GclAnalyzer::printInfo(std::ostream& ostr, GuardedCommandCollection &c) {

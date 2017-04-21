@@ -211,26 +211,53 @@ namespace program {
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
-    static LocationExpression * mkVariable(PVariable* v);
+    static LocationExpression * mkProgramVariable(PVariable* v);
     static LocationExpression * mkArrayApp(PVariable* v, Expression* e2);
     static LocationExpression * mkFieldAccess(Expression *e, Expression* e2); 
 
   protected:
 
-    LocationExpression(LocationExprKind kind) :
+    LocationExpression(LocationExprKind kind, PVariable *v) :
       Expression(),
-      _kind(kind)
+      _kind(kind),
+      _var(v)
     {}
 
-    LocationExpression(LocationExprKind kind, unsigned arity) :
+    LocationExpression(LocationExprKind kind, PVariable *v, unsigned arity) :
       Expression(arity),
-      _kind(kind)
+      _kind(kind),
+      _var(v)
     {}
 
     LocationExprKind _kind;
   
     PVariable *_var;
   }; // class LocationExpression
+
+  class VariableExpression : public FExpression
+  {
+  public:
+    Type etype() { return _var->vtype(); }
+
+    std::ostream& toStream(std::ostream& ostr) const override;
+
+    /** Relativised expression index at iteration, as a vampire
+        predicate. */
+    logic::Term* toTerm(logic::Term* i) override;
+
+    logic::Formula* toFormula(logic::Term* i) override;
+    
+    /** Static initializers, return nullptr if the sub-expressions are
+        ill-typed */
+    static VariableExpression * mkQuantifiedVariable(QVariable *v);
+  protected:
+    VariableExpression(QVariable *v) :
+      Expression(),
+      _var(v)
+    {}
+    
+    QVariable* _var;
+  }; // class VariableExpression
   
   class QuantifiedExpression : public FExpression
   {
