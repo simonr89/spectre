@@ -1,46 +1,52 @@
+EXEC=invgen
+OBJDIR=obj
+SRCDIR=src
+# SRC=main.cpp\
+#     logic/Formula.cpp\
+#     logic/Sort.cpp\
+#     logic/Signature.cpp\
+#     logic/Term.cpp\
+#     logic/Theory.cpp\
+#     parser/GclParser.cpp\
+#     parser/GclScanner.cpp\
+#     program/Expression.cpp\
+#     program/GclAnalyzer.cpp\
+#     program/GuardedCommandCollection.cpp\
+#     program/Properties.cpp\
+#     program/Variable.cpp\
+#     program/Type.cpp\
+#     util/Options.cpp
+PARSER_SRC=$(SRCDIR)/parser/GclParser.cpp
+PARSER_HDR=$(SRCDIR)/parser/GclParser.hpp
+SCANNER_SRC=$(SRCDIR)/parser/GclScanner.cpp
+SRC := $(wildcard $(SRCDIR)/**/*.cpp) $(wildcard $(SRCDIR)/*.cpp) $(PARSER_SRC) $(SCANNER_SRC)
+OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 CXX=g++
-CXXFLAGS=-std=c++11 $(XFLAGS) -Wall -I.
+CXXFLAGS=-std=c++11 $(XFLAGS) -Wall -I$(SRCDIR)
 LDFLAGS=
 BISON=bison
 FLEX=flex
-EXEC=invgen
-SRC=main.cpp\
-    logic/Formula.cpp\
-    logic/Sort.cpp\
-    logic/Signature.cpp\
-    logic/Term.cpp\
-    logic/Theory.cpp\
-    parser/GclParser.cpp\
-    parser/GclScanner.cpp\
-    program/Expression.cpp\
-    program/GclAnalyzer.cpp\
-    program/GuardedCommandCollection.cpp\
-    program/Properties.cpp\
-    program/Variable.cpp\
-    program/Type.cpp\
-    util/Options.cpp
-OBJ=$(SRC:.cpp=.o)
 
-all: $(EXEC) parser_src
+all: $(PARSER_SRC) $(SCANNER_SRC) $(EXEC)
 
 invgen: $(OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 
-parser/GclParser.cpp parser/GclParser.hpp: parser/GclParser.yy
-	$(BISON) --defines=parser/GclParser.hpp -o parser/GclParser.cpp parser/GclParser.yy
+$(PARSER_SRC) $(PARSER_HDR): $(SRCDIR)/parser/GclParser.yy
+	$(BISON) --defines=$(PARSER_HDR) -o $(PARSER_SRC) $^
 
-parser/GclScanner.cpp: parser/GclScanner.ll
-	$(FLEX) -o $@ parser/GclScanner.ll
+$(SCANNER_SRC): $(SRCDIR)/parser/GclScanner.ll
+	$(FLEX) -o $@ $^
 
-.PHONY: clean parser_src cleanparser
+.PHONY: clean cleanparser
 
 clean:
 	rm -fr $(OBJ)
 
-parser_src: parser/GclParser.cpp parser/GclScanner.cpp
+mrproper: clean
+	rm $(EXEC)
+	rm $(PARSER_SRC) $(SCANNER_SRC) $(SRCDIR)/parser/stack.hh
 
-cleanparser:
-	rm parser/GclParser.cpp parser/GclParser.hpp parser/GclScanner.cpp parser/stack.hh
-
-%.o: %.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	mkdir -p $(@D)
 	$(CXX) -o $@ -c $< $(CXXFLAGS)

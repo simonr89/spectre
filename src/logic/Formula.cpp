@@ -17,9 +17,9 @@ namespace logic {
   std::string EqualityFormula::toTPTP() const
   {
     if (_polarity)
-      return "(" + _left->toTPTP() + " = " + _right->toTPTP() + ")";
+      return _left->toTPTP() + " = " + _right->toTPTP();
     else
-      return "(" + _left->toTPTP() + " ~= " + _right->toTPTP() + ")";
+      return _left->toTPTP() + " != " + _right->toTPTP();
   }
 
   std::string ConjunctionFormula::toTPTP() const
