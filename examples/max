@@ -1,0 +1,11 @@
+int [] a, b;
+int i, alength, blength;
+
+requires blength <= alength;
+requires i == 0;
+ensures forall int i, 0 <= i & i < blength ==> a[i] >= 0 & (a[i] == b[i] | a[i] == 0);
+
+while (i < blength) do
+:: b[i] >= 0 -> a[i] = b[i]; i = i + 1;
+:: true      -> a[i] = 0; i = i + 1;
+od
