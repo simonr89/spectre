@@ -1,21 +1,6 @@
 EXEC=invgen
 OBJDIR=obj
 SRCDIR=src
-# SRC=main.cpp\
-#     logic/Formula.cpp\
-#     logic/Sort.cpp\
-#     logic/Signature.cpp\
-#     logic/Term.cpp\
-#     logic/Theory.cpp\
-#     parser/GclParser.cpp\
-#     parser/GclScanner.cpp\
-#     program/Expression.cpp\
-#     program/GclAnalyzer.cpp\
-#     program/GuardedCommandCollection.cpp\
-#     program/Properties.cpp\
-#     program/Variable.cpp\
-#     program/Type.cpp\
-#     util/Options.cpp
 PARSER_SRC=$(SRCDIR)/parser/GclParser.cpp
 PARSER_HDR=$(SRCDIR)/parser/GclParser.hpp
 SCANNER_SRC=$(SRCDIR)/parser/GclScanner.cpp
