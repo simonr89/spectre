@@ -6,6 +6,7 @@
 #include "logic/Signature.hpp"
 #include "logic/Theory.hpp"
 #include "util/Options.hpp"
+#include "util/Output.hpp"
 
 using namespace logic;
 
@@ -45,8 +46,9 @@ namespace program {
     loopConditionHypothesis();
   }
 
-  void Properties::outputTPTP(std::ostream& ostr)
+  void Properties::outputTPTP()
   {
+    std::ostream& ostr = util::Output::stream();
     std::list<Formula*> goalUnits {};
     if (! _postconditions.empty()) {
       // add negated loop condition to assumptions + negated goal (in non extended language)

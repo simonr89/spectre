@@ -3,7 +3,6 @@
 
 #include <list>
 #include <map>
-#include <ostream>
 #include "logic/Formula.hpp"
 #include "logic/Sort.hpp"
 #include "logic/Term.hpp"
@@ -33,7 +32,7 @@ namespace program {
 
     void analyze();
 
-    void outputTPTP(std::ostream& ostr);
+    void outputTPTP();
 
   protected:
     GuardedCommandCollection& _loop;

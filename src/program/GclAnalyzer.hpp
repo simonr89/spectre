@@ -10,7 +10,6 @@
 #ifndef __GclAnalyzer__
 #define __GclAnalyzer__
 
-#include <ostream>
 #include <string>
 #include <list>
 #include <map>
@@ -79,7 +78,7 @@ namespace program {
     // looks for local scoped variables first (for quantified formulas) then program variables
     Variable* getVariable(const std::string& name);
 
-    void printInfo(std::ostream& ostr, GuardedCommandCollection &c);
+    void printInfo(GuardedCommandCollection &c);
 
     void buildProperties(GuardedCommandCollection &c);
 

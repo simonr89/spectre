@@ -1,8 +1,9 @@
 #include "GclAnalyzer.hpp"
 
-#include <fstream>
+#include <ostream>
+
 #include "program/Properties.hpp"
-#include "util/Options.hpp"
+#include "util/Output.hpp"
 
 namespace program {
 
@@ -14,7 +15,7 @@ namespace program {
     scan_begin();
     parser::GclParser parser(*this);
     parser.set_debug_level(false); // no traces
-    int res = parser.parse ();
+    int res = parser.parse();
     scan_end();
     
     return res;
@@ -96,10 +97,12 @@ namespace program {
   }
 
   void GclAnalyzer::buildProperties(GuardedCommandCollection &c) {
+    
+    
     // final bit of light-weight analysis on monotonic scalars
     c.finalizeGuards();
     densityAndStrictness(c);
-    printInfo(std::cout, c);
+    printInfo(c);
 
     // creating units
     Properties props(c, _variables);
@@ -113,32 +116,23 @@ namespace program {
       props.addPostcondition(*it);
     }
     
-    //saturation/symbol elimination
     props.analyze();
-
-    std::string path = util::Configuration::instance().outputFile().getValue();
-    if (path == "") {
-      props.outputTPTP(std::cout);
-    } else {
-      std::ofstream f;
-      f.open(path);
-      if (f.is_open()) {
-        props.outputTPTP(f);
-        f.close();
-      } else {
-        std::cerr << "Unable to open file " << path << std::endl;
-      }
-    }
+    props.outputTPTP();
   }
 
-  void GclAnalyzer::printInfo(std::ostream& ostr, GuardedCommandCollection &c) {
-    ostr << "--- Parsed loop ---\n\n";
-    ostr << c;
-    ostr << "\n\n--- Table of symbols ---\n\n";
+  void GclAnalyzer::printInfo(GuardedCommandCollection &c) {
+    //std::ostream& ostr = util::Output::stream();
+
+    // TODO make a 'comment' manipulator for this
+    /*ostr << util::Output::comment
+         << "--- Parsed loop ---\n\n"
+         << c
+         << util::Output::comment
+         << "\n\n--- Table of symbols ---\n\n";
     for (auto it = _variables.begin(); it != _variables.end(); ++it) {
-      ostr << *(*it).second << "\n";
+      ostr << util::Output::comment << *(*it).second << "\n";
     }
-    ostr << std::endl;
+    ostr << std::flush;*/
   }
 
   /* The following are declared in Parse/GclParser.ll

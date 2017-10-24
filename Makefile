@@ -12,7 +12,7 @@ LDFLAGS=
 BISON=bison
 FLEX=flex
 
-all: $(PARSER_SRC) $(SCANNER_SRC) $(EXEC)
+all: $(PARSER_SRC) $(PARSER_HDR) $(SCANNER_SRC) $(EXEC)
 
 invgen: $(OBJ)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
