@@ -50,7 +50,8 @@ namespace program {
   {
     std::ostream& ostr = util::Output::stream();
     std::list<Formula*> goalUnits {};
-    if (! _postconditions.empty()) {
+    if (! _postconditions.empty() &&
+        util::Configuration::instance().mainMode().getValue() == "verification") {
       // add negated loop condition to assumptions + negated goal (in non extended language)
       Term* i = nullptr;
       Formula *f = _loop.loopCondition()->toFormula(i);
@@ -68,8 +69,13 @@ namespace program {
     }
     
     for (auto it = Symbol::sigBegin(); it != Symbol::sigEnd(); ++it) {
-      if ((*it).isUserDefined())
+      if ((*it).isUserDefined()) {
         ostr << (*it).declareTPTP("decl" + std::to_string(i++)) << std::endl;
+        if ((*it).isColored() &&
+            util::Configuration::instance().mainMode().getValue() == "generation") {
+          ostr << (*it).declareVampireColor() << std::endl;
+        }
+      }
     }
 
     for (auto it = _properties.begin(); it != _properties.end(); ++it) {

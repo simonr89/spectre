@@ -24,5 +24,15 @@ namespace logic {
     }
     return s;
   }
+
+  std::string Symbol::declareVampireColor() const {
+    std::string s = "vampire(symbol, ";
+    s += "function, "; // predicate or function
+    s += _name + ", ";
+    s += std::to_string(arity()) + ", "; // arity
+    s += _colored ? "left" : "skip";
+    s += ").";
+    return s;
+  }
   
 }

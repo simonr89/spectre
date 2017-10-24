@@ -47,6 +47,8 @@ namespace logic {
 
     std::string declareTPTP(std::string decl) const;
 
+    std::string declareVampireColor() const;
+
     static Symbol* getSymbol(std::string name, unsigned arity);
 
     class const_iterator {
