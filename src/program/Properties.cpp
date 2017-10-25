@@ -407,7 +407,7 @@ namespace program {
                                       v->toTerm(indexPlusOne, j),
                                       v->toTerm(index, j));
 
-    Formula *f = new ImplicationFormula(new ConjunctionFormula(conj), eq);
+    Formula *f = conj.empty() ? eq : new ImplicationFormula(new ConjunctionFormula(conj), eq);
     
     return new UniversalFormula({ j }, f);
   }

@@ -23,7 +23,9 @@ namespace logic {
   }
 
   std::string ConjunctionFormula::toTPTP() const
-  {   
+  {
+    if (_conj.size() == 0)
+      return "$true";
     std::string str = "(";
     for (unsigned i = 0; i < _conj.size(); i++) {
       str += _conj[i]->toTPTP();
@@ -35,6 +37,8 @@ namespace logic {
 
   std::string DisjunctionFormula::toTPTP() const
   {
+    if (_disj.size() == 0)
+      return "$false";
     std::string str = "(";
     for (unsigned i = 0; i < _disj.size(); i++) {
       str += _disj[i]->toTPTP();

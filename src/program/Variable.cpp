@@ -25,15 +25,15 @@ namespace program {
       if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
         // representation of arrays as functions
         _symbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
-        _extendedSymbol = new logic::Symbol(name + "_ext", { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
+        _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
       } else {
         // representation of arrays using array axioms
         _symbol = new logic::Symbol(name, {}, logic::Sort::intArraySort());
-        _extendedSymbol = new logic::Symbol(name + "_ext", { logic::Sort::intSort() }, logic::Sort::intArraySort());
+        _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort() }, logic::Sort::intArraySort());
       }
     } else {
       _symbol = new logic::Symbol(name, {}, toSort(ty));
-      _extendedSymbol = new logic::Symbol(name + "_ext", { logic::Sort::intSort() }, toSort(ty));
+      _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort() }, toSort(ty));
     }
     _extendedSymbol->makeColored();
   }
