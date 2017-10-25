@@ -41,9 +41,11 @@ namespace program {
     monotonicityProps();
     translateAssignments();
     updatePredicatesOfArrays();
-    symbolEliminationAxioms();
     loopCounterHypothesis();
     loopConditionHypothesis();
+    if (util::Configuration::instance().mainMode().getValue() == "generation") {
+      symbolEliminationAxioms();
+    }
   }
 
   void Properties::outputTPTP()

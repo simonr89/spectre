@@ -35,6 +35,7 @@ namespace program {
       _symbol = new logic::Symbol(name, {}, toSort(ty));
       _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
     }
+    _extendedSymbol->makeColored();
   }
 
   void PVariable::recordScalarIncrement(int n)
