@@ -14,7 +14,7 @@ FLEX=flex
 
 all: $(PARSER_SRC) $(PARSER_HDR) $(SCANNER_SRC) $(EXEC)
 
-invgen: $(OBJ)
+$(EXEC): $(OBJ)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 
 $(PARSER_SRC) $(PARSER_HDR): $(SRCDIR)/parser/GclParser.yy
@@ -23,7 +23,11 @@ $(PARSER_SRC) $(PARSER_HDR): $(SRCDIR)/parser/GclParser.yy
 $(SCANNER_SRC): $(SRCDIR)/parser/GclScanner.ll
 	$(FLEX) -o $@ $^
 
-.PHONY: clean cleanparser
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	mkdir -p $(@D)
+	$(CXX) -o $@ -c $< $(CXXFLAGS)
+
+.PHONY: clean mrproper
 
 clean:
 	rm -fr $(OBJ)
@@ -32,7 +36,3 @@ mrproper: clean
 	rm $(EXEC)
 	rm $(PARSER_SRC) $(SCANNER_SRC) $(SRCDIR)/parser/stack.hh
 	find $(OBJDIR) -depth -type d -empty -exec rmdir "{}" \;
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	mkdir -p $(@D)
-	$(CXX) -o $@ -c $< $(CXXFLAGS)
