@@ -18,12 +18,8 @@ namespace program {
   }
 
   void Properties::addPostcondition(FExpression *e)
-  {
-    // empty term list as index so that e->toFormula(i) evaluates to an
-    // expression in the non-extended language)
-    Term* i = nullptr;
-    
-    _postconditions.push_front(e->toFormula(i));
+  {   
+    _postconditions.push_front(e->toFormula(loopCounterSymbol()));
   }
 
   FuncTerm* Properties::loopCounterSymbol()
@@ -55,8 +51,7 @@ namespace program {
     if (! _postconditions.empty() &&
         util::Configuration::instance().mainMode().getValue() == "verification") {
       // add negated loop condition to assumptions + negated goal (in non extended language)
-      Term* i = nullptr;
-      Formula *f = _loop.loopCondition()->toFormula(i);
+      Formula *f = _loop.loopCondition()->toFormula(loopCounterSymbol());
       // this is an axiom only so that it is not output as invariant by the filtering mechanism
       goalUnits.push_front(new NegationFormula(f));
       
@@ -67,12 +62,13 @@ namespace program {
     unsigned i = 0;
     for (auto it = Sort::sortsBegin(); it != Sort::sortsEnd(); ++it) {
       if ((*it).isUserDefined())
-        ostr << (*it).declareTPTP("decl" + std::to_string(i++)) << std::endl;
+        ostr << (*it).declareTPTP("sort" + std::to_string(i++)) << std::endl;
     }
-    
+
+    i = 0;
     for (auto it = Symbol::sigBegin(); it != Symbol::sigEnd(); ++it) {
       if ((*it).isUserDefined()) {
-        ostr << (*it).declareTPTP("decl" + std::to_string(i++)) << std::endl;
+        ostr << (*it).declareTPTP("symb" + std::to_string(i++)) << std::endl;
         if ((*it).isColored() &&
             util::Configuration::instance().mainMode().getValue() == "generation") {
           ostr << (*it).declareVampireColor() << std::endl;
@@ -80,12 +76,14 @@ namespace program {
       }
     }
 
+    i = 0;
     for (auto it = _properties.begin(); it != _properties.end(); ++it) {
-      ostr << (*it)->declareTPTP("decl" + std::to_string(i++)) << std::endl;
+      ostr << (*it)->declareTPTP("prop" + std::to_string(i++)) << std::endl;
     }
 
+    i = 0;
     for (auto it = goalUnits.begin(); it != goalUnits.end(); ++it) {
-      ostr << (*it)->declareTPTP("decl" + std::to_string(i++)) << std::endl;
+      ostr << (*it)->declareTPTP("goal" + std::to_string(i++)) << std::endl;
     }
   }
 

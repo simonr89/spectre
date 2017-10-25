@@ -3,7 +3,7 @@ int i, alength, blength;
 
 requires blength <= alength;
 requires i == 0;
-ensures forall int k, 0 <= k & k < blength ==> a[k] == b[k] | a[k] == -b[k];
+ensures forall int k, 0 <= k & k < blength ==> (a[k] == b[k] | a[k] == -b[k]) & a[k] >= 0;
 
 while (i < blength) do
 :: b[i] >= 0 -> a[i] = b[i]; i = i + 1;
