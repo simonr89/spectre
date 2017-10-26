@@ -298,17 +298,7 @@ namespace program {
         continue;
 
       if (isArrayType(v->vtype())) {
-        if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
-          // representation of arrays as functions
-          for (auto itAsg = c->assignments().begin();
-               itAsg != c->assignments().end();
-               ++itAsg) {
-            a = *itAsg;
-            if (a->hasLhs(*v))
-              conj.push_front(arrayAssignment(a, i, iPlusOne));
-          }
-          conj.push_front(arrayNonAssignment(v, c, i, iPlusOne));
-        } else {
+        if (util::Configuration::instance().arrayTheory().getValue()) {
           // representation using array axiomatization
           Term *store = v->toTerm(i);
           for (auto itAsg = c->assignments().begin();
@@ -322,6 +312,16 @@ namespace program {
           conj.push_front(new EqualityFormula(true,
                                               v->toTerm(iPlusOne),
                                               store));
+        } else {
+          // representation of arrays as functions
+          for (auto itAsg = c->assignments().begin();
+               itAsg != c->assignments().end();
+               ++itAsg) {
+            a = *itAsg;
+            if (a->hasLhs(*v))
+              conj.push_front(arrayAssignment(a, i, iPlusOne));
+          }
+          conj.push_front(arrayNonAssignment(v, c, i, iPlusOne));
         }
       } else {
         // only one assignment to a given scalar variable is possible

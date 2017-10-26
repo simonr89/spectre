@@ -22,14 +22,14 @@ namespace program {
     _dense(false)
   {
     if (isArrayType(ty)) {
-      if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
-        // representation of arrays as functions
-        _symbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
-        _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
-      } else {
+      if (util::Configuration::instance().arrayTheory().getValue()) {
         // representation of arrays using array axioms
         _symbol = new logic::Symbol(name, {}, logic::Sort::intArraySort());
         _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort() }, logic::Sort::intArraySort());
+      } else {
+        // representation of arrays as functions
+        _symbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
+        _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
       }
     } else {
       _symbol = new logic::Symbol(name, {}, toSort(ty));
@@ -83,22 +83,7 @@ namespace program {
   {
     assert(isArrayType(_type));
     
-    if (util::Configuration::instance().arrayRepresentation().getValue() == "function") {
-      // representation of arrays as function
-      if (_updated && index) {
-        if (_type == Type::TY_BOOLEAN) {
-          return new PredTerm(_extendedSymbol, { index, arrayIndex });
-        } else {
-          return new FuncTerm(_extendedSymbol, { index, arrayIndex });
-        }
-      } else {
-        if (_type == Type::TY_BOOLEAN) {
-          return new PredTerm(_symbol, { arrayIndex });
-        } else {
-          return new FuncTerm(_symbol, { arrayIndex });
-        }
-      }
-    } else {
+    if (util::Configuration::instance().arrayTheory().getValue()) {
       // representation using array axioms
       Term *array;
       
@@ -113,6 +98,21 @@ namespace program {
         return new PredTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT), { array, arrayIndex });
       } else {
         return new FuncTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT), { array, arrayIndex });
+      }
+    } else {
+      // representation of arrays as function
+      if (_updated && index) {
+        if (_type == Type::TY_BOOLEAN) {
+          return new PredTerm(_extendedSymbol, { index, arrayIndex });
+        } else {
+          return new FuncTerm(_extendedSymbol, { index, arrayIndex });
+        }
+      } else {
+        if (_type == Type::TY_BOOLEAN) {
+          return new PredTerm(_symbol, { arrayIndex });
+        } else {
+          return new FuncTerm(_symbol, { arrayIndex });
+        }
       }
     }
   }
