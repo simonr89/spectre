@@ -1,5 +1,6 @@
 #include "GclAnalyzer.hpp"
 
+#include <fstream>
 #include <ostream>
 
 #include "program/Properties.hpp"
@@ -11,6 +12,13 @@ namespace program {
 
   int GclAnalyzer::parse(const std::string& f)
   {
+    // test readbility, easier than catching exception thrown by parser
+    std::ifstream istr(f);
+    if (!istr) {
+      std::cerr << "Unable to read file " << f << std::endl;
+      return 0;
+    }
+    
     file = f;
     scan_begin();
     parser::GclParser parser(*this);
