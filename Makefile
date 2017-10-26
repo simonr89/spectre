@@ -34,5 +34,5 @@ clean:
 
 mrproper: clean
 	rm $(EXEC)
-	rm $(PARSER_SRC) $(SCANNER_SRC) $(SRCDIR)/parser/stack.hh
+	rm $(PARSER_SRC) $(PARSER_HDR) $(SCANNER_SRC) $(SRCDIR)/parser/stack.hh
 	find $(OBJDIR) -depth -type d -empty -exec rmdir "{}" \;

@@ -27,7 +27,7 @@ void error(const parser::Location& l,
 
 %}
 %option noyywrap nounput batch debug noinput
-IDENT [a-zA-Z][a-zA-Z_0-9]*
+IDENT [a-z][a-zA-Z_0-9]*
 NUM   [+-]?[0-9]+
 BLANK [ \t]
 
