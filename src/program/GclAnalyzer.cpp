@@ -132,14 +132,21 @@ namespace program {
     std::ostream& ostr = util::Output::stream();
 
     ostr << util::Output::comment
-         << "--- Parsed loop ---\n\n"
+         << "-------------------------------------------------\n"
+         << " This file was generated automatically by INVGEN \n"
+         << "-------------------------------------------------\n"
+         << '\n'
+         << "------------------ Parsed loop ------------------\n"
          << c
-         << "\n\n--- Table of symbols ---\n\n";
+         << "-------------------------------------------------\n"
+         << '\n'
+         << "--------------- Table of symbols ----------------\n";
     for (auto it = _variables.begin(); it != _variables.end(); ++it) {
-      ostr << util::Output::comment << *(*it).second << "\n";
+      ostr << *(*it).second << "\n";
     }
-    ostr << util::Output::nocomment;
-    ostr << std::endl;
+    ostr << "-------------------------------------------------\n"
+         << util::Output::nocomment
+         << std::endl;
   }
 
   /* The following are declared in Parse/GclParser.ll

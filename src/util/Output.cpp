@@ -20,9 +20,8 @@ namespace util {
     if (path == "") {
       _stream = &std::cout;
     } else {
-      _stream = new std::ofstream();
-      static_cast<std::ofstream*>(_stream)->open(path);
-      if (!static_cast<std::ofstream*>(_stream)->is_open()) {
+      _stream = new std::ofstream(path, std::ofstream::out);
+      if (!*_stream) {
         std::cerr << "Unable to open file " << path << std::endl;
         return false;
       }

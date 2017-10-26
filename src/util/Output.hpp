@@ -19,6 +19,8 @@ namespace util {
     // must be called before exiting
     static void close();
 
+    // stream manipulators to add '%' at the start of each line (TPTP
+    // comments)
     static std::ostream& comment(std::ostream& str);
     static std::ostream& nocomment(std::ostream& str);
 
@@ -27,6 +29,9 @@ namespace util {
 
     static bool _isFile;
 
+    // in any ostream, the value of the iword stored at this index is
+    // 0 or 1. If 1, the streambuf of the stream is a
+    // CommentingStreamBuf
     static int _commentIndex;
   };
 
