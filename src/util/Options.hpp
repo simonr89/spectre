@@ -76,12 +76,12 @@ namespace util {
     Configuration() :
       _outputFile("output", ""),
       _mainMode("mode", { "generation", "verification" }, "verification"),
-      _arrayRepresentation("array", { "function", "array"}, "function"),
+      _arrayTheory("arraytheory", false),
       _allOptions()
     {
       registerOption(&_outputFile);
       registerOption(&_mainMode);
-      registerOption(&_arrayRepresentation);
+      registerOption(&_arrayTheory);
     }
 
     bool setAllValues(int argc, char *argv[]);
@@ -90,14 +90,14 @@ namespace util {
 
     StringOption outputFile() { return _outputFile; }
     MultiChoiceOption mainMode() { return _mainMode; }
-    MultiChoiceOption arrayRepresentation() { return _arrayRepresentation; }
+    BooleanOption arrayTheory() { return _arrayTheory; }
 
     static Configuration instance() { return _instance; }
     
   protected:
     StringOption _outputFile;
     MultiChoiceOption _mainMode;
-    MultiChoiceOption _arrayRepresentation;
+    BooleanOption _arrayTheory;
 
     std::map<std::string, Option*> _allOptions;
 

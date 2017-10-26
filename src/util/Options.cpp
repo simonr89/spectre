@@ -5,10 +5,10 @@
 namespace util {
 
   bool BooleanOption::setValue(std::string v) {
-    if (v == "true") {
+    if (v == "on") {
       _value = true;
       return true;
-    } else if (v == "false") {
+    } else if (v == "off") {
       _value = false;
       return true;
     } else {
