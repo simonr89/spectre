@@ -121,18 +121,17 @@ namespace program {
   }
 
   void GclAnalyzer::printInfo(GuardedCommandCollection &c) {
-    //std::ostream& ostr = util::Output::stream();
+    std::ostream& ostr = util::Output::stream();
 
-    // TODO make a 'comment' manipulator for this
-    /*ostr << util::Output::comment
+    ostr << util::Output::comment
          << "--- Parsed loop ---\n\n"
          << c
-         << util::Output::comment
          << "\n\n--- Table of symbols ---\n\n";
     for (auto it = _variables.begin(); it != _variables.end(); ++it) {
       ostr << util::Output::comment << *(*it).second << "\n";
     }
-    ostr << std::flush;*/
+    ostr << util::Output::nocomment;
+    ostr << std::endl;
   }
 
   /* The following are declared in Parse/GclParser.ll
