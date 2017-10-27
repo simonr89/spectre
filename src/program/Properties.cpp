@@ -419,17 +419,20 @@ namespace program {
       // only check updates array variables
       if (!isArrayType(v->vtype()) || !v->isUpdated())
         continue;
-      
-      addProperty("stability_" + v->name(), stabilityAxiom(v));
-      addProperty("unique_update_" + v->name(), uniqueUpdateAxiom(v));
+
+      if (util::Configuration::instance().existentialAxioms().getValue()) {
+        // these axioms introduce skolem symbols
+        addProperty("stability_" + v->name(), stabilityAxiom(v));
+        addProperty("unique_update_" + v->name(), uniqueUpdateAxiom(v));
+      }
     }
   }
 
   // counter >= 0
   void Properties::loopCounterHypothesis()
   {
-    addProperty("loop_counter_positive", new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                                      { loopCounterSymbol(), Theory::integerConstant(0) })));
+    addProperty("loop_counter", new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                                  { loopCounterSymbol(), Theory::integerConstant(0) })));
   }
 
   // forall i, iter(i) => cond(i)

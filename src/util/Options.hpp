@@ -77,11 +77,13 @@ namespace util {
       _outputFile("output", ""),
       _mainMode("mode", { "generation", "verification" }, "verification"),
       _arrayTheory("arraytheory", false),
+      _existentialAxioms("eaxioms", true),
       _allOptions()
     {
       registerOption(&_outputFile);
       registerOption(&_mainMode);
       registerOption(&_arrayTheory);
+      registerOption(&_existentialAxioms);
     }
 
     bool setAllValues(int argc, char *argv[]);
@@ -91,6 +93,7 @@ namespace util {
     StringOption outputFile() { return _outputFile; }
     MultiChoiceOption mainMode() { return _mainMode; }
     BooleanOption arrayTheory() { return _arrayTheory; }
+    BooleanOption existentialAxioms() { return _existentialAxioms; }
 
     static Configuration instance() { return _instance; }
     
@@ -98,6 +101,7 @@ namespace util {
     StringOption _outputFile;
     MultiChoiceOption _mainMode;
     BooleanOption _arrayTheory;
+    BooleanOption _existentialAxioms;
 
     std::map<std::string, Option*> _allOptions;
 
