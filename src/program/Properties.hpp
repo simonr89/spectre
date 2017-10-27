@@ -3,6 +3,8 @@
 
 #include <list>
 #include <map>
+#include <utility>
+
 #include "logic/Formula.hpp"
 #include "logic/Sort.hpp"
 #include "logic/Term.hpp"
@@ -40,11 +42,13 @@ namespace program {
     std::map<std::string, PVariable*>& _vars;
 
     // properties of the program
-    std::list<logic::Formula*> _properties;
+    typedef std::pair<std::string, logic::Formula*> Property;
+    
+    std::list<Property> _properties;
 
     std::list<logic::Formula*> _postconditions;
 
-    void addProperty(logic::Formula* f) { _properties.push_front(f); }
+    void addProperty(std::string s, logic::Formula* f) { _properties.push_back(std::make_pair(s, f)); }
     
     static unsigned toVampireSort(Type t);
     // the loop counter ($counter)

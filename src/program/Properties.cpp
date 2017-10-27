@@ -14,7 +14,8 @@ namespace program {
 
   void Properties::addPrecondition(FExpression *e)
   {
-    addProperty(e->toFormula(Theory::integerConstant(0)));
+    static unsigned i = 0;
+    addProperty("precondition_" + std::to_string(i++), e->toFormula(Theory::integerConstant(0)));
   }
 
   void Properties::addPostcondition(FExpression *e)
@@ -47,28 +48,24 @@ namespace program {
   void Properties::outputTPTP()
   {
     std::ostream& ostr = util::Output::stream();
-    std::list<Formula*> goalUnits {};
+    Formula* conjecture = nullptr;
     if (! _postconditions.empty() &&
         util::Configuration::instance().mainMode().getValue() == "verification") {
       // add negated loop condition to assumptions + negated goal (in non extended language)
       Formula *f = _loop.loopCondition()->toFormula(loopCounterSymbol());
-      // this is an axiom only so that it is not output as invariant by the filtering mechanism
-      goalUnits.push_front(new NegationFormula(f));
+      addProperty("loop_exit", new NegationFormula(f));
       
-      f = new ConjunctionFormula(_postconditions);
-      goalUnits.push_front(new NegationFormula(f));
+      conjecture = new ConjunctionFormula(_postconditions);
     }
 
-    unsigned i = 0;
     for (auto it = Sort::sortsBegin(); it != Sort::sortsEnd(); ++it) {
       if ((*it).isUserDefined())
-        ostr << (*it).declareTPTP("sort" + std::to_string(i++)) << std::endl;
+        ostr << (*it).declareTPTP("sort_" + (*it).name()) << std::endl;
     }
 
-    i = 0;
     for (auto it = Symbol::sigBegin(); it != Symbol::sigEnd(); ++it) {
       if ((*it).isUserDefined()) {
-        ostr << (*it).declareTPTP("symb" + std::to_string(i++)) << std::endl;
+        ostr << (*it).declareTPTP("symb_" + (*it).name()) << std::endl;
         if ((*it).isColored() &&
             util::Configuration::instance().mainMode().getValue() == "generation") {
           ostr << (*it).declareVampireColor() << std::endl;
@@ -76,14 +73,13 @@ namespace program {
       }
     }
 
-    i = 0;
     for (auto it = _properties.begin(); it != _properties.end(); ++it) {
-      ostr << (*it)->declareTPTP("prop" + std::to_string(i++)) << std::endl;
+      Property p = *it;
+      ostr << p.second->declareTPTP(p.first) << std::endl;
     }
 
-    i = 0;
-    for (auto it = goalUnits.begin(); it != goalUnits.end(); ++it) {
-      ostr << (*it)->declareTPTP("goal" + std::to_string(i++)) << std::endl;
+    if (conjecture) {
+      ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
     }
   }
 
@@ -102,19 +98,19 @@ namespace program {
         if (v->isStrict()) {
           // don't add updatePropertyOfVar here since dense prop is
           // stronger and does not have an existential quantifier
-          //addProperty(updatePropertyOfVar(v));
-          addProperty(denseStrictProp(v)); // also implies strictProp
+          //addProperty("update_" + v->name(), updatePropertyOfVar(v));
+          addProperty("dense_strict_" + v->name(), denseStrictProp(v)); // also implies strictProp
         } else {
-          addProperty(updatePropertyOfVar(v));
-          addProperty(nonStrictProp(v));
-          addProperty(denseNonStrictProp(v));
+          addProperty("update_" + v->name(), updatePropertyOfVar(v));
+          addProperty("non_strict_" + v->name(), nonStrictProp(v));
+          addProperty("dense_non_strict" + v->name(), denseNonStrictProp(v));
         }
       } else {
-        addProperty(updatePropertyOfVar(v));
+        addProperty("update_" + v->name(), updatePropertyOfVar(v));
         if (v->isStrict()) {
-          addProperty(strictProp(v));
+          addProperty("strict_" + v->name(), strictProp(v));
         } else {
-          addProperty(nonStrictProp(v));
+          addProperty("non_strict_" + v->name(), nonStrictProp(v));
         }
       } 
     }
@@ -276,8 +272,9 @@ namespace program {
 
   void Properties::translateAssignments()
   {
+    static unsigned i = 0;
     for (auto it = _loop.commands().begin(); it != _loop.commands().end(); ++it) {
-      addProperty(commandToFormula(*it));
+      addProperty("assignment_" + std::to_string(i++), commandToFormula(*it));
     }
   }
 
@@ -423,16 +420,16 @@ namespace program {
       if (!isArrayType(v->vtype()) || !v->isUpdated())
         continue;
       
-      addProperty(stabilityAxiom(v));
-      addProperty(uniqueUpdateAxiom(v));
+      addProperty("stability_" + v->name(), stabilityAxiom(v));
+      addProperty("unique_update_" + v->name(), uniqueUpdateAxiom(v));
     }
   }
 
   // counter >= 0
   void Properties::loopCounterHypothesis()
   {
-    addProperty(new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                  { loopCounterSymbol(), Theory::integerConstant(0) })));
+    addProperty("loop_counter_positive", new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                                      { loopCounterSymbol(), Theory::integerConstant(0) })));
   }
 
   // forall i, iter(i) => cond(i)
@@ -440,9 +437,9 @@ namespace program {
   {
     LVariable* i = new LVariable(Sort::intSort());
 
-    addProperty(new UniversalFormula({i},
-                                     new ImplicationFormula(iter(i),
-                                                            _loop.loopCondition()->toFormula(i))));
+    addProperty("loop_condition", new UniversalFormula({i},
+                                                       new ImplicationFormula(iter(i),
+                                                                              _loop.loopCondition()->toFormula(i))));
   }
 
   // 0 <= i < n
@@ -614,7 +611,7 @@ namespace program {
       rhsInit = new FuncTerm(s, {});
     }    
     
-    addProperty(EqualityFormula(true, lhsCounter, rhsCounter).quantify());
-    addProperty(EqualityFormula(true, lhsInit, rhsInit).quantify());
+    addProperty("final_value_" + v->name(), EqualityFormula(true, lhsCounter, rhsCounter).quantify());
+    addProperty("initial_value_" + v->name(), EqualityFormula(true, lhsInit, rhsInit).quantify());
   }
 }

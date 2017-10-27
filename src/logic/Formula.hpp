@@ -12,7 +12,7 @@ namespace logic {
   public:
     virtual std::string toTPTP() const = 0;
 
-    std::string declareTPTP(std::string decl) const;
+    std::string declareTPTP(std::string decl, bool conjecture = false) const;
     
     Formula* quantify(bool univ = true) const;
 
