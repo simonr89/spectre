@@ -1,0 +1,12 @@
+int [] a;
+int i, alength, v, r;
+
+requires i == 0;
+requires r == -1;
+requires alength >= 0;
+ensures a[r] == v | r == -1;
+
+while (i < alength & r == -1) do
+:: a[i] == v -> r = i;
+:: true      -> i = i + 1;
+od

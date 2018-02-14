@@ -1,0 +1,12 @@
+int [] A, B, C;
+int a, b, alength;
+
+requires a == 0;
+requires b == 0;
+requires alength >= 0;
+ensures forall int i, 0 <= i & i < b ==> A[B[i]] == C[B[i]];
+
+while (a < alength) do
+:: A[a] == C[a] -> B[b] = a; a = a + 1; b = b + 1;
+:: true         -> a = a + 1;
+od

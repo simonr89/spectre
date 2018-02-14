@@ -1,0 +1,9 @@
+int [] a;
+int i, alength, v;
+
+requires i == 0;
+ensures forall int i, 0 <= i & i < alength ==> a[i] == v;
+
+while (i < alength) do
+:: true -> a[i] = v; i = i + 1;
+od
