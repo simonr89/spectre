@@ -9,10 +9,10 @@
 #ifndef __ProgramExpression__
 #define __ProgramExpression__
 
-#include "logic/Term.hpp"
-#include "logic/Formula.hpp"
-#include "program/Variable.hpp"
-#include "program/Type.hpp"
+#include "Term.hpp"
+#include "Formula.hpp"
+#include "Variable.hpp"
+#include "Type.hpp"
 
 namespace program {
 

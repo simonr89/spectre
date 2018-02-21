@@ -4,7 +4,7 @@
 #include <initializer_list>
 #include <list>
 #include <ostream>
-#include "logic/Term.hpp"
+#include "Term.hpp"
 
 namespace logic {
 

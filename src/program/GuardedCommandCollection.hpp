@@ -10,8 +10,8 @@
 
 #include <ostream>
 #include <list>
-#include "program/Expression.hpp"
-#include "program/Type.hpp"
+#include "Expression.hpp"
+#include "Type.hpp"
 
 namespace program {
 

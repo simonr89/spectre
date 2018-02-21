@@ -6,8 +6,8 @@
 #include "Variable.hpp"
 
 #include <cassert>
-#include "logic/Theory.hpp"
-#include "util/Options.hpp"
+#include "Theory.hpp"
+#include "Options.hpp"
 
 namespace program {
 

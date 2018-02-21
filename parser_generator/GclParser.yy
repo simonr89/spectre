@@ -10,9 +10,9 @@
 {
 #include <cstring>
 #include <iostream>
-#include "parser/Location.hpp"
-#include "program/Expression.hpp"
-#include "program/GuardedCommandCollection.hpp"
+#include "Location.hpp"
+#include "Expression.hpp"
+#include "GuardedCommandCollection.hpp"
 
 #define YY_NULLPTR nullptr
 
@@ -36,7 +36,7 @@ namespace program {
 %define parse.error verbose
 %code
 {
-#include "program/GclAnalyzer.hpp"
+#include "GclAnalyzer.hpp"
 
 using namespace program;
 

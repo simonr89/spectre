@@ -3,8 +3,8 @@
 #include <fstream>
 #include <ostream>
 
-#include "program/Properties.hpp"
-#include "util/Output.hpp"
+#include "Properties.hpp"
+#include "Output.hpp"
 
 namespace program {
 
@@ -129,12 +129,4 @@ namespace program {
          << util::Output::nocomment
          << std::endl;
   }
-
-  /* The following are declared in Parse/GclParser.ll
-   *
-   * void program::GclAnalyzer::scan_begin()
-   *
-   * void program::GclAnalyzer::scan_end()
-   */
-
 }

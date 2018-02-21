@@ -7,8 +7,8 @@
 #include <ostream>
 #include <string>
 #include <vector>
-#include "logic/Signature.hpp"
-#include "logic/Sort.hpp"
+#include "Signature.hpp"
+#include "Sort.hpp"
 
 namespace logic {
 

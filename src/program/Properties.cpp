@@ -3,10 +3,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "logic/Signature.hpp"
-#include "logic/Theory.hpp"
-#include "util/Options.hpp"
-#include "util/Output.hpp"
+#include "Signature.hpp"
+#include "Theory.hpp"
+#include "Options.hpp"
+#include "Output.hpp"
 
 using namespace logic;
 

@@ -13,9 +13,9 @@
 #include <string>
 #include <list>
 #include <map>
-#include "program/Expression.hpp"
-#include "program/GuardedCommandCollection.hpp"
-#include "program/Variable.hpp"
+#include "Expression.hpp"
+#include "GuardedCommandCollection.hpp"
+#include "Variable.hpp"
 
 namespace program {
 

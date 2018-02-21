@@ -5,8 +5,8 @@
 #include <cstdio>
 #include <cstring>
 #include <exception>
-#include "program/GclAnalyzer.hpp"
-#include "parser/GclParser.hpp"
+#include "GclAnalyzer.hpp"
+#include "GclParser.hpp"
 
 // Work around an incompatibility in flex (at least versions
 // 2.5.31 through 2.5.33): it generates code that does
@@ -32,7 +32,7 @@ NUM   [+-]?[0-9]+
 BLANK [ \t]
 
 %{
-#include "program/GclAnalyzer.hpp"
+#include "GclAnalyzer.hpp"
 using namespace program;
 // Tell Flex the lexer's prototype ...
 # define YY_DECL parser::GclParser::symbol_type yylex(program::GclAnalyzer &gcla)

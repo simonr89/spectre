@@ -1,9 +1,9 @@
 #include "Expression.hpp"
 
 #include <cassert>
-#include "logic/Sort.hpp"
-#include "logic/Theory.hpp"
-#include "util/Options.hpp"
+#include "Sort.hpp"
+#include "Theory.hpp"
+#include "Options.hpp"
 
 namespace program {
   

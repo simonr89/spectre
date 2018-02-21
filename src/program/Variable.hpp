@@ -11,11 +11,11 @@
 
 #include <string>
 #include <ostream>
-#include "logic/Formula.hpp"
-#include "logic/Signature.hpp"
-#include "logic/Sort.hpp"
-#include "logic/Term.hpp"
-#include "program/Type.hpp"
+#include "Formula.hpp"
+#include "Signature.hpp"
+#include "Sort.hpp"
+#include "Term.hpp"
+#include "Type.hpp"
 
 namespace program {
 

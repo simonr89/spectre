@@ -5,13 +5,13 @@
 #include <map>
 #include <utility>
 
-#include "logic/Formula.hpp"
-#include "logic/Sort.hpp"
-#include "logic/Term.hpp"
-#include "program/Expression.hpp"
-#include "program/GuardedCommandCollection.hpp"
-#include "program/Variable.hpp"
-#include "program/Type.hpp"
+#include "Formula.hpp"
+#include "Sort.hpp"
+#include "Term.hpp"
+#include "Expression.hpp"
+#include "GuardedCommandCollection.hpp"
+#include "Variable.hpp"
+#include "Type.hpp"
 
 namespace program {
 

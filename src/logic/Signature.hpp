@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "logic/Sort.hpp"
+#include "Sort.hpp"
 
 namespace logic {
 
