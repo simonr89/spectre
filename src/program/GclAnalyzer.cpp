@@ -10,25 +10,6 @@ namespace program {
 
   bool GclAnalyzer::_errorFlag = false;
 
-  int GclAnalyzer::parse(const std::string& f)
-  {
-    // test readbility, easier than catching exception thrown by parser
-    std::ifstream istr(f);
-    if (!istr) {
-      std::cerr << "Unable to read file " << f << std::endl;
-      return 0;
-    }
-    
-    file = f;
-    scan_begin();
-    parser::GclParser parser(*this);
-    parser.set_debug_level(false); // no traces
-    int res = parser.parse();
-    scan_end();
-    
-    return res;
-  }
-
   bool GclAnalyzer::available(const std::string& name) {
     return _variables.find(name) == _variables.end();
   }

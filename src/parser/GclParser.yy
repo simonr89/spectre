@@ -16,10 +16,12 @@
 
 #define YY_NULLPTR nullptr
 
+
 namespace program {
   class GclAnalyzer;
 }
 }
+
 
 // The parsing context.
 %param { program::GclAnalyzer &gcla }
@@ -37,6 +39,12 @@ namespace program {
 #include "program/GclAnalyzer.hpp"
 
 using namespace program;
+
+// Tell Flex the lexer's prototype ...
+# define YY_DECL parser::GclParser::symbol_type yylex(program::GclAnalyzer &gcla)
+// ... and declare it for the parser's sake.
+YY_DECL;
+
 }
 %define api.token.prefix {TOK_}
 %token

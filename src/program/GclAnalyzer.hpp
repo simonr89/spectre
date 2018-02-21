@@ -13,16 +13,9 @@
 #include <string>
 #include <list>
 #include <map>
-#include "parser/GclParser.hpp"
 #include "program/Expression.hpp"
 #include "program/GuardedCommandCollection.hpp"
 #include "program/Variable.hpp"
-
-// Tell Flex the lexer's prototype ...
-# define YY_DECL parser::GclParser::symbol_type yylex(program::GclAnalyzer &gcla)
-// ... and declare it for the parser's sake.
-YY_DECL;
-
 
 namespace program {
 
@@ -40,16 +33,6 @@ namespace program {
     {}
   
     ~GclAnalyzer() {}
-
-    // Handling the scanner.
-    void scan_begin();
-
-    void scan_end();
-
-    /** Run the parser on file F.
-     * Return 0 on success.
-     */
-    int parse(const std::string& f);
 
     static void setErrorFlag() { _errorFlag = true; }
 

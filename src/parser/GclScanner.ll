@@ -32,6 +32,15 @@ NUM   [+-]?[0-9]+
 BLANK [ \t]
 
 %{
+#include "program/GclAnalyzer.hpp"
+using namespace program;
+// Tell Flex the lexer's prototype ...
+# define YY_DECL parser::GclParser::symbol_type yylex(program::GclAnalyzer &gcla)
+// ... and declare it for the parser's sake.
+YY_DECL;
+%}
+
+%{
   // Code run each time a pattern is matched.
 # define YY_USER_ACTION  loc.columns (yyleng);
 %}
@@ -96,20 +105,4 @@ null         { return parser::GclParser::make_NULL(loc); }
 <<EOF>>      { return parser::GclParser::make_END(loc); }
 
 %%
-
-void program::GclAnalyzer::scan_begin()
-{
-  yy_flex_debug = trace_scanning;
-  const char *fname = file.c_str();
-  if (!fname)
-    yyin = stdin;
-  else if (!(yyin = fopen (fname, "r")))
-    throw std::runtime_error("cannot open " + file + ": " + strerror(errno));
-}
-
-void program::GclAnalyzer::scan_end()
-{
-  fclose (yyin);
-}
-
 
