@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 
-#include "program/GclAnalyzer.hpp"
+#include "parser/GclParsingContext.hpp"
 #include "util/Options.hpp"
 #include "util/Output.hpp"
 
@@ -22,9 +22,6 @@ int main(int argc, char *argv[]) {
             if (util::Output::initialize())
             {
                 std::string inputFile = argv[argc - 1];
-                
-                program::GclAnalyzer gcla; // the data-structure representing the input-program
-                
                 // test readbility, easier than catching exception thrown by parser
                 std::ifstream istr(inputFile);
                 if (!istr) {
@@ -32,18 +29,18 @@ int main(int argc, char *argv[]) {
                     return 0;
                 }
                 
-                gcla.file = inputFile;
+                // generate a context, whose fields are used as in/out-parameters for parsing
+                parser::GclParsingContext c;
+                c.inputFile = inputFile;
 
-                // set input of flex
-//                yy_flex_debug = trace_scanning;
                 const char *fname = inputFile.c_str();
                 if (!fname)
                     yyin = stdin;
                 else if (!(yyin = fopen (fname, "r")))
                     throw std::runtime_error("cannot open " + inputFile + ": " + strerror(errno));
                 
-                // parse the input-program into gcla
-                parser::GclParser parser(gcla);
+                // parse the input-program into c
+                parser::GclParser parser(c);
                 parser.set_debug_level(false); // no traces
                 int res = parser.parse();
                 

@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstring>
 #include <exception>
-#include "GclAnalyzer.hpp"
+#include "GclParsingContext.hpp"
 #include "GclParser.hpp"
 
 // Work around an incompatibility in flex (at least versions
@@ -21,8 +21,8 @@ static parser::Location loc;
 void error(const parser::Location& l,
            const std::string& m)
 {
-  std::cout << l << m << std::endl;
-  program::GclAnalyzer::setErrorFlag();
+    std::cout << l << m << std::endl;
+    exit(1);
 }
 
 %}
@@ -32,10 +32,10 @@ NUM   [+-]?[0-9]+
 BLANK [ \t]
 
 %{
-#include "GclAnalyzer.hpp"
+#include "GclParsingContext.hpp"
 using namespace program;
 // Tell Flex the lexer's prototype ...
-# define YY_DECL parser::GclParser::symbol_type yylex(program::GclAnalyzer &gcla)
+# define YY_DECL parser::GclParser::symbol_type yylex(parser::GclParsingContext &gcla)
 // ... and declare it for the parser's sake.
 YY_DECL;
 %}
@@ -101,7 +101,7 @@ null         { return parser::GclParser::make_NULL(loc); }
     error(loc, "integer out of range");
   return parser::GclParser::make_INTEGER(n, loc);
 }
-.            { error(loc, "invalid character"); }
+.            { error(loc, "invalid character");}
 <<EOF>>      { return parser::GclParser::make_END(loc); }
 
 %%

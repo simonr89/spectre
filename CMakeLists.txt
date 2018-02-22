@@ -25,9 +25,10 @@ add_executable(invgen src/main.cpp)
 
 
 
+add_subdirectory(src/analysis)
 add_subdirectory(src/logic)
 add_subdirectory(src/parser)
 add_subdirectory(src/program)
 add_subdirectory(src/util)
 
-target_link_libraries(invgen logic parser program util)
+target_link_libraries(invgen analysis logic parser program util)

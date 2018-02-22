@@ -17,31 +17,31 @@
 #define YY_NULLPTR nullptr
 
 
-namespace program {
-  class GclAnalyzer;
+namespace parser {
+  class GclParsingContext;
 }
 }
 
 
 // The parsing context.
-%param { program::GclAnalyzer &gcla }
+%param { parser::GclParsingContext &gcla }
 %locations
 %define api.location.type {Location}
 %initial-action
 {
   // Initialize the initial location.
-  @$.begin.filename = @$.end.filename = &gcla.file;
+  @$.begin.filename = @$.end.filename = &gcla.inputFile;
 };
 %define parse.trace
 %define parse.error verbose
 %code
 {
-#include "GclAnalyzer.hpp"
+#include "GclParsingContext.hpp"
 
 using namespace program;
 
 // Tell Flex the lexer's prototype ...
-# define YY_DECL parser::GclParser::symbol_type yylex(program::GclAnalyzer &gcla)
+# define YY_DECL parser::GclParser::symbol_type yylex(parser::GclParsingContext &gcla)
 // ... and declare it for the parser's sake.
 YY_DECL;
 
@@ -248,16 +248,16 @@ expr:
 loop_body:
 WHILE LPAR expr RPAR DO guarded_command_list OD { if ($3->etype() == Type::TY_BOOLEAN) {
                                                     $6->setLoopCondition(dynamic_cast<FExpression*>($3));
-                                                    if (!gcla.errorFlag()) {
-                                                      gcla.buildProperties(*$6);
+                                                    if (!gcla.errorFlag) {
+                                                      gcla.program = *$6;
                                                     }
                                                   } else {
                                                     error(@1, "Loop condition does not have type bool");
                                                   }
                                                 }
 | DO guarded_command_list OD { $2->setLoopCondition(BooleanExpression::mkConstantBoolean(true));
-                               if (!gcla.errorFlag())
-                                 gcla.buildProperties(*$2);
+                               if (!gcla.errorFlag)
+                                 gcla.program = *$2;
                              }
 ;
 
@@ -325,5 +325,6 @@ void parser::GclParser::error(const location_type& l,
                               const std::string& m)
 {
   std::cout << l << m << std::endl;
-  program::GclAnalyzer::setErrorFlag();
+  gcla.errorFlag = true;
 }
+

@@ -1,19 +1,23 @@
 set(INVGEN_PROGRAM_SOURCES
     Expression.cpp
-    GclAnalyzer.cpp
     GuardedCommandCollection.cpp
-    Properties.cpp
     Type.cpp
     Variable.cpp
+    Program.cpp
+    ProgramRule.cpp
+    ProgramLocation.cpp
+    Assignment.cpp
 )
 
 set(INVGEN_PROGRAM_HEADERS
     Expression.hpp
-    GclAnalyzer.hpp
     GuardedCommandCollection.hpp
-    Properties.hpp
     Type.hpp
     Variable.hpp
+    Program.hpp
+    ProgramRule.hpp
+    ProgramLocation.hpp
+    Assignment.hpp
 )
 
 add_library(program ${INVGEN_PROGRAM_SOURCES} ${INVGEN_PROGRAM_HEADERS})
