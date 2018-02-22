@@ -1,9 +1,11 @@
 #include "ProgramRule.hpp"
+#include "ProgramLocation.hpp"
 
 namespace program
 {
-//    ProgramRule::ProgramRule(std::vector<std::unique_ptr<FExpression>> guards, std::vector<std::unique_ptr<Assignment>> assignments, FExpression head)
-//    {
-//        
-//    }
+    const ProgramLocation& ProgramRule::getLocation() const
+    {
+        return location;
+    }
+    
 }

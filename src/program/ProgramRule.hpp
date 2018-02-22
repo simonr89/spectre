@@ -11,15 +11,21 @@
 
 namespace program
 {
+    class ProgramLocation;
+
     class ProgramRule
     {
-    public:
-        ProgramRule(std::vector<std::unique_ptr<FExpression>> guards, std::vector<std::unique_ptr<Assignment>> assignments, FExpression head);
-    private:
-        
-        std::vector<std::unique_ptr<FExpression>> guards;
+        ProgramLocation& location; // points to the source-location of this rule.
+
+        std::vector<std::unique_ptr<BooleanExpression>> guards;
         std::vector<std::unique_ptr<Assignment>> assignments;
-        logic::PredicateFormula location;
+        
+    public:
+        ProgramRule(ProgramLocation& location, std::vector<std::unique_ptr<BooleanExpression>> guards, std::vector<std::unique_ptr<Assignment>> assignments) : location(location), guards(std::move(guards)), assignments(std::move(assignments)){}
+
+        const ProgramLocation& getLocation() const;
+        const std::vector<std::unique_ptr<BooleanExpression>>& getGuards() const {return guards;}
+        const std::vector<std::unique_ptr<Assignment>>& getAssignments() const {return assignments;}
     };
 }
 
