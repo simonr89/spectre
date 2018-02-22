@@ -7,6 +7,7 @@
 #include "util/Output.hpp"
 
 #include "parser/GclParser.hpp"
+#include "program/Program.hpp"
 
 extern FILE* yyin;
 
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]) {
             if (util::Output::initialize())
             {
                 std::string inputFile = argv[argc - 1];
+                
                 // test readbility, easier than catching exception thrown by parser
                 std::ifstream istr(inputFile);
                 if (!istr) {
@@ -29,22 +31,35 @@ int main(int argc, char *argv[]) {
                     return 0;
                 }
                 
-                // generate a context, whose fields are used as in/out-parameters for parsing
-                parser::GclParsingContext c;
-                c.inputFile = inputFile;
-
-                const char *fname = inputFile.c_str();
-                if (!fname)
-                    yyin = stdin;
-                else if (!(yyin = fopen (fname, "r")))
-                    throw std::runtime_error("cannot open " + inputFile + ": " + strerror(errno));
+                program::GuardedCommandCollection p;
+                // TODO: switch between parsers here
+                if (true)
+                {
+                    // set input for parser
+                    // TODO: remove double checking of file,move setting yyin into parser?
+                    const char *fname = inputFile.c_str();
+                    yyin = fopen (fname, "r");
+                    
+                    // generate a context, whose fields are used as in/out-parameters for parsing
+                    parser::GclParsingContext c;
+                    c.inputFile = inputFile;
+                    
+                    // parse the input-program into c
+                    parser::GclParser parser(c);
+                    parser.set_debug_level(false); // no traces
+                    parser.parse();
+                    
+                    if (!c.errorFlag)
+                    {
+                        p = c.program;
+                    }
+                    else
+                    {
+                        exit(1);
+                    }
+                    fclose (yyin);
+                }
                 
-                // parse the input-program into c
-                parser::GclParser parser(c);
-                parser.set_debug_level(false); // no traces
-                int res = parser.parse();
-                
-                fclose (yyin);
                 util::Output::close();
                 
                 // start analysis of the program
