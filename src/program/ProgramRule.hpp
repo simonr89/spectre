@@ -1,7 +1,7 @@
 
 
-#ifndef __Program__
-#define __Program__
+#ifndef __ProgramRule__
+#define __ProgramRule__
 
 #include <vector>
 #include <memory>

@@ -3,8 +3,8 @@
 #define __ProgramLocation__
 
 #include <vector>
-#include "ProgramRule"
-#include "Expression"
+#include "ProgramRule.hpp"
+#include "Expression.hpp"
 
 namespace program
 {
