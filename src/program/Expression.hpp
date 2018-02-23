@@ -95,9 +95,9 @@ namespace program {
 
     bool equivToVPlusX(PVariable *v, int &value) override;
 
-    Type etype() { return Type::TY_INTEGER; }
+    Type etype() override { return Type::TY_INTEGER; }
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire term */
     logic::Term* toTerm(logic::Term* i) override;
@@ -145,7 +145,7 @@ namespace program {
 
     bool constBooleanInfo(bool& value);
 
-    Type etype() { return Type::TY_BOOLEAN; }
+    Type etype() override { return Type::TY_BOOLEAN; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
@@ -199,7 +199,7 @@ namespace program {
 
     PVariable *varInfo() { return _var; }
 
-    Type etype();
+    Type etype() override;
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
@@ -237,7 +237,7 @@ namespace program {
   class VariableExpression : public FExpression
   {
   public:
-    Type etype() { return _var->vtype(); }
+    Type etype() override { return _var->vtype(); }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
@@ -268,7 +268,7 @@ namespace program {
       EXP_EXISTS
     };
 
-    Type etype() { return Type::TY_FORMULA; }
+    Type etype() override { return Type::TY_FORMULA; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 

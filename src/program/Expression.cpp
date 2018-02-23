@@ -144,14 +144,17 @@ namespace program {
     }
   }
 
-  logic::Term* LocationExpression::toTerm(logic::Term* index)
-  {      
-    switch (_kind) {
-    case LocationExprKind::EXP_VAR_LOC:
-      return _var->toTerm(index);
-    case LocationExprKind::EXP_ARRAY_LOC:
-      return _var->toTerm(index, _children[0]->toTerm(index));
-    }
+    logic::Term* LocationExpression::toTerm(logic::Term* index)
+    {
+        switch (_kind) {
+            case LocationExprKind::EXP_VAR_LOC:
+                return _var->toTerm(index);
+            case LocationExprKind::EXP_ARRAY_LOC:
+                return _var->toTerm(index, _children[0]->toTerm(index));
+            case LocationExprKind::EXP_FIELD_LOC:
+                assert(false); // TODO: not supported yet
+                break;
+        }
 
     assert(0); // unreachable
     return nullptr;
@@ -176,19 +179,22 @@ namespace program {
     return nullptr;
   }
 
-  logic::Formula* LocationExpression::toFormula(logic::Term* index)
-  {
-    switch (_kind) {
-    case LocationExprKind::EXP_VAR_LOC:
-      return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
-    case LocationExprKind::EXP_ARRAY_LOC:
-      return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index,
-                                                                                    _children[0]->toTerm(index))));
+    logic::Formula* LocationExpression::toFormula(logic::Term* index)
+    {
+        switch (_kind) {
+            case LocationExprKind::EXP_VAR_LOC:
+                return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
+            case LocationExprKind::EXP_ARRAY_LOC:
+                return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index,
+                                                                                              _children[0]->toTerm(index))));
+            case LocationExprKind::EXP_FIELD_LOC:
+                assert(false); // TODO: not supported yet
+                break;
+        }
+        
+        assert(0); // unreachable
+        return nullptr;
     }
-
-    assert(0); // unreachable
-    return nullptr;
-  }
   
   logic::Formula* BooleanExpression::toFormula(logic::Term* index)
   {
@@ -529,18 +535,21 @@ namespace program {
     return ostr;
   }
 
-  std::ostream& LocationExpression::toStream(std::ostream& ostr) const
-  {
-    switch (_kind) {
-    case LocationExprKind::EXP_ARRAY_LOC:
-      ostr << _var->name() << "[" << *_children[0] << "]";
-      break;
-    case LocationExprKind::EXP_VAR_LOC:
-      ostr << _var->name();
-      break;
+    std::ostream& LocationExpression::toStream(std::ostream& ostr) const
+    {
+        switch (_kind) {
+            case LocationExprKind::EXP_ARRAY_LOC:
+                ostr << _var->name() << "[" << *_children[0] << "]";
+                break;
+            case LocationExprKind::EXP_VAR_LOC:
+                ostr << _var->name();
+                break;
+            case LocationExprKind::EXP_FIELD_LOC:
+                assert(false); // TODO: not supported yet
+                break;
+        }
+        return ostr;
     }
-    return ostr;
-  }
 
   std::ostream& VariableExpression::toStream(std::ostream& ostr) const
   {
