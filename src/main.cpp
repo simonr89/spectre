@@ -7,7 +7,7 @@
 #include "util/Output.hpp"
 
 #include "parser/GclParser.hpp"
-#include "program/Program.hpp"
+#include "analysis/Analyzer.hpp"
 
 extern FILE* yyin;
 
@@ -51,7 +51,20 @@ int main(int argc, char *argv[]) {
                     
                     if (!c.errorFlag)
                     {
-                        p = c.program;
+                        program::Analyzer a;
+                        // hack for now: copy everything from parsercontext into a
+                        for (const auto& e : c._preconditions)
+                        {
+                            a.addPrecondition(e);
+                        }
+                        for (const auto& e : c._postconditions)
+                        {
+                            a.addPostcondition(e);
+                        }
+                        a.setVariables(c._variables);
+                        
+                        // run analysis
+                        a.buildProperties(c.program);
                     }
                     else
                     {

@@ -3,9 +3,6 @@ set(INVGEN_PROGRAM_SOURCES
     GuardedCommandCollection.cpp
     Type.cpp
     Variable.cpp
-    Program.cpp
-    ProgramRule.cpp
-    ProgramLocation.cpp
     Assignment.cpp
 )
 
@@ -14,9 +11,6 @@ set(INVGEN_PROGRAM_HEADERS
     GuardedCommandCollection.hpp
     Type.hpp
     Variable.hpp
-    Program.hpp
-    ProgramRule.hpp
-    ProgramLocation.hpp
     Assignment.hpp
 )
 

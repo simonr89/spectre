@@ -13,6 +13,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <map>
 #include "Expression.hpp"
 #include "GuardedCommandCollection.hpp"
@@ -52,14 +53,12 @@ namespace parser
         GuardedCommand* currentGuardedCommand() { return _guardDeclCtx; }
         
         // TODO: shift this into the parser
-        void addPrecondition(FExpression *e) { _preconditions.push_front(e); }
-        void addPostcondition(FExpression *e) { _postconditions.push_front(e); }
+        void addPrecondition(FExpression *e) { _preconditions.push_back(e); }
+        void addPostcondition(FExpression *e) { _postconditions.push_back(e); }
         
         void printInfo(GuardedCommandCollection &c);
 
     protected:
-        /** symbol table */
-        std::map<std::string, PVariable*> _variables;
         
         /** type of symbols being declared */
         Type _typeDeclCtx;
@@ -69,9 +68,13 @@ namespace parser
         
         std::list<QVariable*> _localScopes;
 
+    public:
+        /** symbol table */
+        std::map<std::string, PVariable*> _variables;
+
         // TODO: shift this into the parser
-        std::list<FExpression*> _preconditions;
-        std::list<FExpression*> _postconditions;
+        std::vector<FExpression*> _preconditions;
+        std::vector<FExpression*> _postconditions;
     };
     
 }
