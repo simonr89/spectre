@@ -11,7 +11,7 @@ namespace program {
     delete _children;
   }
 
-  Expression * Expression::child(unsigned n)
+  Expression * Expression::child(unsigned n) const
   {
     return (n < _arity ? _children[n] : nullptr);
   }
@@ -57,7 +57,7 @@ namespace program {
     return false;
   }
 
-  bool ArithmeticExpression::equivToVPlusX(PVariable *v, int &incr)
+  bool ArithmeticExpression::equivToVPlusX(PVariable *v, int &incr) const
   {
     Expression *e1, *e2;
     int a, b;
@@ -86,7 +86,7 @@ namespace program {
     }
   }
 
-  bool LocationExpression::equivToVPlusX(PVariable *v, int &incr)
+  bool LocationExpression::equivToVPlusX(PVariable *v, int &incr) const
   {
     if (_kind == LocationExprKind::EXP_VAR_LOC && _var == v) {
       incr = 0;
@@ -102,7 +102,7 @@ namespace program {
    * is empty, then the expression is in the non extended language (as
    * understood by the user)
    */
-  logic::Term* ArithmeticExpression::toTerm(logic::Term* index)
+  logic::Term* ArithmeticExpression::toTerm(logic::Term* index) const
   {  
     using namespace logic;
 
@@ -144,7 +144,7 @@ namespace program {
     }
   }
 
-    logic::Term* LocationExpression::toTerm(logic::Term* index)
+    logic::Term* LocationExpression::toTerm(logic::Term* index) const
     {
         switch (_kind) {
             case LocationExprKind::EXP_VAR_LOC:
@@ -160,12 +160,12 @@ namespace program {
     return nullptr;
   }
 
-  logic::Term* VariableExpression::toTerm(logic::Term* index)
+  logic::Term* VariableExpression::toTerm(logic::Term* index) const
   {
     return _var->toTerm(index);
   }
 
-  logic::Term* BooleanExpression::toTerm(logic::Term* index)
+  logic::Term* BooleanExpression::toTerm(logic::Term* index) const
   {
     //TODO check original implementation
     //return toFormula(index);
@@ -173,7 +173,7 @@ namespace program {
     return nullptr;
   }
 
-  logic::Term* QuantifiedExpression::toTerm(logic::Term* index)
+  logic::Term* QuantifiedExpression::toTerm(logic::Term* index) const
   {
     assert(0);
     return nullptr;
@@ -264,7 +264,7 @@ namespace program {
     }
   }
 
-  Type LocationExpression::etype() {
+  Type LocationExpression::etype() const {
     switch (_kind) {
     case LocationExprKind::EXP_ARRAY_LOC:
       return returnType(_var->vtype());

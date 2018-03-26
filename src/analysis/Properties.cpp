@@ -304,7 +304,7 @@ namespace program {
             a = *itAsg;
             if (a->hasLhs(*v))
               store = new FuncTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_STORE),
-                                   { store, a->lhs()->child(0)->toTerm(i), a->rhs()->toTerm(i) });
+                                   { store, a->lhs->child(0)->toTerm(i), a->rhs->toTerm(i) });
           }
           conj.push_front(new EqualityFormula(true,
                                               v->toTerm(iPlusOne),
@@ -346,12 +346,12 @@ namespace program {
                                   Term* index,
                                   Term* indexPlusOne)
   {
-    PVariable * lhsVar = a->lhs()->varInfo();
+    PVariable * lhsVar = a->lhs->varInfo();
     assert(lhsVar->isUpdated());
 
     return new EqualityFormula(true,
                                lhsVar->toTerm(indexPlusOne),
-                               a->rhs()->toTerm(index));
+                               a->rhs->toTerm(index));
   }
 
   /** Given an array assignment v[x] = e, return the formula v(i+1, x(i)) = e(i) */
@@ -359,13 +359,13 @@ namespace program {
                                        Term* index,
                                        Term* indexPlusOne)
   {
-    PVariable * lhsVar = a->lhs()->varInfo();
+    PVariable * lhsVar = a->lhs->varInfo();
     assert(lhsVar->isUpdated());
 
     return new EqualityFormula(true,
                                lhsVar->toTerm(indexPlusOne,
-                                              a->lhs()->child(0)->toTerm(index)),
-                               a->rhs()->toTerm(index));
+                                              a->lhs->child(0)->toTerm(index)),
+                               a->rhs->toTerm(index));
   }
 
   /** Given a scalar variable v, return the formula v(i+1) = v(i) */
@@ -397,7 +397,7 @@ namespace program {
       if ((*it)->hasLhs(*v))
         conj.push_front(new EqualityFormula(false,
                                             j,
-                                            (*it)->lhs()->child(0)->toTerm(index)));      
+                                            (*it)->lhs->child(0)->toTerm(index)));
     }
     
     Formula *eq = new EqualityFormula(true,
@@ -490,11 +490,11 @@ namespace program {
     conj.push_front(guard->toFormula(i));
     conj.push_front(new EqualityFormula(true,
                                         p,
-                                        asg->lhs()->child(0)->toTerm(i)));
+                                        asg->lhs->child(0)->toTerm(i)));
     if (v)
       conj.push_front(new EqualityFormula(true,
                                           v,
-                                          asg->rhs()->toTerm(i)));
+                                          asg->rhs->toTerm(i)));
     
     return new ConjunctionFormula(conj);
   }

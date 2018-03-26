@@ -23,7 +23,7 @@ namespace program {
   public:
     virtual bool isProgramVariable() = 0;
 
-    virtual logic::Term *toTerm(logic::Term* i) = 0;
+    virtual logic::Term *toTerm(logic::Term* i) const = 0;
     
     /** the name of this variable */
     const std::string& name() { return _name; }
@@ -94,10 +94,10 @@ namespace program {
      * constructed, since the arity of the symbol depends on the value
      * of 'updated'
      */
-    logic::Term *toTerm(logic::Term* i);
+    logic::Term *toTerm(logic::Term* i) const;
 
     /** Same as above for array variables */
-    logic::Term *toTerm(logic::Term* i, logic::Term* arrayIndex);
+    logic::Term *toTerm(logic::Term* i, logic::Term* arrayIndex) const;
 
     /** Same as above for boolean variables */
     //logic::PredTerm* toPred(logic::Term* i);
@@ -107,6 +107,7 @@ namespace program {
 
     friend std::ostream& operator<<(std::ostream& ostr, const PVariable& v);
 
+      std::string toString() const;
   protected:
     
     /** Whether the variable is updated by the loop */
@@ -154,7 +155,7 @@ namespace program {
 
     bool isProgramVariable() { return false; }
 
-    logic::Term *toTerm(logic::Term* i) { return _lvariable; }
+    logic::Term *toTerm(logic::Term* i) const { return _lvariable; }
 
     logic::LVariable* toVar() { return _lvariable; }
     

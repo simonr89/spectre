@@ -29,10 +29,10 @@ namespace program {
   public:
     virtual ~Expression() = 0;
     /** return the type of the expression */
-    virtual Type etype() = 0;
+    virtual Type etype() const = 0;
 
     // this could be a FOOL predicate
-    virtual logic::Term* toTerm(logic::Term* index) = 0;
+    virtual logic::Term* toTerm(logic::Term* index) const = 0;
 
     virtual std::ostream& toStream(std::ostream& ostr) const = 0;
 
@@ -40,11 +40,11 @@ namespace program {
     int arity() { return _arity; }
 
     /** return the nth sub-expression, or nullptr if n > arity */
-    Expression *child(unsigned n);
+    Expression *child(unsigned n) const;
 
     virtual bool evalToCstInt(int &value) { return false; }
 
-    virtual bool equivToVPlusX(PVariable *v, int &value) { return false; }
+    virtual bool equivToVPlusX(PVariable *v, int &value) const { return false; }
 
     // TODO remove this and leave it only in appropriate derived classes?
     //virtual logic::Term* toTerm(logic::Term* i) { return nullptr; }
@@ -93,14 +93,14 @@ namespace program {
         value */
     bool evalToCstInt(int &value) override;
 
-    bool equivToVPlusX(PVariable *v, int &value) override;
+    bool equivToVPlusX(PVariable *v, int &value) const override;
 
-    Type etype() override { return Type::TY_INTEGER; }
+    Type etype() const override { return Type::TY_INTEGER; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire term */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(logic::Term* i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -145,13 +145,13 @@ namespace program {
 
     bool constBooleanInfo(bool& value);
 
-    Type etype() override { return Type::TY_BOOLEAN; }
+    Type etype() const override { return Type::TY_BOOLEAN; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a FOL
         term. */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(logic::Term* i) const override;
 
     logic::Formula* toFormula(logic::Term* i) override;
 
@@ -195,17 +195,17 @@ namespace program {
       EXP_FIELD_LOC
     };
 
-    bool equivToVPlusX(PVariable *v, int &value) override;
+    bool equivToVPlusX(PVariable *v, int &value) const override;
 
-    PVariable *varInfo() { return _var; }
+    PVariable *varInfo() const { return _var; }
 
-    Type etype() override;
+    Type etype() const override;
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a FOL term
         (possibly a predicate) */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(logic::Term* i) const override;
 
     logic::Formula* toFormula(logic::Term* i) override;
     
@@ -237,13 +237,13 @@ namespace program {
   class VariableExpression : public FExpression
   {
   public:
-    Type etype() override { return _var->vtype(); }
+    Type etype() const override { return _var->vtype(); }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(logic::Term* i) const override;
 
     logic::Formula* toFormula(logic::Term* i) override;
     
@@ -268,13 +268,13 @@ namespace program {
       EXP_EXISTS
     };
 
-    Type etype() override { return Type::TY_FORMULA; }
+    Type etype() const override { return Type::TY_FORMULA; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(logic::Term* i) const override;
 
     logic::Formula* toFormula(logic::Term* i) override;
     

@@ -61,7 +61,7 @@ namespace program {
     return arity;
   }
 
-  Term* PVariable::toTerm(Term* index)
+  Term* PVariable::toTerm(Term* index) const
   {
     if (_updated && index) {
       // extended symbol (and the variable is not constant)
@@ -79,7 +79,7 @@ namespace program {
     }
   }
 
-  Term* PVariable::toTerm(Term* index, Term* arrayIndex)
+  Term* PVariable::toTerm(Term* index, Term* arrayIndex) const
   {
     assert(isArrayType(_type));
     
@@ -116,6 +116,31 @@ namespace program {
       }
     }
   }
+
+    std::string PVariable::toString() const
+    {
+        std::string result = "";
+        result = result + _name + " : "; // TODO: also print type
+        
+        result += " {";
+        if (_updated)
+            result += "updated,";
+        switch (_monotonic)
+        {
+            case -1:
+                result += "monotonic decreasing,";
+                break;
+            case 1:
+                result += "monotonic increasing,";
+                break;
+        }
+        if (_dense)
+            result += "dense,";
+        if (_strict)
+            result += "strict";
+        result += "}";
+        return result;
+    }
 
   std::ostream& operator<<(std::ostream& ostr, const PVariable& v)
   {

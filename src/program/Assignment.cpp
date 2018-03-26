@@ -4,15 +4,15 @@ namespace program
 {
     bool Assignment::isScalarIncrement(int &incr)
     {
-        if (_lhs->varInfo()->vtype() != Type::TY_INTEGER)
+        if (lhs->varInfo()->vtype() != Type::TY_INTEGER)
             return false;
         
         incr = 0;
-        return _rhs->equivToVPlusX(_lhs->varInfo(), incr);
+        return rhs->equivToVPlusX(lhs->varInfo(), incr);
     }
     
     void Assignment::recordLhsInfo() {
-        PVariable *v = _lhs->varInfo();
+        PVariable *v = lhs->varInfo();
         int incr;
         if (isScalarIncrement(incr))
             v->recordScalarIncrement(incr);

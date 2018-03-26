@@ -8,16 +8,10 @@ namespace program
     class Assignment {
     public:
         
-        Assignment(LocationExpression *lhs, Expression *rhs) :
-        _lhs(lhs),
-        _rhs(rhs)
-        {}
+        Assignment(LocationExpression* lhs, Expression* rhs) : lhs(lhs), rhs(rhs) {}
         ~Assignment() {}
         
-        LocationExpression *lhs() { return _lhs; }
-        Expression *rhs() { return _rhs; }
-        
-        bool hasLhs(const PVariable &v) { return _lhs->varInfo() == &v; }
+        bool hasLhs(const PVariable &v) { return lhs->varInfo() == &v; }
         
         /**
          * True iff the assignment has the form x = x + c, where x is an
@@ -33,11 +27,8 @@ namespace program
         
         friend std::ostream& operator<<(std::ostream&, const Assignment&);
         
-    protected:
-        LocationExpression *_lhs;
-        Expression *_rhs;
-        
-        bool isScalarIncrement(Expression *e, PVariable *v, int &incr);
+        const LocationExpression* lhs;
+        const Expression* rhs;
     };
 }
 

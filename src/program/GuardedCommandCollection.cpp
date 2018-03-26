@@ -12,14 +12,14 @@ namespace program {
 
   bool GuardedCommand::addAssignment(Assignment *a)
   {
-    PVariable *lhs = a->lhs()->varInfo();
+    PVariable *lhs = a->lhs->varInfo();
     // look for duplicate assignments
     for (auto it = _assignments.begin(); it != _assignments.end(); ++it) {
       if ((*it)->hasLhs(*lhs)) {
         if (isArrayType(lhs->vtype())) {
           // array assignment, add condition to guard
-          addCondition(BooleanExpression::mkNeq(a->lhs()->child(0),
-                                                (*it)->lhs()->child(0)));
+          addCondition(BooleanExpression::mkNeq(a->lhs->child(0),
+                                                (*it)->lhs->child(0)));
         } else {
           // duplicate assignment to scalar
           return false;
@@ -60,7 +60,7 @@ namespace program {
 
   std::ostream& operator<<(std::ostream& ostr, const Assignment &a)
   {
-    ostr << *(a._lhs) << " = " << *(a._rhs) << ";";
+    ostr << *(a.lhs) << " = " << *(a.rhs) << ";";
     return ostr;
   }
 
