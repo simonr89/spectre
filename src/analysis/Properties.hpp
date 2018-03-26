@@ -36,10 +36,14 @@ namespace program {
 
     protected:
         
-        // properties of the program
+        /*
+         * the main aim of this class is to collect all the properties
+         * of the program in the member _properties.
+         * after all properties are collected, the elements of
+         * _properties will be dumped to TPTP
+         */
         typedef std::pair<std::string, logic::Formula*> Property;
         std::vector<Property> _properties;
-        
         void addProperty(std::string s, logic::Formula* f) { _properties.push_back(std::make_pair(s, f)); }
         
         static unsigned toVampireSort(Type t);

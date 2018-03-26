@@ -53,13 +53,6 @@ namespace program {
     }
   }
 
-  unsigned PVariable::arityOfSymbol(bool extended)
-  {
-    unsigned arity = _updated && extended ? 1 : 0;
-    if (isArrayType(_type))
-      arity++;
-    return arity;
-  }
 
   Term* PVariable::toTerm(Term* index) const
   {

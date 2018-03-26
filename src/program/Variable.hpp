@@ -126,11 +126,7 @@ namespace program {
         expressions */
     logic::Symbol* _symbol;
     logic::Symbol* _extendedSymbol;
-
-    unsigned arityOfSymbol(bool extended);
-  
-    //Kernel::BaseType * typeOfSymbol(bool extended);
-  
+    
   }; // class PVariable
 
   class QVariable : public Variable {
