@@ -235,22 +235,22 @@ namespace program {
                                 : InterpretedSymbol::INT_LESS);
     
     // build the disjunction
-    std::list<Formula*> disj {};
+    std::vector<Formula*> disj {};
     for (auto it = _loop.commands().begin(); it != _loop.commands().end(); ++it) {
       // only take into account commands that do affect v
       if (!(*it)->findAssignment(*v))
         continue;
       
-      std::list<Formula*> conj { (*it)->guard()->toFormula(i) } ;
+      std::vector<Formula*> conj { (*it)->guard()->toFormula(i) } ;
       if (dense) {
-        conj.push_front(new EqualityFormula(true, v->toTerm(i), x));
+        conj.push_back(new EqualityFormula(true, v->toTerm(i), x));
       } else {
-        conj.push_front(new PredicateFormula(new PredTerm(Theory::getSymbol(geOrLe),
+        conj.push_back(new PredicateFormula(new PredTerm(Theory::getSymbol(geOrLe),
                                                           { x, v->toTerm(i) })));
-        conj.push_front(new PredicateFormula(new PredTerm(Theory::getSymbol(gtOrLt),
+        conj.push_back(new PredicateFormula(new PredTerm(Theory::getSymbol(gtOrLt),
                                                           { v->toTerm(iPlusOne), x })));
       }
-      disj.push_front(new ConjunctionFormula(conj));
+      disj.push_back(new ConjunctionFormula(conj));
     }
 
     // since v is monotonic, there should be at least one guard that updates it
@@ -262,7 +262,7 @@ namespace program {
                                 { x, v->toTerm(Theory::integerConstant(0)) });
     PredTerm *p2 = new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
                                 { v->toTerm(loopCounterSymbol()), x });
-    std::list<Formula*> conds { new PredicateFormula(p1), new PredicateFormula(p2) };
+    std::vector<Formula*> conds { new PredicateFormula(p1), new PredicateFormula(p2) };
     
     return new UniversalFormula( { x }, new ImplicationFormula(new ConjunctionFormula(conds),     
                                                                new ExistentialFormula( { i } , f)));
@@ -283,7 +283,7 @@ namespace program {
   Formula *Properties::commandToFormula(GuardedCommand *c)
   {
     Assignment *a;
-    std::list<Formula*> conj {};
+    std::vector<Formula*> conj {};
 
     LVariable* i = new LVariable(Sort::intSort());
     Term* iPlusOne = new FuncTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
@@ -308,7 +308,7 @@ namespace program {
               store = new FuncTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_STORE),
                                    { store, a->lhs->child(0)->toTerm(i), a->rhs->toTerm(i) });
           }
-          conj.push_front(new EqualityFormula(true,
+          conj.push_back(new EqualityFormula(true,
                                               v->toTerm(iPlusOne),
                                               store));
         } else {
@@ -318,19 +318,19 @@ namespace program {
                ++itAsg) {
             a = *itAsg;
             if (a->hasLhs(*v))
-              conj.push_front(arrayAssignment(a, i, iPlusOne));
+              conj.push_back(arrayAssignment(a, i, iPlusOne));
           }
-          conj.push_front(arrayNonAssignment(v, c, i, iPlusOne));
+          conj.push_back(arrayNonAssignment(v, c, i, iPlusOne));
         }
       } else {
         // only one assignment to a given scalar variable is possible
         // in a command (unlike array variables)
         a = c->findAssignment(*v);
         if (a) {
-          conj.push_front(assignment(a, i, iPlusOne));
+          conj.push_back(assignment(a, i, iPlusOne));
         } else {
           // no assignment to v in this command
-          conj.push_front(nonAssignment(v, i, iPlusOne));
+          conj.push_back(nonAssignment(v, i, iPlusOne));
         }
       }
     }
@@ -392,12 +392,12 @@ namespace program {
     assert(isArrayType(v->vtype()));
     
     LVariable* j = new LVariable(Sort::intSort());
-    std::list<Formula*> conj {};
+    std::vector<Formula*> conj {};
     for (auto it = gc->assignments().begin();
          it != gc->assignments().end();
          ++it) {
       if ((*it)->hasLhs(*v))
-        conj.push_front(new EqualityFormula(false,
+        conj.push_back(new EqualityFormula(false,
                                             j,
                                             (*it)->lhs->child(0)->toTerm(index)));
     }
@@ -463,7 +463,7 @@ namespace program {
                                             Term* p,
                                             Term* v)
   {
-    std::list<Formula*> disj {};
+    std::vector<Formula*> disj {};
 
     for (auto itCmd = _loop.commands().begin(); itCmd != _loop.commands().end(); ++itCmd) {
       GuardedCommand *gc = *itCmd;
@@ -472,7 +472,7 @@ namespace program {
         Assignment *asg = *itAsg;
         
         if (asg->hasLhs(*a))
-          disj.push_front(arrayAssignmentConditions(asg, gc->guard(), i, p, v));
+          disj.push_back(arrayAssignmentConditions(asg, gc->guard(), i, p, v));
       }
     }
 
@@ -488,13 +488,13 @@ namespace program {
                                                  Term* p,
                                                  Term* v)
   {
-    std::list<Formula*> conj;
-    conj.push_front(guard->toFormula(i));
-    conj.push_front(new EqualityFormula(true,
+    std::vector<Formula*> conj;
+    conj.push_back(guard->toFormula(i));
+    conj.push_back(new EqualityFormula(true,
                                         p,
                                         asg->lhs->child(0)->toTerm(i)));
     if (v)
-      conj.push_front(new EqualityFormula(true,
+      conj.push_back(new EqualityFormula(true,
                                           v,
                                           asg->rhs->toTerm(i)));
     

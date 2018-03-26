@@ -2,7 +2,6 @@
 #define __Formula__
 
 #include <initializer_list>
-#include <list>
 #include <ostream>
 #include "Term.hpp"
 
@@ -16,7 +15,7 @@ namespace logic {
     
     Formula* quantify(bool univ = true) const;
 
-    virtual std::list<LVariable*> freeVariables() const = 0;
+    virtual std::vector<LVariable*> freeVariables() const = 0;
 
     virtual Formula* clone() const = 0;
   protected:
@@ -35,7 +34,7 @@ namespace logic {
 
     Formula* clone() const { return new PredicateFormula(*this); }
     
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
     
   protected:
 
@@ -57,7 +56,7 @@ namespace logic {
 
     Formula* clone() const { return new EqualityFormula(*this); }
     
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
 
   protected:
     bool _polarity;
@@ -68,7 +67,7 @@ namespace logic {
 
   class ConjunctionFormula : public Formula {
   public:
-    ConjunctionFormula(const std::list<Formula*>& conj) :
+    ConjunctionFormula(const std::vector<Formula*>& conj) :
       _conj(conj.size())
     {
       unsigned i = 0;
@@ -88,7 +87,7 @@ namespace logic {
 
     Formula* clone() const { return new ConjunctionFormula(*this); }
 
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
     
   protected:
     std::vector<Formula*> _conj;
@@ -97,7 +96,7 @@ namespace logic {
 
   class DisjunctionFormula : public Formula {
   public:
-    DisjunctionFormula(std::list<Formula*>& disj) :
+    DisjunctionFormula(std::vector<Formula*>& disj) :
       _disj(disj.size())
     {
       unsigned i = 0;
@@ -117,7 +116,7 @@ namespace logic {
 
     Formula* clone() const { return new DisjunctionFormula(*this); }
 
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
     
   protected:
     std::vector<Formula*> _disj;
@@ -137,7 +136,7 @@ namespace logic {
 
     Formula* clone() const { return new NegationFormula(*this); }
     
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
 
   protected:
     Formula *_f;
@@ -146,7 +145,7 @@ namespace logic {
 
   class ExistentialFormula : public Formula {
   public:
-    ExistentialFormula(const std::list<LVariable*>& vars, Formula* f) :
+    ExistentialFormula(const std::vector<LVariable*>& vars, Formula* f) :
       _vars(vars.size()),
       _f(f)
     {
@@ -168,7 +167,7 @@ namespace logic {
 
     Formula* clone() const { return new ExistentialFormula(*this); }
     
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
 
   protected:
     std::vector<LVariable*> _vars;
@@ -178,7 +177,7 @@ namespace logic {
 
   class UniversalFormula : public Formula {
   public:
-    UniversalFormula(const std::list<LVariable*>& vars, Formula* f) :
+    UniversalFormula(const std::vector<LVariable*>& vars, Formula* f) :
       _vars(vars.size()),
       _f(f)
     {
@@ -200,7 +199,7 @@ namespace logic {
 
     Formula* clone() const { return new UniversalFormula(*this); }
     
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
 
   protected:
     std::vector<LVariable*> _vars;
@@ -222,7 +221,7 @@ namespace logic {
 
     Formula* clone() const { return new ImplicationFormula(*this); }
     
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
 
   protected:
     Formula* _f1;

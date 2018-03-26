@@ -12,7 +12,6 @@
 #define __GclParsingContext__
 
 #include <string>
-#include <list>
 #include <vector>
 #include <map>
 #include "Expression.hpp"
@@ -66,7 +65,7 @@ namespace parser
         /** guarded command being declared */
         GuardedCommand *_guardDeclCtx;
         
-        std::list<QVariable*> _localScopes;
+        std::vector<QVariable*> _localScopes;
 
     public:
         /** symbol table */

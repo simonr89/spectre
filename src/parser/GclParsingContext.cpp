@@ -37,13 +37,13 @@ namespace parser {
     {
         // TODO prevent variable capture (disallow same name)
         QVariable *v = new QVariable(name, t);
-        _localScopes.push_front(v);
+        _localScopes.push_back(v);
         return v;
     }
     
     void GclParsingContext::closeLocalScope()
     {
-        _localScopes.pop_front();
+        _localScopes.pop_back();
     }
     
     void GclParsingContext::printInfo(GuardedCommandCollection &c) {

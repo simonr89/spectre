@@ -1,7 +1,6 @@
 #ifndef __Properties__
 #define __Properties__
 
-#include <list>
 #include <vector>
 #include <map>
 #include <utility>
@@ -41,9 +40,9 @@ namespace program {
         // properties of the program
         typedef std::pair<std::string, logic::Formula*> Property;
         
-        std::list<Property> _properties;
+        std::vector<Property> _properties;
         
-        std::list<logic::Formula*> _postconditions;
+        std::vector<logic::Formula*> _postconditions;
         
         void addProperty(std::string s, logic::Formula* f) { _properties.push_back(std::make_pair(s, f)); }
         

@@ -9,7 +9,7 @@
 #define __GuardedCommandCollection__
 
 #include <ostream>
-#include <list>
+#include <vector>
 #include "Expression.hpp"
 #include "Type.hpp"
 #include "Assignment.hpp"
@@ -32,7 +32,7 @@ namespace program {
 
     FExpression *guard() { return _guard; }
     
-    std::list<Assignment*>& assignments() { return _assignments; }
+    std::vector<Assignment*>& assignments() { return _assignments; }
 
     /** Return true if the assignment was added, false if an
         assignment with the same LHS already exists in the guarded
@@ -50,7 +50,7 @@ namespace program {
 
   protected:
     FExpression *_guard;
-    std::list<Assignment*> _assignments;
+    std::vector<Assignment*> _assignments;
   };
 
   class GuardedCommandCollection {
@@ -60,7 +60,7 @@ namespace program {
     {}
     ~GuardedCommandCollection() {}
 
-    const std::list<GuardedCommand*>& commands() const { return _collection; }
+    const std::vector<GuardedCommand*>& commands() const { return _collection; }
 
     FExpression *_condition;
 
@@ -79,7 +79,7 @@ namespace program {
     
   protected:
     /** The guarded commands stored in reverse order */
-    std::list<GuardedCommand*> _collection;
+    std::vector<GuardedCommand*> _collection;
   };
 
   /** pretty-printer */

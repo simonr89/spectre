@@ -1,6 +1,6 @@
 #include "Formula.hpp"
 
-#include <functional>
+#include <algorithm>
 
 namespace logic {
 
@@ -87,82 +87,90 @@ namespace logic {
     return p1->id() == p2->id();
   }
 
-  Formula* Formula::quantify(bool univ) const
-  {
-    std::list<LVariable*> vars = freeVariables();
-    vars.sort(compareLVarPointers);
-    vars.unique(eqLVarPointers);
-    Formula *f = clone();
+    Formula* Formula::quantify(bool univ) const
+    {
+        std::vector<LVariable*> vars = freeVariables();
+        std::sort(vars.begin(),vars.end(),compareLVarPointers);
+        std::unique(vars.begin(), vars.end(), eqLVarPointers);
+        Formula *f = clone();
+        
+        if (vars.empty()) {
+            return f;
+        }
+        
+        if (univ) {
+            return new UniversalFormula(vars, f);
+        } else {
+            return new ExistentialFormula(vars, f);
+        }
+    }
 
-    if (vars.empty()) {
-      return f;
+    std::vector<LVariable*> PredicateFormula::freeVariables() const
+    {
+        return _p->freeVariables();
+    }
+
+    std::vector<LVariable*> EqualityFormula::freeVariables() const
+    {
+        std::vector<LVariable*> l = _left->freeVariables();
+        std::vector<LVariable*> r = _right->freeVariables();
+        l.insert(l.end(), r.begin(),r.end());
+        return l;
     }
     
-    if (univ) {
-      return new UniversalFormula(vars, f);
-    } else {
-      return new ExistentialFormula(vars, f);
+    std::vector<LVariable*> ConjunctionFormula::freeVariables() const {
+        std::vector<LVariable*> freeVars;
+        for (const auto& conjunct : _conj)
+        {
+            auto freeVarsConjunct = conjunct->freeVariables();
+            freeVars.insert(freeVars.end(), freeVarsConjunct.begin(), freeVarsConjunct.end());
+        }
+        return freeVars;
     }
-  }
-
-  std::list<LVariable*> PredicateFormula::freeVariables() const
-  {
-    return _p->freeVariables();
-  }
-
-  std::list<LVariable*> EqualityFormula::freeVariables() const
-  {
-    std::list<LVariable*> l = _left->freeVariables();
-    l.splice(l.end(), _right->freeVariables());
-    return l;
-  }
-
-  std::list<LVariable*> ConjunctionFormula::freeVariables() const
-  {
-    std::list<LVariable*> l;
-    for (unsigned i = 0; i < _conj.size(); i++) {
-      l.splice(l.end(), _conj[i]->freeVariables());
+    
+    std::vector<LVariable*> DisjunctionFormula::freeVariables() const {
+        std::vector<LVariable*> freeVars;
+        for (const auto& disjunct : _disj)
+        {
+            auto freeVarsDisjunct = disjunct->freeVariables();
+            freeVars.insert(freeVars.end(), freeVarsDisjunct.begin(), freeVarsDisjunct.end());
+        }
+        return freeVars;
     }
-    return l;
-  }
 
-  std::list<LVariable*> DisjunctionFormula::freeVariables() const
-  {
-    std::list<LVariable*> l;
-    for (unsigned i = 0; i < _disj.size(); i++) {
-      l.splice(l.end(), _disj[i]->freeVariables());
+    std::vector<LVariable*> NegationFormula::freeVariables() const
+    {
+        return _f->freeVariables();
     }
-    return l;
-  }
 
-  std::list<LVariable*> NegationFormula::freeVariables() const
-  {
-    return _f->freeVariables();
-  }
-
-  std::list<LVariable*> ExistentialFormula::freeVariables() const
-  {
-    std::list<LVariable*> l = _f->freeVariables();
-    for (auto it = _vars.begin(); it != _vars.end(); ++it) {
-      l.remove_if(std::bind(eqLVarPointers, *it, std::placeholders::_1));
+    std::vector<LVariable*> ExistentialFormula::freeVariables() const
+    {
+        std::vector<LVariable*> l = _f->freeVariables();
+        
+        for (const auto& var : _vars)
+        {
+            l.erase(std::remove(l.begin(), l.end(), var), l.end());
+        }
+        return l;
     }
-    return l;
-  }
 
-  std::list<LVariable*> UniversalFormula::freeVariables() const
-  {
-    std::list<LVariable*> l = _f->freeVariables();
-    for (auto it = _vars.begin(); it != _vars.end(); ++it) {
-      l.remove_if(std::bind(eqLVarPointers, *it, std::placeholders::_1));
+    std::vector<LVariable*> UniversalFormula::freeVariables() const
+    {
+        std::vector<LVariable*> l = _f->freeVariables();
+        
+        for (const auto& var : _vars)
+        {
+            l.erase(std::remove(l.begin(), l.end(), var), l.end());
+        }
+        return l;
     }
-    return l;
-  }
 
-  std::list<LVariable*> ImplicationFormula::freeVariables() const
-  {
-    std::list<LVariable*> l = _f1->freeVariables();
-    l.splice(l.end(), _f2->freeVariables());
-    return l;
-  }
+    std::vector<LVariable*> ImplicationFormula::freeVariables() const
+    {
+        std::vector<LVariable*> l = _f1->freeVariables();
+        std::vector<LVariable*> r = _f2->freeVariables();
+        l.insert(l.end(), r.begin(),r.end());
+        return l;
+    }
 
 }

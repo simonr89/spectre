@@ -3,7 +3,7 @@
 
 #include <initializer_list>
 #include <map>
-#include <list>
+#include <vector>
 #include <string>
 
 namespace util {
@@ -68,7 +68,7 @@ namespace util {
   protected:
     std::string _value;
 
-    std::list<std::string> _choices;
+    std::vector<std::string> _choices;
   };
 
   class Configuration {

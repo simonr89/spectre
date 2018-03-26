@@ -3,7 +3,6 @@
 #define __Analyzer__
 
 #include <string>
-#include <list>
 #include <vector>
 #include <map>
 #include "Expression.hpp"

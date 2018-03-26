@@ -19,7 +19,7 @@ namespace logic {
   public:
     virtual std::string toTPTP() const = 0;
 
-    virtual std::list<LVariable*> freeVariables() const = 0;
+    virtual std::vector<LVariable*> freeVariables() const = 0;
   };
 
   class LVariable : public Term {
@@ -39,7 +39,7 @@ namespace logic {
 
     std::string toTPTP() const;
 
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
     
   protected:
     unsigned _id;
@@ -63,7 +63,7 @@ namespace logic {
 
     std::string toTPTP() const;
 
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
     
   protected:
     Symbol* _head;
@@ -87,7 +87,7 @@ namespace logic {
 
     std::string toTPTP() const;
 
-    std::list<LVariable*> freeVariables() const;
+    std::vector<LVariable*> freeVariables() const;
 
   protected:
     Symbol* _head;

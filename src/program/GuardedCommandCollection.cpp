@@ -26,8 +26,7 @@ namespace program {
         }        
       }
     }
-    // the order of assignments does not matter
-    _assignments.push_front(a);
+    _assignments.push_back(a);
     
     return true;
   }
@@ -39,7 +38,7 @@ namespace program {
 
   void GuardedCommandCollection::addGuardedCommand(GuardedCommand *gc)
   {
-    _collection.push_front(gc);
+    _collection.push_back(gc);
   }
 
   void GuardedCommandCollection::finalizeGuards()

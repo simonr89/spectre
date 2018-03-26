@@ -34,25 +34,29 @@ namespace logic {
     }
   }
 
-  std::list<LVariable*> LVariable::freeVariables() const {
-    LVariable *v = new LVariable(*this);
-    return { v };
-  }
-
-  std::list<LVariable*> FuncTerm::freeVariables() const {
-    std::list<LVariable*> l;
-    for (unsigned i = 0; i < _subterms.size(); i++) {
-      l.splice(l.end(), _subterms[i]->freeVariables());
+    std::vector<LVariable*> LVariable::freeVariables() const {
+        LVariable *v = new LVariable(*this);
+        return { v };
     }
-    return l;
-  }
 
-  std::list<LVariable*> PredTerm::freeVariables() const {
-    std::list<LVariable*> l;
-    for (unsigned i = 0; i < _subterms.size(); i++) {
-      l.splice(l.end(), _subterms[i]->freeVariables());
+    std::vector<LVariable*> FuncTerm::freeVariables() const {
+        std::vector<LVariable*> freeVars;
+        for (const auto& subterm : _subterms)
+        {
+            auto freeVarsSubterm = subterm->freeVariables();
+            freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
+        }
+        return freeVars;
     }
-    return l;
-  }
+    
+    std::vector<LVariable*> PredTerm::freeVariables() const {
+        std::vector<LVariable*> freeVars;
+        for (const auto& subterm : _subterms)
+        {
+            auto freeVarsSubterm = subterm->freeVariables();
+            freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
+        }
+        return freeVars;
+    }
 }
 
