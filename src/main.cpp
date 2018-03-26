@@ -7,7 +7,9 @@
 #include "util/Output.hpp"
 
 #include "parser/GclParser.hpp"
+
 #include "analysis/Analyzer.hpp"
+#include "analysis/Properties.hpp"
 
 extern FILE* yyin;
 
@@ -53,10 +55,14 @@ int main(int argc, char *argv[]) {
                     {
                         c.program.finalizeGuards();
 
+                        // run lightweight analysis
                         program::Analyzer a(c.program, c._preconditions,c._postconditions,c._variables);
+                        a.computeVariableProperties();
                         
-                        // run analysis
-                        a.buildProperties();
+                        // create properties and dump them to TPTP
+                        program::Properties props(c.program, c._variables, c._preconditions,c._postconditions);
+                        props.analyze();
+                        props.outputTPTP();
                     }
                     else
                     {

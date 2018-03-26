@@ -45,15 +45,11 @@ namespace program {
     return false;
   }
 
-    void Analyzer::buildProperties()
+    void Analyzer::computeVariableProperties()
     {
         // final bit of light-weight analysis on monotonic scalars
         densityAndStrictness();
         
-        // creating units
-        Properties props(loop, variables, preconditions, postconditions);
-        
-        props.analyze();
-        props.outputTPTP();
+
     }
 }

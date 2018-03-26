@@ -26,7 +26,7 @@ namespace program {
       const std::vector<FExpression*> postconditions;
       const std::map<std::string, PVariable*> variables; /* symbol table */
       
-      void buildProperties();
+      void computeVariableProperties();
 
   protected:
     /** Set density and strictness flags for all variables, according to
