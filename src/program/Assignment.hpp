@@ -8,8 +8,14 @@ namespace program
     class Assignment {
     public:
         
-        Assignment(LocationExpression* lhs, Expression* rhs) : lhs(lhs), rhs(rhs) {}
-        ~Assignment() {}
+        Assignment(LocationExpression* lhs, Expression* rhs) : lhs(lhs), rhs(rhs)
+        {
+            recordLhsInfo();
+        }
+ 
+        /** Modifies the information associated with the lhs
+         variable*/
+        void recordLhsInfo();
         
         bool hasLhs(const PVariable &v) { return lhs->varInfo() == &v; }
         
@@ -19,11 +25,6 @@ namespace program
          * incr
          */
         bool isScalarIncrement(int &incr);
-        
-        /** Modifies the information associated with the lhs
-         variable. Should be executed immediately after the
-         constructor */
-        void recordLhsInfo();
         
         friend std::ostream& operator<<(std::ostream&, const Assignment&);
         

@@ -60,7 +60,7 @@ namespace program {
     {}
     ~GuardedCommandCollection() {}
 
-    std::list<GuardedCommand*>& commands() { return _collection; }
+    const std::list<GuardedCommand*>& commands() const { return _collection; }
 
     FExpression *_condition;
 
@@ -73,7 +73,7 @@ namespace program {
 
     void setLoopCondition(FExpression *e) { _condition = e; }
 
-    FExpression *loopCondition() { return _condition; }
+    const FExpression* loopCondition() const { return _condition; }
 
     friend std::ostream& operator<<(std::ostream&, const GuardedCommandCollection&);
     

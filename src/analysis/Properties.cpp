@@ -12,15 +12,9 @@ using namespace logic;
 
 namespace program {
 
-  void Properties::addPrecondition(FExpression *e)
-  {
-    static unsigned i = 0;
-    addProperty("precondition_" + std::to_string(i++), e->toFormula(Theory::integerConstant(0)));
-  }
-
   void Properties::addPostcondition(FExpression *e)
   {   
-    _postconditions.push_front(e->toFormula(loopCounterSymbol()));
+    _postconditions.push_back(e->toFormula(loopCounterSymbol()));
   }
 
   FuncTerm* Properties::loopCounterSymbol()
@@ -73,6 +67,14 @@ namespace program {
       }
     }
 
+      // assert preconditions at loop iteration 0
+      int i=0;
+      for (const auto& precondition : _preconditions)
+      {
+          ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++));
+      }
+    
+      //
     for (auto it = _properties.begin(); it != _properties.end(); ++it) {
       Property p = *it;
       ostr << p.second->declareTPTP(p.first) << std::endl;

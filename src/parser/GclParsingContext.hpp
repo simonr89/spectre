@@ -27,7 +27,7 @@ namespace parser
     {
     public:
         
-        GclParsingContext() : errorFlag(false), _variables(), _localScopes(), _preconditions(), _postconditions() {}
+        GclParsingContext() : errorFlag(false), _localScopes(), _variables(), _preconditions(), _postconditions() {}
         
         std::string inputFile;
 

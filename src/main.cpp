@@ -51,20 +51,12 @@ int main(int argc, char *argv[]) {
                     
                     if (!c.errorFlag)
                     {
-                        program::Analyzer a;
-                        // hack for now: copy everything from parsercontext into a
-                        for (const auto& e : c._preconditions)
-                        {
-                            a.addPrecondition(e);
-                        }
-                        for (const auto& e : c._postconditions)
-                        {
-                            a.addPostcondition(e);
-                        }
-                        a.setVariables(c._variables);
+                        c.program.finalizeGuards();
+
+                        program::Analyzer a(c.program, c._preconditions,c._postconditions,c._variables);
                         
                         // run analysis
-                        a.buildProperties(c.program);
+                        a.buildProperties();
                     }
                     else
                     {

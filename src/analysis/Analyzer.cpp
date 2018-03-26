@@ -8,20 +8,20 @@
 
 namespace program {
 
-  void Analyzer::densityAndStrictness(GuardedCommandCollection &c)
+  void Analyzer::densityAndStrictness()
   {
-    for (auto it = _variables.begin(); it != _variables.end(); ++it) {
-      densityAndStrictness(c, (*it).second);
+    for (auto it = variables.begin(); it != variables.end(); ++it) {
+      densityAndStrictness((*it).second);
     }
   }
 
-  void Analyzer::densityAndStrictness(GuardedCommandCollection &c, PVariable *v) {
+  void Analyzer::densityAndStrictness(PVariable *v) {
     if (!v->isMonotonic())
       return;
 
     bool strict = true, dense = true;
     int incr;
-    for (auto it = c.commands().begin(); it != c.commands().end(); ++it) {
+    for (auto it = loop.commands().begin(); it != loop.commands().end(); ++it) {
       if (isIncremented(*it, v, incr))
         dense &= (incr == 1 || incr == -1);
       else
@@ -45,23 +45,15 @@ namespace program {
     return false;
   }
 
-    void Analyzer::buildProperties(GuardedCommandCollection &c)
+    void Analyzer::buildProperties()
     {
-        
-        
         // final bit of light-weight analysis on monotonic scalars
-        c.finalizeGuards();
-        densityAndStrictness(c);
+        densityAndStrictness();
         
         // creating units
-        Properties props(c, _variables);
+        Properties props(loop, variables, preconditions);
         
-        //add precondition and post conditions
-        for (auto it = std::begin(_preconditions); it != std::end(_preconditions); ++it) {
-            props.addPrecondition(*it);
-        }
-        
-        for (auto it = std::begin(_postconditions); it != std::end(_postconditions); ++it) {
+        for (auto it = std::begin(postconditions); it != std::end(postconditions); ++it) {
             props.addPostcondition(*it);
         }
         

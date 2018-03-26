@@ -16,30 +16,24 @@ namespace program {
   {
   public:
 
-    Analyzer() :
-      _preconditions(),
-      _postconditions()
-    {}
-  
-    ~Analyzer() {}
-
-    void buildProperties(GuardedCommandCollection &c);
-
-    void addPrecondition(FExpression *e) { _preconditions.push_back(e); }
-    void addPostcondition(FExpression *e) { _postconditions.push_back(e); }
-      void setVariables(std::map<std::string, PVariable*>& variables) {_variables = variables;}
+      Analyzer(const GuardedCommandCollection& loop,
+               const std::vector<FExpression*>& preconditions,
+               const std::vector<FExpression*>& postconditions,
+               const std::map<std::string, PVariable*>& variables
+               ) : loop(loop), preconditions(preconditions), postconditions(postconditions), variables(variables) {}
+      
+      const GuardedCommandCollection& loop;
+      const std::vector<FExpression*> preconditions;
+      const std::vector<FExpression*> postconditions;
+      const std::map<std::string, PVariable*> variables; /* symbol table */
+      
+      void buildProperties();
 
   protected:
-    /** symbol table */
-    std::map<std::string, PVariable*> _variables;
-
-    std::vector<FExpression*> _preconditions;
-    std::vector<FExpression*> _postconditions;
-
     /** Set density and strictness flags for all variables, according to
         the loop description */
-    void densityAndStrictness(GuardedCommandCollection &c);
-    void densityAndStrictness(GuardedCommandCollection &c, PVariable *v);
+    void densityAndStrictness();
+    void densityAndStrictness(PVariable *v);
     bool isIncremented(GuardedCommand *gc, PVariable *v, int &incr);
   };
 

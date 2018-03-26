@@ -283,7 +283,7 @@ assignment_list:
 ;
 
 assignment:
-  location ASSIGN expr { $$ = new Assignment(static_cast<LocationExpression*>($1), $3); $$->recordLhsInfo(); }
+  location ASSIGN expr { $$ = new Assignment(static_cast<LocationExpression*>($1), $3);}
 ;
 
 location:

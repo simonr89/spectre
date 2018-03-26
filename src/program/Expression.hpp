@@ -72,7 +72,7 @@ namespace program {
   {
   public:
     
-    virtual logic::Formula* toFormula(logic::Term* index) = 0;
+    virtual logic::Formula* toFormula(logic::Term* index) const = 0;
   };
   
   class ArithmeticExpression : public Expression
@@ -153,7 +153,7 @@ namespace program {
         term. */
     logic::Term* toTerm(logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(logic::Term* i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -207,7 +207,7 @@ namespace program {
         (possibly a predicate) */
     logic::Term* toTerm(logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -245,7 +245,7 @@ namespace program {
         predicate. */
     logic::Term* toTerm(logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -276,7 +276,7 @@ namespace program {
         predicate. */
     logic::Term* toTerm(logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
