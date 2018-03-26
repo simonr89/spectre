@@ -18,16 +18,13 @@ namespace program {
     class Properties
     {
     public:
-        
-        Properties(const GuardedCommandCollection& loop, const std::map<std::string, PVariable*>& vars, const std::vector<FExpression*>& preconditions) :
+        Properties(const GuardedCommandCollection& loop, const std::map<std::string, PVariable*>& vars, const std::vector<FExpression*>& preconditions, const std::vector<FExpression*>& postconditions) :
         _loop(loop),
         _vars(vars),
         _preconditions(preconditions),
-        _properties(),
-        _postconditions()
+        _postconditions(postconditions),
+        _properties()
         {}
-        
-        void addPostcondition(FExpression *e);
         
         void analyze();
         void outputTPTP();
@@ -35,14 +32,13 @@ namespace program {
         const GuardedCommandCollection& _loop;
         const std::map<std::string, PVariable*>& _vars;
         const std::vector<FExpression*>& _preconditions;
+        const std::vector<FExpression*>& _postconditions;
+
     protected:
         
         // properties of the program
         typedef std::pair<std::string, logic::Formula*> Property;
-        
         std::vector<Property> _properties;
-        
-        std::vector<logic::Formula*> _postconditions;
         
         void addProperty(std::string s, logic::Formula* f) { _properties.push_back(std::make_pair(s, f)); }
         

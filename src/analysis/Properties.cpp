@@ -12,11 +12,6 @@ using namespace logic;
 
 namespace program {
 
-  void Properties::addPostcondition(FExpression *e)
-  {   
-    _postconditions.push_back(e->toFormula(loopCounterSymbol()));
-  }
-
   FuncTerm* Properties::loopCounterSymbol()
   {
     // initialization note that the syntax of the guarded command
@@ -39,51 +34,59 @@ namespace program {
     }
   }
 
-  void Properties::outputTPTP()
-  {
-    std::ostream& ostr = util::Output::stream();
-    Formula* conjecture = nullptr;
-    if (! _postconditions.empty() &&
-        util::Configuration::instance().mainMode().getValue() == "verification") {
-      // add negated loop condition to assumptions + negated goal (in non extended language)
-      Formula *f = _loop.loopCondition()->toFormula(loopCounterSymbol());
-      addProperty("loop_exit", new NegationFormula(f));
-      
-      conjecture = new ConjunctionFormula(_postconditions);
-    }
-
-    for (auto it = Sort::sortsBegin(); it != Sort::sortsEnd(); ++it) {
-      if ((*it).isUserDefined())
-        ostr << (*it).declareTPTP("sort_" + (*it).name()) << std::endl;
-    }
-
-    for (auto it = Symbol::sigBegin(); it != Symbol::sigEnd(); ++it) {
-      if ((*it).isUserDefined()) {
-        ostr << (*it).declareTPTP("symb_" + (*it).name()) << std::endl;
-        if ((*it).isColored() &&
-            util::Configuration::instance().mainMode().getValue() == "generation") {
-          ostr << (*it).declareVampireColor() << std::endl;
+    void Properties::outputTPTP()
+    {
+        std::ostream& ostr = util::Output::stream();
+        
+        // dump symbols
+        for (auto it = Sort::sortsBegin(); it != Sort::sortsEnd(); ++it) {
+            if ((*it).isUserDefined())
+                ostr << (*it).declareTPTP("sort_" + (*it).name()) << std::endl;
         }
-      }
+        
+        for (auto it = Symbol::sigBegin(); it != Symbol::sigEnd(); ++it) {
+            if ((*it).isUserDefined()) {
+                ostr << (*it).declareTPTP("symb_" + (*it).name()) << std::endl;
+                if ((*it).isColored() &&
+                    util::Configuration::instance().mainMode().getValue() == "generation") {
+                    ostr << (*it).declareVampireColor() << std::endl;
+                }
+            }
+        }
+        
+        // dump preconditions (at loop iteration 0)
+        int i=0;
+        for (const auto& precondition : _preconditions)
+        {
+            ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++));
+        }
+        
+        // dump loop condition
+        if (util::Configuration::instance().mainMode().getValue() == "verification")
+        {
+            Formula *f = _loop.loopCondition()->toFormula(loopCounterSymbol());
+            addProperty("loop_exit", new NegationFormula(f));
+        }
+        
+        // dump all the properties
+        for (auto it = _properties.begin(); it != _properties.end(); ++it) {
+            Property p = *it;
+            ostr << p.second->declareTPTP(p.first) << std::endl;
+        }
+        
+        // dump conjecture
+        if (util::Configuration::instance().mainMode().getValue() == "verification")
+        {
+            // conjoin post-conditions to conjecture
+            std::vector<Formula*>conjuncts;
+            for (const auto& postcondition : _postconditions)
+            {
+                conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
+            }
+            Formula* conjecture = new ConjunctionFormula(conjuncts);
+            ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
+        }
     }
-
-      // assert preconditions at loop iteration 0
-      int i=0;
-      for (const auto& precondition : _preconditions)
-      {
-          ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++));
-      }
-    
-      //
-    for (auto it = _properties.begin(); it != _properties.end(); ++it) {
-      Property p = *it;
-      ostr << p.second->declareTPTP(p.first) << std::endl;
-    }
-
-    if (conjecture) {
-      ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
-    }
-  }
 
   /*
    * Monotonicity propreties

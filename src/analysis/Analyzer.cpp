@@ -51,11 +51,7 @@ namespace program {
         densityAndStrictness();
         
         // creating units
-        Properties props(loop, variables, preconditions);
-        
-        for (auto it = std::begin(postconditions); it != std::end(postconditions); ++it) {
-            props.addPostcondition(*it);
-        }
+        Properties props(loop, variables, preconditions, postconditions);
         
         props.analyze();
         props.outputTPTP();
