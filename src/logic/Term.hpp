@@ -50,7 +50,7 @@ namespace logic {
 
   class FuncTerm : public Term {
   public:
-    FuncTerm(Symbol* head, std::initializer_list<Term*> subterms) :
+    FuncTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
       _head(head),
       _subterms(subterms)
     {
@@ -67,14 +67,14 @@ namespace logic {
     
   protected:
     Symbol* _head;
-    std::vector<Term*> _subterms;
+    std::vector<const Term*> _subterms;
   };
 
   // taking the FOOL approach, predicates are alse terms
   class PredTerm : public Term {
   public:
 
-    PredTerm(Symbol* head, std::initializer_list<Term*> subterms) :
+    PredTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
       _head(head),
       _subterms(subterms)
     {
@@ -91,7 +91,7 @@ namespace logic {
 
   protected:
     Symbol* _head;
-    std::vector<Term*> _subterms;
+    std::vector<const Term*> _subterms;
   };
 
   inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { ostr << e.toTPTP(); return ostr; }

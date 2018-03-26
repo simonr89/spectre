@@ -57,7 +57,7 @@ namespace program {
     return false;
   }
 
-  bool ArithmeticExpression::equivToVPlusX(PVariable *v, int &incr) const
+  bool ArithmeticExpression::equivToVPlusX(const PVariable *v, int &incr) const
   {
     Expression *e1, *e2;
     int a, b;
@@ -86,7 +86,7 @@ namespace program {
     }
   }
 
-  bool LocationExpression::equivToVPlusX(PVariable *v, int &incr) const
+  bool LocationExpression::equivToVPlusX(const PVariable *v, int &incr) const
   {
     if (_kind == LocationExprKind::EXP_VAR_LOC && _var == v) {
       incr = 0;
@@ -102,7 +102,7 @@ namespace program {
    * is empty, then the expression is in the non extended language (as
    * understood by the user)
    */
-  logic::Term* ArithmeticExpression::toTerm(logic::Term* index) const
+  logic::Term* ArithmeticExpression::toTerm(const logic::Term* index) const
   {  
     using namespace logic;
 
@@ -144,7 +144,7 @@ namespace program {
     }
   }
 
-    logic::Term* LocationExpression::toTerm(logic::Term* index) const
+    logic::Term* LocationExpression::toTerm(const logic::Term* index) const
     {
         switch (_kind) {
             case LocationExprKind::EXP_VAR_LOC:
@@ -160,12 +160,12 @@ namespace program {
     return nullptr;
   }
 
-  logic::Term* VariableExpression::toTerm(logic::Term* index) const
+  logic::Term* VariableExpression::toTerm(const logic::Term* index) const
   {
     return _var->toTerm(index);
   }
 
-  logic::Term* BooleanExpression::toTerm(logic::Term* index) const
+  logic::Term* BooleanExpression::toTerm(const logic::Term* index) const
   {
     //TODO check original implementation
     //return toFormula(index);
@@ -173,13 +173,13 @@ namespace program {
     return nullptr;
   }
 
-  logic::Term* QuantifiedExpression::toTerm(logic::Term* index) const
+  logic::Term* QuantifiedExpression::toTerm(const logic::Term* index) const
   {
     assert(0);
     return nullptr;
   }
 
-    logic::Formula* LocationExpression::toFormula(logic::Term* index) const
+    logic::Formula* LocationExpression::toFormula(const logic::Term* index) const
     {
         switch (_kind) {
             case LocationExprKind::EXP_VAR_LOC:
@@ -196,7 +196,7 @@ namespace program {
         return nullptr;
     }
   
-  logic::Formula* BooleanExpression::toFormula(logic::Term* index) const
+  logic::Formula* BooleanExpression::toFormula(const logic::Term* index) const
   {
     using namespace logic;
     
@@ -243,12 +243,12 @@ namespace program {
     return nullptr;
   }
 
-  logic::Formula* VariableExpression::toFormula(logic::Term* index) const
+  logic::Formula* VariableExpression::toFormula(const logic::Term* index) const
   {
     return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
   }
 
-  logic::Formula* QuantifiedExpression::toFormula(logic::Term* index) const
+  logic::Formula* QuantifiedExpression::toFormula(const logic::Term* index) const
   {
     using namespace logic;
 

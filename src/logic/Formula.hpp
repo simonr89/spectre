@@ -43,7 +43,7 @@ namespace logic {
 
   class EqualityFormula : public Formula {
   public:
-    EqualityFormula(bool polarity, Term* left, Term* right) :
+    EqualityFormula(bool polarity, const Term* left, const Term* right) :
       _polarity(polarity),
       _left(left),
       _right(right)
@@ -60,8 +60,8 @@ namespace logic {
 
   protected:
     bool _polarity;
-    Term* _left;
-    Term* _right;
+    const Term* _left;
+    const Term* _right;
 
   };
 

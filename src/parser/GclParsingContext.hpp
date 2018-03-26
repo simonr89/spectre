@@ -17,6 +17,7 @@
 #include "Expression.hpp"
 #include "GuardedCommandCollection.hpp"
 #include "Variable.hpp"
+#include "Program.hpp"
 
 namespace parser
 {
@@ -74,6 +75,8 @@ namespace parser
         // TODO: shift this into the parser
         std::vector<FExpression*> _preconditions;
         std::vector<FExpression*> _postconditions;
+        
+        std::unique_ptr<Program> generateProgram();
     };
     
 }

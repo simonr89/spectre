@@ -28,11 +28,11 @@ namespace program {
 
     /** Return nullptr if the variable is not assigned in the
         command */
-    Assignment *findAssignment(const PVariable &v);
+    Assignment *findAssignment(const PVariable &v) const;
 
-    FExpression *guard() { return _guard; }
+    const FExpression *guard() const { return _guard; }
     
-    std::vector<Assignment*>& assignments() { return _assignments; }
+    const std::vector<Assignment*>& assignments() const { return _assignments; }
 
     /** Return true if the assignment was added, false if an
         assignment with the same LHS already exists in the guarded

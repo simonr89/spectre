@@ -23,12 +23,12 @@ namespace program {
   public:
     virtual bool isProgramVariable() = 0;
 
-    virtual logic::Term *toTerm(logic::Term* i) const = 0;
+    virtual logic::Term *toTerm(const logic::Term* i, bool updated=true) const = 0;
     
     /** the name of this variable */
-    const std::string& name() { return _name; }
+    const std::string& name() const { return _name; }
 
-    const Type vtype() { return _type; }
+    const Type vtype() const { return _type; }
     
   protected:
     
@@ -52,33 +52,33 @@ namespace program {
 
     bool isProgramVariable() { return true; }
 
-    /** true if the variable is on the LHS of at least one assignment in
-        the loop */
-    bool isUpdated() { return _updated; }
-
-    /** true if the variable is only incremented by positive constants,
-        or only by negative constants */
-    bool isMonotonic() { return _monotonic; }
-
-    /** true if the variable is incremented/decremented by at least one
-        at every iteration */
-    bool isStrict() { return _strict; }
-
-    /** true if the variable is incremented/decremented by at most one
-        at every iteration */
-    bool isDense() { return _dense; }
-
-    /** 1 if the variable is monotonic increasing, -1 if it is monotonic
-        decreasing, 0 if constant or otherwise non-monotonic*/
-    int monotonicity() { return _monotonic; }
-  
-    void setUpdated() { _updated = true; }
-
-    void setStrict() { _strict = true; }
-
-    void setDense() { _dense = true; }
-
-    void setMonotonic(bool b) { _monotonic = b; }
+//    /** true if the variable is on the LHS of at least one assignment in
+//        the loop */
+//    bool isUpdated() { return _updated; }
+//
+//    /** true if the variable is only incremented by positive constants,
+//        or only by negative constants */
+//    bool isMonotonic() { return _monotonic; }
+//
+//    /** true if the variable is incremented/decremented by at least one
+//        at every iteration */
+//    bool isStrict() { return _strict; }
+//
+//    /** true if the variable is incremented/decremented by at most one
+//        at every iteration */
+//    bool isDense() { return _dense; }
+//
+//    /** 1 if the variable is monotonic increasing, -1 if it is monotonic
+//        decreasing, 0 if constant or otherwise non-monotonic*/
+//    int monotonicity() { return _monotonic; }
+//
+//    void setUpdated() { _updated = true; }
+//
+//    void setStrict() { _strict = true; }
+//
+//    void setDense() { _dense = true; }
+//
+//    void setMonotonic(bool b) { _monotonic = b; }
 
     void recordScalarIncrement(int n);
 
@@ -94,30 +94,24 @@ namespace program {
      * constructed, since the arity of the symbol depends on the value
      * of 'updated'
      */
-    logic::Term *toTerm(logic::Term* i) const;
+    logic::Term *toTerm(const logic::Term* i, bool updated=true) const override;
 
     /** Same as above for array variables */
-    logic::Term *toTerm(logic::Term* i, logic::Term* arrayIndex) const;
-
-    /** Same as above for boolean variables */
-    //logic::PredTerm* toPred(logic::Term* i);
-
-    /** Same as above for boolean arrays */
-    //logic::PredTerm* toPred(logic::Term* i, logic::Term* arrayIndex);
+    logic::Term *toTerm(const logic::Term* i, const logic::Term* arrayIndex, bool updated=true) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const PVariable& v);
 
       std::string toString() const;
   protected:
-    
-    /** Whether the variable is updated by the loop */
-    bool _updated;
-    /** -1, 0, or 1 */
-    short _monotonic;
-
-    bool _strict;
-
-    bool _dense;
+//
+//    /** Whether the variable is updated by the loop */
+//    bool _updated;
+//    /** -1, 0, or 1 */
+//    short _monotonic;
+//
+//    bool _strict;
+//
+//    bool _dense;
 
     /** the symbol associated to that variable in FOL terms. If extended
         is set to true, this is the symbol for extended expressions
@@ -151,7 +145,7 @@ namespace program {
 
     bool isProgramVariable() { return false; }
 
-    logic::Term *toTerm(logic::Term* i) const { return _lvariable; }
+    logic::Term *toTerm(const logic::Term* i, bool updated=true) const { return _lvariable; }
 
     logic::LVariable* toVar() { return _lvariable; }
     

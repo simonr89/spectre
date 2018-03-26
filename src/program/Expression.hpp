@@ -32,7 +32,7 @@ namespace program {
     virtual Type etype() const = 0;
 
     // this could be a FOOL predicate
-    virtual logic::Term* toTerm(logic::Term* index) const = 0;
+    virtual logic::Term* toTerm(const logic::Term* index) const = 0;
 
     virtual std::ostream& toStream(std::ostream& ostr) const = 0;
 
@@ -44,7 +44,7 @@ namespace program {
 
     virtual bool evalToCstInt(int &value) { return false; }
 
-    virtual bool equivToVPlusX(PVariable *v, int &value) const { return false; }
+    virtual bool equivToVPlusX(const PVariable *v, int &value) const { return false; }
 
     // TODO remove this and leave it only in appropriate derived classes?
     //virtual logic::Term* toTerm(logic::Term* i) { return nullptr; }
@@ -72,7 +72,7 @@ namespace program {
   {
   public:
     
-    virtual logic::Formula* toFormula(logic::Term* index) const = 0;
+    virtual logic::Formula* toFormula(const logic::Term* index) const = 0;
   };
   
   class ArithmeticExpression : public Expression
@@ -93,14 +93,14 @@ namespace program {
         value */
     bool evalToCstInt(int &value) override;
 
-    bool equivToVPlusX(PVariable *v, int &value) const override;
+    bool equivToVPlusX(const PVariable *v, int &value) const override;
 
     Type etype() const override { return Type::TY_INTEGER; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire term */
-    logic::Term* toTerm(logic::Term* i) const override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -151,9 +151,9 @@ namespace program {
 
     /** Relativised expression index at iteration, as a FOL
         term. */
-    logic::Term* toTerm(logic::Term* i) const override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) const override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -195,7 +195,7 @@ namespace program {
       EXP_FIELD_LOC
     };
 
-    bool equivToVPlusX(PVariable *v, int &value) const override;
+    bool equivToVPlusX(const PVariable *v, int &value) const override;
 
     PVariable *varInfo() const { return _var; }
 
@@ -205,15 +205,15 @@ namespace program {
 
     /** Relativised expression index at iteration, as a FOL term
         (possibly a predicate) */
-    logic::Term* toTerm(logic::Term* i) const override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) const override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
     static LocationExpression * mkProgramVariable(PVariable* v);
     static LocationExpression * mkArrayApp(PVariable* v, Expression* e2);
-    static LocationExpression * mkFieldAccess(Expression *e, Expression* e2); 
+    static LocationExpression * mkFieldAccess(Expression *e, Expression* e2);
 
   protected:
 
@@ -243,9 +243,9 @@ namespace program {
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(logic::Term* i) const override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) const override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -274,9 +274,9 @@ namespace program {
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(logic::Term* i) const override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) const override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */

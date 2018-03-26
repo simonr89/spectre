@@ -5,28 +5,27 @@
 #define __Program__
 
 #include <vector>
-#include "ProgramLocation.hpp"
+#include "GuardedCommandCollection.hpp"
+#include "Variable.hpp"
+#include "Expression.hpp"
+
 
 namespace program
 {
     class Program
     {
-        std::vector<ProgramLocation> locations;
-
     public:
-        Program(std::vector<ProgramLocation> locations) : locations(std::move(locations)){}
-
-        const std::vector<ProgramLocation>& getLocations() const {return locations;}
+        Program(GuardedCommandCollection loop,
+                std::vector<const FExpression*> preconditions,
+                std::vector<const FExpression*> postconditions,
+                std::vector<const PVariable*> variables
+                ) : loop(loop), variables(variables), preconditions(preconditions), postconditions(postconditions) {}
+        
+        const GuardedCommandCollection loop;
+        const std::vector<const PVariable*> variables;
+        const std::vector<const FExpression*> preconditions;
+        const std::vector<const FExpression*> postconditions;
     };
-
-    std::ostream& operator<<(std::ostream& os, const Program& p)
-    {
-        for (const auto& pl : p.getLocations())
-        {
-            os << pl << "\n";
-        }
-        return os;
-    }
 }
 
 #endif

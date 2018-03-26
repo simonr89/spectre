@@ -4,6 +4,7 @@ set(INVGEN_PROGRAM_SOURCES
     Type.cpp
     Variable.cpp
     Assignment.cpp
+    Program.cpp
 )
 
 set(INVGEN_PROGRAM_HEADERS
@@ -12,6 +13,7 @@ set(INVGEN_PROGRAM_HEADERS
     Type.hpp
     Variable.hpp
     Assignment.hpp
+    Program.hpp
 )
 
 add_library(program ${INVGEN_PROGRAM_SOURCES} ${INVGEN_PROGRAM_HEADERS})

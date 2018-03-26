@@ -2,7 +2,8 @@
 
 namespace program {
 
-  Assignment *GuardedCommand::findAssignment(const PVariable &v) {
+  Assignment *GuardedCommand::findAssignment(const PVariable &v) const
+    {
     for (auto it = _assignments.begin(); it != _assignments.end(); ++it) {
       if ((*it)->hasLhs(v))
         return *it;

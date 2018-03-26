@@ -66,5 +66,32 @@ namespace parser {
         << util::Output::nocomment
         << std::endl;
     }
+    
+    // provide a wrapper around the parsing code, in order to hide
+    // both the leaks and the non-constness of the legacy code
+    // TODO: refactor this at some point
+    std::unique_ptr<Program> GclParsingContext::generateProgram()
+    {
+        std::vector<const PVariable*> vars;
+        for (const auto& pairNameVar : _variables)
+        {
+            vars.push_back(pairNameVar.second);
+        }
+        std::vector<const FExpression*> preconditions;
+        for (const auto& element : _preconditions)
+        {
+            preconditions.push_back(element);
+        }
+        std::vector<const FExpression*> postconditions;
+        for (const auto& element : _postconditions)
+        {
+            postconditions.push_back(element);
+        }
+
+        // make all guards disjoint
+        program.finalizeGuards();
+
+        return std::unique_ptr<Program>(new Program(program, preconditions, postconditions, vars));
+    }
 }
 

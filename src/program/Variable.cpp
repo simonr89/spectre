@@ -14,12 +14,7 @@ namespace program {
   using namespace logic;
 
   /** the main constructors */
-  PVariable::PVariable(const std::string& name, Type ty) :
-    Variable(name, ty),
-    _updated(false),
-    _monotonic(false),
-    _strict(false),
-    _dense(false)
+  PVariable::PVariable(const std::string& name, Type ty) : Variable(name, ty)
   {
     if (isArrayType(ty)) {
       if (util::Configuration::instance().arrayTheory().getValue()) {
@@ -38,25 +33,12 @@ namespace program {
     _extendedSymbol->makeColored();
   }
 
-  void PVariable::recordScalarIncrement(int n)
-  {
-    if (n > 0) {
-      if (!_updated)
-        _monotonic = 1;
-      else if (_monotonic < 0)
-        _monotonic = 0;
-    } else if (n < 0) {
-      if (!_updated)
-        _monotonic = -1;
-      else if (_monotonic > 0)
-        _monotonic = 0;
-    }
-  }
 
 
-  Term* PVariable::toTerm(Term* index) const
+
+  Term* PVariable::toTerm(const Term* index, bool updated) const
   {
-    if (_updated && index) {
+    if (updated && index) {
       // extended symbol (and the variable is not constant)
       if (_type == Type::TY_BOOLEAN) {
         return new PredTerm(_extendedSymbol, { index });
@@ -72,7 +54,7 @@ namespace program {
     }
   }
 
-  Term* PVariable::toTerm(Term* index, Term* arrayIndex) const
+  Term* PVariable::toTerm(const Term* index, const Term* arrayIndex, bool updated) const
   {
     assert(isArrayType(_type));
     
@@ -80,7 +62,7 @@ namespace program {
       // representation using array axioms
       Term *array;
       
-      if (_updated && index) {
+      if (updated && index) {
         array = new FuncTerm(_extendedSymbol, { index });
       } else {
         array = new FuncTerm(_symbol, {});
@@ -94,7 +76,7 @@ namespace program {
       }
     } else {
       // representation of arrays as function
-      if (_updated && index) {
+      if (updated && index) {
         if (_type == Type::TY_BOOLEAN) {
           return new PredTerm(_extendedSymbol, { index, arrayIndex });
         } else {
@@ -112,49 +94,29 @@ namespace program {
 
     std::string PVariable::toString() const
     {
-        std::string result = "";
-        result = result + _name + " : "; // TODO: also print type
-        
-        result += " {";
-        if (_updated)
-            result += "updated,";
-        switch (_monotonic)
-        {
-            case -1:
-                result += "monotonic decreasing,";
-                break;
-            case 1:
-                result += "monotonic increasing,";
-                break;
-        }
-        if (_dense)
-            result += "dense,";
-        if (_strict)
-            result += "strict";
-        result += "}";
-        return result;
+        return _name; // TODO: also print type
     }
 
   std::ostream& operator<<(std::ostream& ostr, const PVariable& v)
   {
     ostr << v._name << " : " << v._type;
     
-    ostr << " {";
-    if (v._updated)
-      ostr << "updated,";
-    switch (v._monotonic) {
-    case -1:
-      ostr << "monotonic decreasing,";
-      break;
-    case 1:
-      ostr << "monotonic increasing,";
-      break;
-    }
-    if (v._dense)
-      ostr << "dense,";
-    if (v._strict)
-      ostr << "strict";
-    ostr << "}";
+//    ostr << " {";
+//    if (v._updated)
+//      ostr << "updated,";
+//    switch (v._monotonic) {
+//    case -1:
+//      ostr << "monotonic decreasing,";
+//      break;
+//    case 1:
+//      ostr << "monotonic increasing,";
+//      break;
+//    }
+//    if (v._dense)
+//      ostr << "dense,";
+//    if (v._strict)
+//      ostr << "strict";
+//    ostr << "}";
     return ostr;
   }
 

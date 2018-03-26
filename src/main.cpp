@@ -10,6 +10,7 @@
 
 #include "analysis/Analyzer.hpp"
 #include "analysis/Properties.hpp"
+#include "program/Program.hpp"
 
 extern FILE* yyin;
 
@@ -33,8 +34,8 @@ int main(int argc, char *argv[]) {
                     return 0;
                 }
                 
-                program::GuardedCommandCollection p;
                 // TODO: switch between parsers here
+                std::unique_ptr<program::Program> p;
                 if (true)
                 {
                     // set input for parser
@@ -50,31 +51,28 @@ int main(int argc, char *argv[]) {
                     parser::GclParser parser(c);
                     parser.set_debug_level(false); // no traces
                     parser.parse();
-                    
+                    fclose (yyin);
+
                     if (!c.errorFlag)
                     {
-                        c.program.finalizeGuards();
-
-                        // run lightweight analysis
-                        program::Analyzer a(c.program, c._preconditions,c._postconditions,c._variables);
-                        a.computeVariableProperties();
-                        
-                        // create properties and dump them to TPTP
-                        program::Properties props(c.program, c._variables, c._preconditions,c._postconditions);
-                        props.analyze();
-                        props.outputTPTP();
+                        p = c.generateProgram();
                     }
                     else
                     {
                         exit(1);
                     }
-                    fclose (yyin);
                 }
+                assert(p.get() != nullptr);
                 
-                util::Output::close();
+                // run lightweight analysis
+                program::Analyzer a(*p);
+                program::AnalyzerResult aRes = a.computeVariableProperties();
                 
-                // start analysis of the program
-                // TODO:
+                // create properties and dump them to TPTP
+                program::Properties props(*p, aRes);
+                props.analyze();
+                props.outputTPTP();
+
             }
         }
         return 0;

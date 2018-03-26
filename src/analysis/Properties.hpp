@@ -12,29 +12,42 @@
 #include "GuardedCommandCollection.hpp"
 #include "Variable.hpp"
 #include "Type.hpp"
+#include "Program.hpp"
+#include "Analyzer.hpp"
 
 namespace program {
 
     class Properties
     {
     public:
-        Properties(const GuardedCommandCollection& loop, const std::map<std::string, PVariable*>& vars, const std::vector<FExpression*>& preconditions, const std::vector<FExpression*>& postconditions) :
-        _loop(loop),
-        _vars(vars),
-        _preconditions(preconditions),
-        _postconditions(postconditions),
+        Properties(Program program, const AnalyzerResult& aRes) :
+        _loop(program.loop),
+        _vars(program.variables),
+        _preconditions(program.preconditions),
+        _postconditions(program.postconditions),
+        
+        _updated(aRes.updated),
+        _monotonic(aRes.monotonic),
+        _strict(aRes.strict),
+        _dense(aRes.dense),
+        
         _properties()
         {}
         
         void analyze();
         void outputTPTP();
         
+    private:
+        // used as input
         const GuardedCommandCollection& _loop;
-        const std::map<std::string, PVariable*>& _vars;
-        const std::vector<FExpression*>& _preconditions;
-        const std::vector<FExpression*>& _postconditions;
+        const std::vector<const PVariable*>& _vars;
+        const std::vector<const FExpression*>& _preconditions;
+        const std::vector<const FExpression*>& _postconditions;
 
-    protected:
+        const std::map<const PVariable*,bool>& _updated;
+        const std::map<const PVariable*,Monotonicity>& _monotonic;
+        const std::map<const PVariable*,bool>& _strict;
+        const std::map<const PVariable*,bool>& _dense;
         
         /*
          * the main aim of this class is to collect all the properties
@@ -51,10 +64,10 @@ namespace program {
         static logic::FuncTerm* loopCounterSymbol();
         static logic::FuncTerm* constant(int n);
         
-        static logic::Formula *binaryConj(logic::Formula* a, logic::Formula* b);
+        static logic::Formula *binaryConj(const logic::Formula* a, const logic::Formula* b);
         
         void symbolEliminationAxioms();
-        void addSymbolEliminationAxioms(PVariable *v);
+        void addSymbolEliminationAxioms(const PVariable *v);
         
         // translation of assignments
         void translateAssignments();
@@ -62,39 +75,39 @@ namespace program {
         void loopCounterHypothesis();
         void loopConditionHypothesis();
         
-        logic::Formula* commandToFormula(GuardedCommand *c);
-        logic::Formula* assignment(Assignment *a, logic::Term* index, logic::Term* indexPlusOne);
-        logic::Formula* arrayAssignment(Assignment *a, logic::Term* index, logic::Term* indexPlusOne);
-        logic::Formula* nonAssignment(PVariable *v, logic::Term* index, logic::Term* indexPlusOne);
-        logic::Formula* arrayNonAssignment(PVariable *v, GuardedCommand *gc, logic::Term* index, logic::Term* indexPlusOne);
+        logic::Formula* commandToFormula(const GuardedCommand *c);
+        logic::Formula* assignment(const Assignment *a, const logic::Term* index, const logic::Term* indexPlusOne);
+        logic::Formula* arrayAssignment(const Assignment *a, const logic::Term* index, const logic::Term* indexPlusOne);
+        logic::Formula* nonAssignment(const PVariable *v, const logic::Term* index, const logic::Term* indexPlusOne);
+        logic::Formula* arrayNonAssignment(const PVariable *v, const GuardedCommand *gc, const logic::Term* index, const logic::Term* indexPlusOne);
         
         // properties derived from strictness and density of scalars
         void monotonicityProps();
         
-        logic::Formula* denseStrictProp(PVariable *v);
-        logic::Formula* strictProp(PVariable *v);
-        logic::Formula* denseNonStrictProp(PVariable *v);
-        logic::Formula* nonStrictProp(PVariable *v);
+        logic::Formula* denseStrictProp(const PVariable *v);
+        logic::Formula* strictProp(const PVariable *v);
+        logic::Formula* denseNonStrictProp(const PVariable *v);
+        logic::Formula* nonStrictProp(const PVariable *v);
         
-        logic::Formula* updatePropertyOfVar(PVariable *v);
+        logic::Formula* updatePropertyOfVar(const PVariable *v);
         
         //update predicates of arrays
         void updatePredicatesOfArrays();
         
         logic::Formula* iter(logic::Term* i);
         
-        logic::Formula* arrayUpdatePredicate(PVariable *A,
-                                             logic::Term* i,
-                                             logic::Term* p,
-                                             logic::Term* v);
-        logic::Formula* arrayAssignmentConditions(Assignment *asg,
-                                                  FExpression *guard,
-                                                  logic::Term* i,
-                                                  logic::Term* p,
-                                                  logic::Term* v);
-        logic::Formula* stabilityAxiom(PVariable *v);
-        logic::Formula* uniqueUpdateAxiom(PVariable *v);
-        logic::Formula* lastUpdateAxiom(PVariable *v);
+        logic::Formula* arrayUpdatePredicate(const PVariable *A,
+                                             const logic::Term* i,
+                                             const logic::Term* p,
+                                             const logic::Term* v);
+        logic::Formula* arrayAssignmentConditions(const Assignment *asg,
+                                                  const FExpression *guard,
+                                                  const logic::Term* i,
+                                                  const logic::Term* p,
+                                                  const logic::Term* v);
+        logic::Formula* stabilityAxiom(const PVariable *v);
+        logic::Formula* uniqueUpdateAxiom(const PVariable *v);
+        logic::Formula* lastUpdateAxiom(const PVariable *v);
     };
 }
 
