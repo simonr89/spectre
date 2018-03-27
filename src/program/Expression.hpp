@@ -46,6 +46,8 @@ namespace program {
 
     virtual bool equivToVPlusX(const PVariable *v, int &value) const { return false; }
 
+      virtual bool isTrue() const {return false;}
+      virtual bool isFalse() const {return false;}
     // TODO remove this and leave it only in appropriate derived classes?
     //virtual logic::Term* toTerm(logic::Term* i) { return nullptr; }
 
@@ -169,6 +171,8 @@ namespace program {
     static BooleanExpression* mkNeq(Expression *e1, Expression *e2);
     static BooleanExpression* mkImplication(Expression *e1, Expression *e2);
 
+      bool isTrue() const override {return _kind == BooleanExprKind::EXP_CST_BOOLEAN && _constInfo == true;}
+      bool isFalse() const override {return _kind == BooleanExprKind::EXP_CST_BOOLEAN && _constInfo == false;}
   protected:
     BooleanExpression(BooleanExprKind kind) :
       Expression(),

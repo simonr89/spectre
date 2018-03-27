@@ -364,10 +364,27 @@ namespace program {
   {
     if (e1->etype() != Type::TY_BOOLEAN || e2->etype() != Type::TY_BOOLEAN)
       return nullptr;
-    BooleanExpression* r = new BooleanExpression(BooleanExprKind::EXP_AND, 2);
-    r->_children[0] = e1;
-    r->_children[1] = e2;
-    return r;
+      
+      if (e1->isTrue())
+      {
+          return dynamic_cast<BooleanExpression*>(e2);
+      }
+      if (e2->isTrue())
+      {
+          return dynamic_cast<BooleanExpression*>(e1);
+      }
+      if(e1->isFalse())
+      {
+          return dynamic_cast<BooleanExpression*>(e1);
+      }
+      if(e2->isFalse())
+      {
+          return dynamic_cast<BooleanExpression*>(e2);
+      }
+      BooleanExpression* r = new BooleanExpression(BooleanExprKind::EXP_AND, 2);
+      r->_children[0] = e1;
+      r->_children[1] = e2;
+      return r;
   }
 
   BooleanExpression* BooleanExpression::mkGe(Expression* e1, Expression* e2)

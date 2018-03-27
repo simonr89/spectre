@@ -171,7 +171,7 @@ namespace program {
         assert(_updated.at(v));
         assert(_monotonic.at(v) != Monotonicity::OTHER);
         assert(_dense.at(v));
-        assert(_strict.at(v));
+        assert(!_strict.at(v));
         
         LVariable* i = new LVariable(Sort::intSort());
         LVariable* j = new LVariable(Sort::intSort());
