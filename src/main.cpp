@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
                 // run lightweight analysis
                 program::Analyzer a(*p);
                 program::AnalyzerResult aRes = a.computeVariableProperties();
-                
+                util::Output::stream() << aRes.toString();
                 // create properties and dump them to TPTP
                 program::Properties props(*p, aRes);
                 props.analyze();

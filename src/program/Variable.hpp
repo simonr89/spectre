@@ -50,7 +50,7 @@ namespace program {
 
     ~PVariable() {}
 
-    bool isProgramVariable() { return true; }
+    bool isProgramVariable() override { return true; }
 
 //    /** true if the variable is on the LHS of at least one assignment in
 //        the loop */

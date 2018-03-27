@@ -26,6 +26,39 @@ namespace program
         const std::map<const PVariable*,Monotonicity> monotonic;
         const std::map<const PVariable*,bool> strict;
         const std::map<const PVariable*,bool> dense;
+        
+        std::string toString()
+        {
+            std::string result = "";
+            for(const auto& keyValuePair : updated)
+            {
+                auto var = keyValuePair.first;
+                result += var->name();
+                
+                result += " {";
+                if (updated.at(var))
+                    result += "updated,";
+                else
+                    result += "not updated,";
+                switch (monotonic.at(var))
+                {
+                    case Monotonicity::DEC:
+                        result += "monotonic decreasing,";
+                        break;
+                    case Monotonicity::INC:
+                        result += "monotonic increasing,";
+                        break;
+                    case Monotonicity::OTHER:
+                        break;
+                }
+                if (dense.at(var))
+                    result += "dense,";
+                if (strict.at(var))
+                    result += "strict";
+                result += "}\n";
+            }
+            return result + "\n";
+        }
     };
     
     class Analyzer

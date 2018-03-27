@@ -55,12 +55,11 @@ namespace program {
 
   class GuardedCommandCollection {
   public:
-    GuardedCommandCollection() :
-      _collection(0)
-    {}
+    GuardedCommandCollection() : _collection(0){}
+      GuardedCommandCollection(std::vector<GuardedCommand*> collection) : _collection(std::move(collection)){}
     ~GuardedCommandCollection() {}
 
-    const std::vector<GuardedCommand*>& commands() const { return _collection; }
+    std::vector<GuardedCommand*> commands() const { return _collection; }
 
     FExpression *_condition;
 

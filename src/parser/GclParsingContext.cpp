@@ -91,7 +91,7 @@ namespace parser {
         // make all guards disjoint
         program.finalizeGuards();
 
-        return std::unique_ptr<Program>(new Program(program, preconditions, postconditions, vars));
+        return std::unique_ptr<Program>(new Program(GuardedCommandCollection(program.commands()), preconditions, postconditions, vars));
     }
 }
 
