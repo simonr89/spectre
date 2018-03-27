@@ -64,7 +64,7 @@ namespace program
     class Analyzer
     {
     public:
-        Analyzer(Program program) : _loop(program.loop), _preconditions(program.preconditions), _postconditions(program.postconditions), _variables(program.variables)
+        Analyzer(const Program& program) : _loop(*program.loop), _preconditions(program.preconditions), _postconditions(program.postconditions), _variables(program.variables)
         {
             // set all map-entries to false
             // TODO: is this really the correct start-value???

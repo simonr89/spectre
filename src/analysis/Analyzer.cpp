@@ -21,7 +21,7 @@ namespace program {
 
     bool strict = true, dense = true;
     int incr;
-    for (auto it = _loop.commands().begin(); it != _loop.commands().end(); ++it) {
+    for (auto it = _loop.commands.begin(); it != _loop.commands.end(); ++it) {
       if (isIncremented(*it, v, incr))
         dense &= (incr == 1 || incr == -1);
       else
@@ -38,7 +38,7 @@ namespace program {
       in the guard gc. The constant is then stored in incr */
   bool Analyzer::isIncremented(const GuardedCommand *gc, const PVariable *v, int &incr)
   {
-    for (auto it = gc->assignments().begin(); it != gc->assignments().end(); ++it) {
+    for (auto it = gc->assignments.begin(); it != gc->assignments.end(); ++it) {
       if ((*it)->hasLhs(*v))
         return (isScalarIncrement(*it,incr) && incr != 0);
     }
@@ -89,9 +89,9 @@ namespace program {
     AnalyzerResult Analyzer::computeVariableProperties()
     {
         // compute updated and monotonicity
-        for (const auto& guardedCommandPtr : _loop.commands())
+        for (const auto& guardedCommandPtr : _loop.commands)
         {
-            for (const auto& a : guardedCommandPtr->assignments())
+            for (const auto& a : guardedCommandPtr->assignments)
             {
                 recordLhsInfo(a);
             }

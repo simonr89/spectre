@@ -10,6 +10,7 @@
 {
 #include <cstring>
 #include <iostream>
+#include <vector>
 #include "Location.hpp"
 #include "Expression.hpp"
 #include "GuardedCommandCollection.hpp"
@@ -95,8 +96,9 @@ YY_DECL;
 %type <program::Expression*> expr
 %type <program::FExpression*> formula
 %type <program::FExpression*> location
-%type <program::GuardedCommandCollection*> guarded_command_list
+%type <std::vector<program::GuardedCommand*>> guarded_command_list
 %type <program::GuardedCommand*> guarded_command
+%type <std::pair<program::FExpression*, std::vector<program::Assignment*>>> assignment_list
 %type <program::Assignment*> assignment
 
 %printer { yyoutput << $$; } <*>;
@@ -178,11 +180,11 @@ assertion_list:
 ;
 
 pre_condition:
-  REQUIRES formula SCOL { gcla.addPrecondition($2); }
+  REQUIRES formula SCOL { gcla.preconditions.push_back($2); }
 ;
 
 post_condition:
-  ENSURES formula SCOL { gcla.addPostcondition($2); }
+  ENSURES formula SCOL { gcla.postconditions.push_back($2); }
 ;
 
 formula:
@@ -246,40 +248,74 @@ expr:
 ;
 
 loop_body:
-WHILE LPAR expr RPAR DO guarded_command_list OD { if ($3->etype() == Type::TY_BOOLEAN) {
-                                                    $6->setLoopCondition(dynamic_cast<FExpression*>($3));
-                                                    if (!gcla.errorFlag) {
-                                                      gcla.program = *$6;
-                                                    }
-                                                  } else {
-                                                    error(@1, "Loop condition does not have type bool");
-                                                  }
-                                                }
-| DO guarded_command_list OD { $2->setLoopCondition(BooleanExpression::mkConstantBoolean(true));
-                               if (!gcla.errorFlag)
-                                 gcla.program = *$2;
-                             }
+WHILE LPAR expr RPAR DO guarded_command_list OD 
+{ 
+  if ($3->etype() == Type::TY_BOOLEAN) 
+  {
+    if (!gcla.errorFlag) 
+    {
+      gcla.program = std::unique_ptr<GuardedCommandCollection>(new GuardedCommandCollection($6,dynamic_cast<FExpression*>($3)));
+    }
+  } 
+  else 
+  {
+    error(@1, "Loop condition does not have type bool");
+  }
+}
+| DO guarded_command_list OD 
+{ 
+  if (!gcla.errorFlag)
+    gcla.program = std::unique_ptr<GuardedCommandCollection>(new GuardedCommandCollection($2,BooleanExpression::mkConstantBoolean(true)));
+}
 ;
 
 guarded_command_list:
-  %empty                               { $$ = new GuardedCommandCollection(); }
-| guarded_command_list guarded_command { $1->addGuardedCommand($2); $$ = $1; }
+  %empty                               { $$ = std::vector<GuardedCommand*>(); }
+| guarded_command_list guarded_command { $1.push_back($2); $$ = $1; }
 ;
 
 guarded_command:
-  COLS expr { if ($2->etype() == Type::TY_BOOLEAN)
-                gcla.setGuardedCommandContext(dynamic_cast<FExpression*>($2));
-              else
-                error(@1, "Guard does not have type bool");
-            }
-  ARROW assignment_list { $$ = gcla.currentGuardedCommand(); }
+    COLS expr ARROW assignment_list {
+      if (($2->etype() == Type::TY_BOOLEAN))
+      {
+        // the guard of a guarded_command consists of the expr and potentially other guards, which are induced by the assignments
+        auto guard = $4.first;
+        guard = BooleanExpression::mkAnd(guard, dynamic_cast<FExpression*>($2));
+
+        // furthermore we need to make the guard disjoint from previous guards
+        $$ = new GuardedCommand(BooleanExpression::mkAnd(guard, gcla.negatedPreviousGuards), std::move($4.second));
+        gcla.negatedPreviousGuards = BooleanExpression::mkAnd(gcla.negatedPreviousGuards, BooleanExpression::mkNegation(guard));
+      }
+      else
+      {
+        error(@1, "Guard does not have type bool");
+      }
+  }
 ;
 
 assignment_list:
-  %empty                          { }
-| assignment_list assignment SCOL { if (!gcla.addAssignment($2))
-                                      error(@1, "Duplicate assignment in guard");
-                                  }
+  %empty 
+  { 
+    $$ = std::make_pair<FExpression*, std::vector<Assignment*>>(
+      BooleanExpression::mkConstantBoolean(true),
+      std::vector<Assignment*>()
+    );
+  }
+|   assignment_list assignment SCOL 
+    { 
+      if (gcla.containsAssignment($1, $2))
+      {
+        if (isArrayType(static_cast<Assignment*>($2)->lhs->varInfo()->vtype()))
+        {
+          gcla.addAdditionalGuards($1, $2);
+        }
+        else
+        {
+          error(@1, "Duplicate non-array assignment in guard");
+        }
+      }
+      $$ = $1;
+    }
 ;
 
 assignment:

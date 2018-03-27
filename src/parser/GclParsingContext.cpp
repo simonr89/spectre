@@ -9,13 +9,13 @@ namespace parser {
     using namespace program;
     
     bool GclParsingContext::available(const std::string& name) {
-        return _variables.find(name) == _variables.end();
+        return variables.find(name) == variables.end();
     }
     
     PVariable* GclParsingContext::declareVariable(const std::string& name)
     {
         PVariable *v = new PVariable(name, _typeDeclCtx);
-        _variables[name] = v;
+        variables[name] = v;
         return v;
     }
     
@@ -25,8 +25,8 @@ namespace parser {
             if ((*it1)->name() == name)
                 return *it1;
         }
-        auto it2 = _variables.find(name);
-        if (it2 != _variables.end()) {
+        auto it2 = variables.find(name);
+        if (it2 != variables.end()) {
             return (*it2).second;
         } else {
             return nullptr;
@@ -46,6 +46,34 @@ namespace parser {
         _localScopes.pop_back();
     }
     
+    bool GclParsingContext::containsAssignment(std::pair<FExpression*, std::vector<Assignment*>> assignmentList, Assignment* assignment)
+    {
+        
+        PVariable *lhs = assignment->lhs->varInfo();
+        for (const auto a : assignmentList.second)
+        {
+            if (a->hasLhs(*lhs))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    void GclParsingContext::addAdditionalGuards(std::pair<FExpression*, std::vector<Assignment*>> pairGuardsAssignments, Assignment* assignment)
+    {
+        PVariable *lhs = assignment->lhs->varInfo();
+        assert(isArrayType(lhs->vtype()));
+        
+        for (const auto a : pairGuardsAssignments.second)
+        {
+            if (a->hasLhs(*lhs))
+            {
+                pairGuardsAssignments.first = BooleanExpression::mkAnd(pairGuardsAssignments.first,BooleanExpression::mkNeq(a->lhs->child(0), a->lhs->child(0)));
+            }
+        }
+    }
+    
     void GclParsingContext::printInfo(GuardedCommandCollection &c) {
         std::ostream& ostr = util::Output::stream();
         
@@ -59,7 +87,7 @@ namespace parser {
         << "-------------------------------------------------\n"
         << '\n'
         << "--------------- Table of symbols ----------------\n";
-        for (auto it = _variables.begin(); it != _variables.end(); ++it) {
+        for (auto it = variables.begin(); it != variables.end(); ++it) {
             ostr << *(*it).second << "\n";
         }
         ostr << "-------------------------------------------------\n"
@@ -73,25 +101,22 @@ namespace parser {
     std::unique_ptr<Program> GclParsingContext::generateProgram()
     {
         std::vector<const PVariable*> vars;
-        for (const auto& pairNameVar : _variables)
+        for (const auto& pairNameVar : variables)
         {
             vars.push_back(pairNameVar.second);
         }
         std::vector<const FExpression*> preconditions;
-        for (const auto& element : _preconditions)
+        for (const auto& element : preconditions)
         {
             preconditions.push_back(element);
         }
         std::vector<const FExpression*> postconditions;
-        for (const auto& element : _postconditions)
+        for (const auto& element : postconditions)
         {
             postconditions.push_back(element);
         }
 
-        // make all guards disjoint
-        program.finalizeGuards();
-
-        return std::unique_ptr<Program>(new Program(GuardedCommandCollection(program.commands()), preconditions, postconditions, vars));
+        return std::unique_ptr<Program>(new Program(std::move(program), std::move(preconditions), std::move(postconditions), std::move(vars)));
     }
 }
 

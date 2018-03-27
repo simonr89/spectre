@@ -64,7 +64,7 @@ namespace program {
         // dump loop condition
         if (util::Configuration::instance().mainMode().getValue() == "verification")
         {
-            Formula *f = _loop.loopCondition()->toFormula(loopCounterSymbol());
+            Formula *f = _loop.loopCondition->toFormula(loopCounterSymbol());
             addProperty("loop_exit", new NegationFormula(f));
         }
         
@@ -240,12 +240,12 @@ namespace program {
         
         // build the disjunction
         std::vector<Formula*> disj {};
-        for (auto it = _loop.commands().begin(); it != _loop.commands().end(); ++it) {
+        for (auto it = _loop.commands.begin(); it != _loop.commands.end(); ++it) {
             // only take into account commands that do affect v
             if (!(*it)->findAssignment(*v))
                 continue;
             
-            std::vector<Formula*> conj { (*it)->guard()->toFormula(i) } ;
+            std::vector<Formula*> conj { (*it)->guard->toFormula(i) } ;
             if (_dense.at(v)) {
                 conj.push_back(new EqualityFormula(true, v->toTerm(i), x));
             } else {
@@ -279,7 +279,7 @@ namespace program {
     void Properties::translateAssignments()
     {
         static unsigned i = 0;
-        for (auto it = _loop.commands().begin(); it != _loop.commands().end(); ++it) {
+        for (auto it = _loop.commands.begin(); it != _loop.commands.end(); ++it) {
             addProperty("assignment_" + std::to_string(i++), commandToFormula(*it));
         }
     }
@@ -304,8 +304,8 @@ namespace program {
                 if (util::Configuration::instance().arrayTheory().getValue()) {
                     // representation using array axiomatization
                     Term *store = v->toTerm(i);
-                    for (auto itAsg = c->assignments().begin();
-                         itAsg != c->assignments().end();
+                    for (auto itAsg = c->assignments.begin();
+                         itAsg != c->assignments.end();
                          ++itAsg) {
                         a = *itAsg;
                         if (a->hasLhs(*v))
@@ -317,8 +317,8 @@ namespace program {
                                                        store));
                 } else {
                     // representation of arrays as functions
-                    for (auto itAsg = c->assignments().begin();
-                         itAsg != c->assignments().end();
+                    for (auto itAsg = c->assignments.begin();
+                         itAsg != c->assignments.end();
                          ++itAsg) {
                         a = *itAsg;
                         if (a->hasLhs(*v))
@@ -340,7 +340,7 @@ namespace program {
         }
         
         assert(conj.size() > 0);
-        Formula *f1 = new ConjunctionFormula( { c->guard()->toFormula(i), iter(i) } );
+        Formula *f1 = new ConjunctionFormula( { c->guard->toFormula(i), iter(i) } );
         Formula *f2 = new ConjunctionFormula(conj);
         
         return new UniversalFormula( { i }, new ImplicationFormula(f1, f2));
@@ -397,8 +397,8 @@ namespace program {
         
         LVariable* j = new LVariable(Sort::intSort());
         std::vector<Formula*> conj {};
-        for (auto it = gc->assignments().begin();
-             it != gc->assignments().end();
+        for (auto it = gc->assignments.begin();
+             it != gc->assignments.end();
              ++it) {
             if ((*it)->hasLhs(*v))
                 conj.push_back(new EqualityFormula(false,
@@ -448,7 +448,7 @@ namespace program {
         
         addProperty("loop_condition", new UniversalFormula({i},
                                                            new ImplicationFormula(iter(i),
-                                                                                  _loop.loopCondition()->toFormula(i))));
+                                                                                  _loop.loopCondition->toFormula(i))));
     }
     
     // 0 <= i < n
@@ -469,14 +469,14 @@ namespace program {
     {
         std::vector<Formula*> disj {};
         
-        for (auto itCmd = _loop.commands().begin(); itCmd != _loop.commands().end(); ++itCmd) {
+        for (auto itCmd = _loop.commands.begin(); itCmd != _loop.commands.end(); ++itCmd) {
             GuardedCommand *gc = *itCmd;
             
-            for (auto itAsg = gc->assignments().begin(); itAsg != gc->assignments().end(); ++itAsg) {
+            for (auto itAsg = gc->assignments.begin(); itAsg != gc->assignments.end(); ++itAsg) {
                 Assignment *asg = *itAsg;
                 
                 if (asg->hasLhs(*a))
-                    disj.push_back(arrayAssignmentConditions(asg, gc->guard(), i, p, v));
+                    disj.push_back(arrayAssignmentConditions(asg, gc->guard, i, p, v));
             }
         }
         

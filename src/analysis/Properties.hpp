@@ -20,8 +20,8 @@ namespace program {
     class Properties
     {
     public:
-        Properties(Program program, const AnalyzerResult& aRes) :
-        _loop(program.loop),
+        Properties(const Program& program, const AnalyzerResult& aRes) :
+        _loop(*program.loop),
         _vars(program.variables),
         _preconditions(program.preconditions),
         _postconditions(program.postconditions),

@@ -15,13 +15,13 @@ namespace program
     class Program
     {
     public:
-        Program(GuardedCommandCollection loop,
+        Program(std::unique_ptr<GuardedCommandCollection> loop,
                 std::vector<const FExpression*> preconditions,
                 std::vector<const FExpression*> postconditions,
                 std::vector<const PVariable*> variables
-                ) : loop(loop), variables(variables), preconditions(preconditions), postconditions(postconditions) {}
+                ) : loop(std::move(loop)), variables(std::move(variables)), preconditions(std::move(preconditions)), postconditions(std::move(postconditions)) {}
         
-        const GuardedCommandCollection loop;
+        const std::unique_ptr<GuardedCommandCollection> loop;
         const std::vector<const PVariable*> variables;
         const std::vector<const FExpression*> preconditions;
         const std::vector<const FExpression*> postconditions;
