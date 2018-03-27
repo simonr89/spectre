@@ -24,8 +24,10 @@ namespace program
         const std::unique_ptr<GuardedCommandCollection> loop;
         const std::vector<const PVariable*> variables;
         const std::vector<const FExpression*> preconditions;
-        const std::vector<const FExpression*> postconditions;
+        const std::vector<const FExpression*> postconditions;        
     };
+    std::ostream& operator<<(std::ostream& ostr, const Program& p);
+
 }
 
 #endif

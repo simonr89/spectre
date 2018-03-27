@@ -314,6 +314,10 @@ assignment_list:
           error(@1, "Duplicate non-array assignment in guard");
         }
       }
+      else
+      {
+        $1.second.push_back($2);
+      }
       $$ = $1;
     }
 ;

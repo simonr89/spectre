@@ -43,6 +43,7 @@ namespace program
         ostr << "not implemented";
         return ostr;
     }
+    
     std::ostream& operator<<(std::ostream& ostr, const std::pair<FExpression*,std::vector<Assignment*>>& c)
     {
         ostr << "not implemented";

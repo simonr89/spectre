@@ -21,7 +21,7 @@ namespace program {
     class GuardedCommand {
     public:
         GuardedCommand(FExpression *guard, std::vector<Assignment*> assignments) : guard(guard), assignments(std::move(assignments)) {}
-        
+
         const FExpression* guard;
         const std::vector<Assignment*> assignments;
         

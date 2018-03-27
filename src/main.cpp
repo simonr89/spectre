@@ -62,8 +62,9 @@ int main(int argc, char *argv[]) {
                         exit(1);
                     }
                 }
-                assert(p.get() != nullptr);
-                
+                assert(p);
+                util::Output::stream() << *p;
+
                 // run lightweight analysis
                 program::Analyzer a(*p);
                 program::AnalyzerResult aRes = a.computeVariableProperties();
