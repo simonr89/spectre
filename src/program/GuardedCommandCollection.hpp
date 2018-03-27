@@ -29,11 +29,8 @@ namespace program {
          command */
         Assignment *findAssignment(const PVariable &v) const;
         
-        
         friend class GuardedCommandCollection;
         friend std::ostream& operator<<(std::ostream&, const GuardedCommand&);
-        
-        
     };
 
     class GuardedCommandCollection {

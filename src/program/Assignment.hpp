@@ -10,12 +10,12 @@ namespace program
         
         Assignment(LocationExpression* lhs, Expression* rhs) : lhs(lhs), rhs(rhs){}
         
+        const LocationExpression* lhs;
+        const Expression* rhs;
+       
         bool hasLhs(const PVariable &v) { return lhs->varInfo() == &v; }
                 
         friend std::ostream& operator<<(std::ostream&, const Assignment&);
-        
-        const LocationExpression* lhs;
-        const Expression* rhs;
     };
 }
 

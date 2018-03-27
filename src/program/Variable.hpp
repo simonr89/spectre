@@ -103,15 +103,6 @@ namespace program {
 
       std::string toString() const;
   protected:
-//
-//    /** Whether the variable is updated by the loop */
-//    bool _updated;
-//    /** -1, 0, or 1 */
-//    short _monotonic;
-//
-//    bool _strict;
-//
-//    bool _dense;
 
     /** the symbol associated to that variable in FOL terms. If extended
         is set to true, this is the symbol for extended expressions
