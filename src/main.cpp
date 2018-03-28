@@ -63,12 +63,18 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 assert(p);
+                util::Output::stream() << util::Output::comment;
                 util::Output::stream() << *p;
+                util::Output::stream() << util::Output::nocomment;
 
                 // run lightweight analysis
                 program::Analyzer a(*p);
                 program::AnalyzerResult aRes = a.computeVariableProperties();
+                
+                util::Output::stream() << util::Output::comment;
                 util::Output::stream() << aRes.toString();
+                util::Output::stream() << util::Output::nocomment;
+                
                 // create properties and dump them to TPTP
                 program::Properties props(*p, aRes);
                 props.analyze();
