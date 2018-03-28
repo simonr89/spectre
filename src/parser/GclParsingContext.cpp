@@ -105,18 +105,18 @@ namespace parser {
         {
             vars.push_back(pairNameVar.second);
         }
-        std::vector<const FExpression*> preconditions;
+        std::vector<const FExpression*> constPreconditions;
         for (const auto& element : preconditions)
         {
-            preconditions.push_back(element);
+            constPreconditions.push_back(element);
         }
-        std::vector<const FExpression*> postconditions;
+        std::vector<const FExpression*> constPostconditions;
         for (const auto& element : postconditions)
         {
-            postconditions.push_back(element);
+            constPostconditions.push_back(element);
         }
 
-        return std::unique_ptr<Program>(new Program(std::move(program), std::move(preconditions), std::move(postconditions), std::move(vars)));
+        return std::unique_ptr<Program>(new Program(std::move(program), std::move(constPreconditions), std::move(constPostconditions), std::move(vars)));
     }
 }
 
