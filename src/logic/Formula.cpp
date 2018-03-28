@@ -1,6 +1,8 @@
 #include "Formula.hpp"
 
+#include <set>
 #include <algorithm>
+#include <iostream>
 
 namespace logic {
 
@@ -79,13 +81,7 @@ namespace logic {
     return "(" + _f1->toTPTP() + " => " + _f2->toTPTP() + ")";
   }
 
-  bool compareLVarPointers(LVariable* p1, LVariable* p2) {
-    return p1->id() < p2->id();
-  }
 
-  bool eqLVarPointers(LVariable* p1, LVariable* p2) {
-    return p1->id() == p2->id();
-  }
 
     Formula* Formula::quantify(bool univ) const
     {
@@ -112,29 +108,50 @@ namespace logic {
 
     std::vector<LVariable*> EqualityFormula::freeVariables() const
     {
-        std::vector<LVariable*> l = _left->freeVariables();
-        std::vector<LVariable*> r = _right->freeVariables();
-        l.insert(l.end(), r.begin(),r.end());
-        return l;
+        auto l = _left->freeVariables();
+        auto r = _right->freeVariables();
+        
+        std::sort(l.begin(), l.end(), compareLVarPointers);
+        std::sort(r.begin(), r.end(), compareLVarPointers);
+
+        std::vector<LVariable*> res;
+        std::set_union(l.begin(), l.end(),
+                       r.begin(), r.end(),
+                       std::back_inserter(res),compareLVarPointers);
+        return res;
     }
     
-    std::vector<LVariable*> ConjunctionFormula::freeVariables() const {
+    std::vector<LVariable*> ConjunctionFormula::freeVariables() const
+    {
+        // collect free variables from all conjuncts
         std::vector<LVariable*> freeVars;
-        for (const auto& conjunct : _conj)
+        for(const auto& conjunct : _conj)
         {
             auto freeVarsConjunct = conjunct->freeVariables();
             freeVars.insert(freeVars.end(), freeVarsConjunct.begin(), freeVarsConjunct.end());
         }
+        
+        // sort and remove duplicates
+        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
+        freeVars.erase(unique(freeVars.begin(), freeVars.end(), compareLVarPointers), freeVars.end());
+        
         return freeVars;
     }
     
-    std::vector<LVariable*> DisjunctionFormula::freeVariables() const {
+    std::vector<LVariable*> DisjunctionFormula::freeVariables() const
+    {
+        // collect free variables from all disjuncts
         std::vector<LVariable*> freeVars;
-        for (const auto& disjunct : _disj)
+        for(const auto& disjunct : _disj)
         {
             auto freeVarsDisjunct = disjunct->freeVariables();
             freeVars.insert(freeVars.end(), freeVarsDisjunct.begin(), freeVarsDisjunct.end());
         }
+        
+        // sort and remove duplicates
+        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
+        freeVars.erase( unique(freeVars.begin(), freeVars.end(), compareLVarPointers), freeVars.end());
+        
         return freeVars;
     }
 
@@ -146,7 +163,7 @@ namespace logic {
     std::vector<LVariable*> ExistentialFormula::freeVariables() const
     {
         std::vector<LVariable*> l = _f->freeVariables();
-        
+
         for (const auto& var : _vars)
         {
             l.erase(std::remove(l.begin(), l.end(), var), l.end());
@@ -156,8 +173,9 @@ namespace logic {
 
     std::vector<LVariable*> UniversalFormula::freeVariables() const
     {
+        // could be done more efficient if we would be able to assume that _vars are ordered too.
         std::vector<LVariable*> l = _f->freeVariables();
-        
+
         for (const auto& var : _vars)
         {
             l.erase(std::remove(l.begin(), l.end(), var), l.end());
@@ -167,10 +185,16 @@ namespace logic {
 
     std::vector<LVariable*> ImplicationFormula::freeVariables() const
     {
-        std::vector<LVariable*> l = _f1->freeVariables();
-        std::vector<LVariable*> r = _f2->freeVariables();
-        l.insert(l.end(), r.begin(),r.end());
-        return l;
+        auto l = _f1->freeVariables();
+        auto r = _f2->freeVariables();
+        std::sort(l.begin(), l.end(), compareLVarPointers);
+        std::sort(r.begin(), r.end(), compareLVarPointers);
+        
+        std::vector<LVariable*> res;
+        std::set_union(l.begin(), l.end(),
+                       r.begin(), r.end(),
+                       std::back_inserter(res), compareLVarPointers);
+        return res;
     }
 
 }

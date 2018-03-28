@@ -15,6 +15,7 @@ namespace logic {
     
     Formula* quantify(bool univ = true) const;
 
+      // returns a vector of the unbound variables of the formula
     virtual std::vector<LVariable*> freeVariables() const = 0;
 
     virtual Formula* clone() const = 0;

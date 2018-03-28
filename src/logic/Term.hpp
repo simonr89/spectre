@@ -48,6 +48,9 @@ namespace logic {
     static unsigned freshId;
   };
 
+    bool compareLVarPointers(LVariable* p1, LVariable* p2);    
+    bool eqLVarPointers(LVariable* p1, LVariable* p2);
+    
   class FuncTerm : public Term {
   public:
     FuncTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
