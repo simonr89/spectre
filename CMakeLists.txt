@@ -18,11 +18,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(invgen src/main.cpp)
-#target_compile_definitions(invgen PRIVATE VZ3=1 CHECK_LEAKS=0)
-
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D VDEBUG=1") 
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D VDEBUG=0") 
-
 
 
 add_subdirectory(src/analysis)
