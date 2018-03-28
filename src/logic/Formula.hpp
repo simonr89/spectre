@@ -6,231 +6,194 @@
 #include "Term.hpp"
 
 namespace logic {
-
-  class Formula {
-  public:
-    virtual std::string toTPTP() const = 0;
-
-    std::string declareTPTP(std::string decl, bool conjecture = false) const;
     
-    Formula* quantify(bool univ = true) const;
+    class Formula {
+    public:
+        virtual Formula* clone() const = 0;
 
-      // returns a vector of the unbound variables of the formula
-    virtual std::vector<LVariable*> freeVariables() const = 0;
+        Formula* quantify(bool univ = true) const;
 
-    virtual Formula* clone() const = 0;
-  protected:
-  };
+        std::string declareTPTP(std::string decl, bool conjecture = false) const;
 
-  class PredicateFormula : public Formula {
-  public:
-    PredicateFormula(PredTerm* p) :
-      _p(p)
-    {}
+        // returns a vector of the unbound variables of the formula
+        virtual std::vector<LVariable*> freeVariables() const = 0;
+        
+        virtual std::string toTPTP() const = 0;
+        virtual std::string prettyString(unsigned indentation = 0) const = 0;
 
-    ~PredicateFormula()
-    {}
-
-    std::string toTPTP() const;
-
-    Formula* clone() const { return new PredicateFormula(*this); }
+    protected:
+    };
     
-    std::vector<LVariable*> freeVariables() const;
+    class PredicateFormula : public Formula {
+    public:
+        PredicateFormula(PredTerm* p) : _p(p) {}
+        
+        Formula* clone() const override { return new PredicateFormula(*this); }
+        
+        std::vector<LVariable*> freeVariables() const override;
+        
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
+
+    protected:
+        
+        PredTerm* _p;
+    };
     
-  protected:
+    class EqualityFormula : public Formula {
+    public:
+        EqualityFormula(bool polarity, const Term* left, const Term* right) :
+        _polarity(polarity),
+        _left(left),
+        _right(right)
+        {}
 
-    PredTerm* _p;
-  };
+        Formula* clone() const override { return new EqualityFormula(*this); }
 
-  class EqualityFormula : public Formula {
-  public:
-    EqualityFormula(bool polarity, const Term* left, const Term* right) :
-      _polarity(polarity),
-      _left(left),
-      _right(right)
-    {}
+        std::vector<LVariable*> freeVariables() const override;
 
-    ~EqualityFormula()
-    {}
-
-    std::string toTPTP() const;
-
-    Formula* clone() const { return new EqualityFormula(*this); }
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
+        
+    protected:
+        bool _polarity;
+        const Term* _left;
+        const Term* _right;
+        
+    };
     
-    std::vector<LVariable*> freeVariables() const;
+    class ConjunctionFormula : public Formula {
+    public:
+        ConjunctionFormula(const std::vector<Formula*>& conj) :
+        _conj(conj.size())
+        {
+            unsigned i = 0;
+            for (auto it = conj.begin(); it != conj.end(); ++it) {
+                _conj[i++] = *it;
+            }
+        }
+        
+        ConjunctionFormula(std::initializer_list<Formula*> conj) :
+        _conj(conj)
+        {}
+        
+        Formula* clone() const override { return new ConjunctionFormula(*this); }
+        
+        std::vector<LVariable*> freeVariables() const override;
+        
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
 
-  protected:
-    bool _polarity;
-    const Term* _left;
-    const Term* _right;
-
-  };
-
-  class ConjunctionFormula : public Formula {
-  public:
-    ConjunctionFormula(const std::vector<Formula*>& conj) :
-      _conj(conj.size())
-    {
-      unsigned i = 0;
-      for (auto it = conj.begin(); it != conj.end(); ++it) {
-        _conj[i++] = *it;
-      }
-    }
+    protected:
+        std::vector<Formula*> _conj;
+        
+    };
     
-    ConjunctionFormula(std::initializer_list<Formula*> conj) :
-      _conj(conj)
-    {}
+    class DisjunctionFormula : public Formula {
+    public:
+        DisjunctionFormula(std::vector<Formula*>& disj) : _disj(disj.size())
+        {
+            unsigned i = 0;
+            for (auto it = disj.begin(); it != disj.end(); ++it) {
+                _disj[i++] = *it;
+            }
+        }
+        
+        DisjunctionFormula(std::initializer_list<Formula*> disj) : _disj(disj) {}
+        
+        Formula* clone() const override { return new DisjunctionFormula(*this); }
 
-    ~ConjunctionFormula()
-    {}
+        std::vector<LVariable*> freeVariables() const override;
 
-    std::string toTPTP() const;
+        std::string toTPTP() const override ;
+        std::string prettyString(unsigned indentation = 0) const override;
 
-    Formula* clone() const { return new ConjunctionFormula(*this); }
-
-    std::vector<LVariable*> freeVariables() const;
+    protected:
+        std::vector<Formula*> _disj;
+    };
     
-  protected:
-    std::vector<Formula*> _conj;
+    class NegationFormula : public Formula {
+    public:
+        NegationFormula(Formula *f) : _f(f) {}
+        
+        Formula* clone() const override { return new NegationFormula(*this); }
 
-  };
+        std::vector<LVariable*> freeVariables() const override;
 
-  class DisjunctionFormula : public Formula {
-  public:
-    DisjunctionFormula(std::vector<Formula*>& disj) :
-      _disj(disj.size())
-    {
-      unsigned i = 0;
-      for (auto it = disj.begin(); it != disj.end(); ++it) {
-        _disj[i++] = *it;
-      }
-    }
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
+        
+    protected:
+        Formula *_f;
+    };
     
-    DisjunctionFormula(std::initializer_list<Formula*> disj) :
-      _disj(disj)
-    {}
+    class ExistentialFormula : public Formula {
+    public:
+        ExistentialFormula(const std::vector<LVariable*>& vars, Formula* f) : _vars(vars.size()), _f(f)
+        {
+            unsigned i = 0;
+            for (auto it = vars.begin(); it != vars.end(); ++it) {
+                _vars[i++] = *it;
+            }
+        }
+        
+        ExistentialFormula(std::initializer_list<LVariable*> vars, Formula* f) : _vars(vars), _f(f) {}
+        
+        Formula* clone() const override { return new ExistentialFormula(*this); }
 
-    ~DisjunctionFormula()
-    {}
+        std::vector<LVariable*> freeVariables() const override;
 
-    std::string toTPTP() const;
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
 
-    Formula* clone() const { return new DisjunctionFormula(*this); }
-
-    std::vector<LVariable*> freeVariables() const;
+    protected:
+        std::vector<LVariable*> _vars;
+        Formula* _f;
+    };
     
-  protected:
-    std::vector<Formula*> _disj;
+    class UniversalFormula : public Formula {
+    public:
+        UniversalFormula(const std::vector<LVariable*>& vars, Formula* f) : _vars(vars.size()), _f(f)
+        {
+            unsigned i = 0;
+            for (auto it = vars.begin(); it != vars.end(); ++it) {
+                _vars[i++] = *it;
+            }
+        }
+        
+        UniversalFormula(std::initializer_list<LVariable*> vars, Formula* f) : _vars(vars), _f(f) {}
+        
+        Formula* clone() const override { return new UniversalFormula(*this); }
+
+        std::vector<LVariable*> freeVariables() const override;
+
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
+
+    protected:
+        std::vector<LVariable*> _vars;
+        Formula* _f;
+    };
     
-  };
+    class ImplicationFormula : public Formula {
+    public:
+        ImplicationFormula(Formula* f1, Formula* f2) : _f1(f1), _f2(f2) {}
+        
+        Formula* clone() const override { return new ImplicationFormula(*this); }
 
-  class NegationFormula : public Formula {
-  public:
-    NegationFormula(Formula *f) :
-      _f(f)
-    {}
+        std::vector<LVariable*> freeVariables() const override;
 
-    ~NegationFormula()
-    {}
+        std::string toTPTP() const override;
+        std::string prettyString(unsigned indentation = 0) const override;
 
-    std::string toTPTP() const;
-
-    Formula* clone() const { return new NegationFormula(*this); }
+    protected:
+        Formula* _f1;
+        Formula* _f2;
+        
+    };
     
-    std::vector<LVariable*> freeVariables() const;
-
-  protected:
-    Formula *_f;
-
-  };
-
-  class ExistentialFormula : public Formula {
-  public:
-    ExistentialFormula(const std::vector<LVariable*>& vars, Formula* f) :
-      _vars(vars.size()),
-      _f(f)
-    {
-      unsigned i = 0;
-      for (auto it = vars.begin(); it != vars.end(); ++it) {
-        _vars[i++] = *it;
-      }
-    }
-    
-    ExistentialFormula(std::initializer_list<LVariable*> vars, Formula* f) :
-      _vars(vars),
-      _f(f)
-    {}
-
-    ~ExistentialFormula()
-    {}
-
-    std::string toTPTP() const;
-
-    Formula* clone() const { return new ExistentialFormula(*this); }
-    
-    std::vector<LVariable*> freeVariables() const;
-
-  protected:
-    std::vector<LVariable*> _vars;
-    Formula* _f;
-
-  };
-
-  class UniversalFormula : public Formula {
-  public:
-    UniversalFormula(const std::vector<LVariable*>& vars, Formula* f) :
-      _vars(vars.size()),
-      _f(f)
-    {
-      unsigned i = 0;
-      for (auto it = vars.begin(); it != vars.end(); ++it) {
-        _vars[i++] = *it;
-      }
-    }
-    
-    UniversalFormula(std::initializer_list<LVariable*> vars, Formula* f) :
-      _vars(vars),
-      _f(f)
-    {}
-
-    ~UniversalFormula()
-    {}
-
-    std::string toTPTP() const;
-
-    Formula* clone() const { return new UniversalFormula(*this); }
-    
-    std::vector<LVariable*> freeVariables() const;
-
-  protected:
-    std::vector<LVariable*> _vars;
-    Formula* _f;
-
-  };
-
-  class ImplicationFormula : public Formula {
-  public:
-    ImplicationFormula(Formula* f1, Formula* f2) :
-      _f1(f1),
-      _f2(f2)
-    {}
-
-    ~ImplicationFormula()
-    {}
-
-    std::string toTPTP() const;
-
-    Formula* clone() const { return new ImplicationFormula(*this); }
-    
-    std::vector<LVariable*> freeVariables() const;
-
-  protected:
-    Formula* _f1;
-    Formula* _f2;
-
-  };
-
-  inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }
+    inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }
 }
 
 #endif
+

@@ -7,6 +7,12 @@ namespace logic {
   std::string LVariable::toTPTP() const {
     return name();
   }
+    
+    std::string LVariable::prettyString() const
+    {
+        return name();
+    }
+
   
   std::string FuncTerm::toTPTP() const {
     if (_subterms.size() == 0) {
@@ -20,6 +26,23 @@ namespace logic {
       return str;
     }
   }
+    
+    std::string FuncTerm::prettyString() const
+    {
+        if (_subterms.size() == 0)
+        {
+            return _head->name();
+        }
+        else
+        {
+            std::string str = _head->name() + "(";
+            for (unsigned i = 0; i < _subterms.size(); i++) {
+                str += _subterms[i]->toTPTP();
+                str += (i == _subterms.size() - 1) ? ")" : ",";
+            }
+            return str;
+        }
+    }
 
   std::string PredTerm::toTPTP() const {
     if (_subterms.size() == 0) {
@@ -33,6 +56,26 @@ namespace logic {
       return str;
     }
   }
+    
+    // TODO: refactor symbols so that the _head->name gives back a pretty string
+    // eg + instead of $add, >= instead of greaterEq
+    // switch also to infix for the usual infix-predicates
+    std::string PredTerm::prettyString() const
+    {
+        if (_subterms.size() == 0)
+        {
+            return _head->name();
+        }
+        else
+        {
+            std::string str = _head->name() + "(";
+            for (unsigned i = 0; i < _subterms.size(); i++) {
+                str += _subterms[i]->toTPTP();
+                str += (i == _subterms.size() - 1) ? ")" : ",";
+            }
+            return str;
+        }
+    }
     
     bool compareLVarPointers(LVariable* p1, LVariable* p2) {
         return p1->id() < p2->id();
