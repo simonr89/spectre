@@ -1,0 +1,11 @@
+int [] a, b;
+int i, j, alength, blength;
+
+requires (blength / 2) <= alength;
+requires i == 0;
+requires j == 0;
+ensures forall int i, 0 <= i & i < (blength / 2) ==> a[i] == b[i * 2];
+
+while (i < (blength / 2)) do
+:: true -> a[i] = b[i * 2]; i = i + 1;
+od

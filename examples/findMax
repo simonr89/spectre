@@ -1,0 +1,12 @@
+int [] a;
+int i, max, alength;
+
+requires i == 0;
+requires max == 0;
+requires forall int i, 0 <= i & i < alength ==> a[i] >= 0;
+ensures forall int i, 0 <= i & i < alength ==> a[i] <= max;
+
+while (i < alength) do
+:: a[i] > max -> max = a[i]; i = i + 1;
+:: true       -> i = i + 1;
+od
