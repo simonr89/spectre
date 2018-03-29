@@ -84,8 +84,6 @@ namespace logic {
     Formula* Formula::quantify(bool univ) const
     {
         std::vector<LVariable*> vars = freeVariables();
-        std::sort(vars.begin(),vars.end(),compareLVarPointers);
-        std::unique(vars.begin(), vars.end(), eqLVarPointers);
         Formula *f = clone();
         
         if (vars.empty()) {
@@ -116,41 +114,42 @@ namespace logic {
         std::set_union(l.begin(), l.end(),
                        r.begin(), r.end(),
                        std::back_inserter(res),compareLVarPointers);
+
         return res;
     }
     
     std::vector<LVariable*> ConjunctionFormula::freeVariables() const
     {
         // collect free variables from all conjuncts
-        std::vector<LVariable*> freeVars;
+        std::vector<LVariable*> res;
         for(const auto& conjunct : _conj)
         {
             auto freeVarsConjunct = conjunct->freeVariables();
-            freeVars.insert(freeVars.end(), freeVarsConjunct.begin(), freeVarsConjunct.end());
+            res.insert(res.end(), freeVarsConjunct.begin(), freeVarsConjunct.end());
         }
-        
+
         // sort and remove duplicates
-        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
-        freeVars.erase(unique(freeVars.begin(), freeVars.end(), compareLVarPointers), freeVars.end());
+        std::sort(res.begin(), res.end(), compareLVarPointers);
+        res.erase(std::unique(res.begin(), res.end(), eqLVarPointers), res.end());
         
-        return freeVars;
+        return res;
     }
     
     std::vector<LVariable*> DisjunctionFormula::freeVariables() const
     {
         // collect free variables from all disjuncts
-        std::vector<LVariable*> freeVars;
+        std::vector<LVariable*> res;
         for(const auto& disjunct : _disj)
         {
             auto freeVarsDisjunct = disjunct->freeVariables();
-            freeVars.insert(freeVars.end(), freeVarsDisjunct.begin(), freeVarsDisjunct.end());
+            res.insert(res.end(), freeVarsDisjunct.begin(), freeVarsDisjunct.end());
         }
         
         // sort and remove duplicates
-        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
-        freeVars.erase( unique(freeVars.begin(), freeVars.end(), compareLVarPointers), freeVars.end());
-        
-        return freeVars;
+        std::sort(res.begin(), res.end(), compareLVarPointers);
+        res.erase( unique(res.begin(), res.end(), eqLVarPointers), res.end());
+
+        return res;
     }
     
     std::vector<LVariable*> NegationFormula::freeVariables() const
@@ -160,25 +159,102 @@ namespace logic {
     
     std::vector<LVariable*> ExistentialFormula::freeVariables() const
     {
-        std::vector<LVariable*> l = _f->freeVariables();
+        // could be done more efficient if we would be able to assume that _vars are ordered too.
+        std::vector<LVariable*> res = _f->freeVariables();
         
-        for (const auto& var : _vars)
+        // perform std::remove,
+        // couldn't figure out how to pass eqLVarPointers as custom comparison function
+        auto first = res.begin();
+        for (; first != res.end(); ++first)
         {
-            l.erase(std::remove(l.begin(), l.end(), var), l.end());
+            bool shouldBeRemoved = false;
+            for (const auto& var : _vars)
+            {
+                if (eqLVarPointers(var,*first))
+                {
+                    shouldBeRemoved = true;
+                    break;
+                }
+            }
+            if (shouldBeRemoved)
+            {
+                break;
+            }
         }
-        return l;
+        if (first != res.end())
+        {
+            for(auto i = first; ++i != res.end(); )
+            {
+                bool shouldBeRemoved = false;
+                for (const auto& var : _vars)
+                {
+                    if (eqLVarPointers(var,*i))
+                    {
+                        shouldBeRemoved = true;
+                        break;
+                    }
+                }
+                if (!shouldBeRemoved)
+                {
+                    *first++ = std::move(*i);
+                }
+            }
+        }
+        
+        // now first points to first element which should be erased
+        res.erase(first,res.end());
+        
+        return res;
     }
     
     std::vector<LVariable*> UniversalFormula::freeVariables() const
     {
         // could be done more efficient if we would be able to assume that _vars are ordered too.
-        std::vector<LVariable*> l = _f->freeVariables();
+        std::vector<LVariable*> res = _f->freeVariables();
         
-        for (const auto& var : _vars)
+        // perform std::remove,
+        // couldn't figure out how to pass eqLVarPointers as custom comparison function
+        auto first = res.begin();
+        for (; first != res.end(); ++first)
         {
-            l.erase(std::remove(l.begin(), l.end(), var), l.end());
+            bool shouldBeRemoved = false;
+            for (const auto& var : _vars)
+            {
+                if (eqLVarPointers(var,*first))
+                {
+                    shouldBeRemoved = true;
+                    break;
+                }
+            }
+            if (shouldBeRemoved)
+            {
+                break;
+            }
         }
-        return l;
+        if (first != res.end())
+        {
+            for(auto i = first; ++i != res.end(); )
+            {
+                bool shouldBeRemoved = false;
+                for (const auto& var : _vars)
+                {
+                    if (eqLVarPointers(var,*i))
+                    {
+                        shouldBeRemoved = true;
+                        break;
+                    }
+                }
+                if (!shouldBeRemoved)
+                {
+                    *first++ = std::move(*i);
+                }
+            }
+        }
+
+        // now first points to first element which should be erased
+        res.erase(first,res.end());
+        
+        return res;
     }
     
     std::vector<LVariable*> ImplicationFormula::freeVariables() const
@@ -192,6 +268,7 @@ namespace logic {
         std::set_union(l.begin(), l.end(),
                        r.begin(), r.end(),
                        std::back_inserter(res), compareLVarPointers);
+        
         return res;
     }
  

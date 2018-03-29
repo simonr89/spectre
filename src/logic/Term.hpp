@@ -27,7 +27,7 @@ namespace logic {
     public:
         LVariable(Sort* s) : _id(freshId++), _s(s){}
         
-        unsigned id() { return _id; }
+        unsigned id() const { return _id; }
         
         std::string name() const { return "X" + std::to_string(_id); }
         
@@ -46,7 +46,7 @@ namespace logic {
     };
     
     bool compareLVarPointers(LVariable* p1, LVariable* p2);
-    bool eqLVarPointers(LVariable* p1, LVariable* p2);
+    bool eqLVarPointers(const LVariable* p1, const LVariable* p2);
     
     class FuncTerm : public Term {
     public:

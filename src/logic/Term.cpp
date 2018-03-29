@@ -81,7 +81,7 @@ namespace logic {
         return p1->id() < p2->id();
     }
     
-    bool eqLVarPointers(LVariable* p1, LVariable* p2) {
+    bool eqLVarPointers(const LVariable* p1, const LVariable* p2) {
         return p1->id() == p2->id();
     }
 
@@ -100,7 +100,7 @@ namespace logic {
         }
         // sort and remove duplicates
         std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
-        freeVars.erase( unique(freeVars.begin(), freeVars.end(), compareLVarPointers), freeVars.end());
+        freeVars.erase( unique(freeVars.begin(), freeVars.end(), eqLVarPointers), freeVars.end());
         
         return freeVars;
     }
