@@ -25,27 +25,32 @@ namespace program {
             symbolEliminationAxioms();
         }
         
+        constnessProps();
+    }
+    
+    void Properties::constnessProps()
+    {
         for (const auto& var : _vars)
         {
             if (!_updated.at(var))
             {
                 LVariable* i = new LVariable(Sort::intSort());
-
+                
                 Formula* eq;
                 // eq(i) := x(i) = x(0)
                 if (!isArrayType(var->vtype()))
                 {
                     eq = new EqualityFormula(true,
-                                                      var->toTerm(i),
-                                                      var->toTerm(Theory::integerConstant(0)));
+                                             var->toTerm(i),
+                                             var->toTerm(Theory::integerConstant(0)));
                 }
                 // eq(i) := forall p. x(i,p) = x(0,p)
                 else
                 {
                     LVariable* p = new LVariable(Sort::intSort());
                     Formula* eqWithoutQuantifiers = new EqualityFormula(true,
-                                             var->toTerm(i, p),
-                                             var->toTerm(Theory::integerConstant(0), p));
+                                                                        var->toTerm(i, p),
+                                                                        var->toTerm(Theory::integerConstant(0), p));
                     eq = new UniversalFormula({p}, eqWithoutQuantifiers);
                 }
                 
@@ -56,8 +61,8 @@ namespace program {
                 addProperty("not_updated_" + var->name(), f);
             }
         }
-        
     }
+
     
     void Properties::outputTPTP()
     {

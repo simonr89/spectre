@@ -69,6 +69,8 @@ namespace program {
         void symbolEliminationAxioms();
         void addSymbolEliminationAxioms(const PVariable *v);
         
+        void constnessProps();
+
         // translation of assignments
         void translateAssignments();
         
