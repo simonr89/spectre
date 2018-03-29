@@ -12,12 +12,12 @@ namespace program
         ostr << "\nRequires:\n";
         for (const auto& precondition : p.preconditions)
         {
-            ostr << precondition << "\n";
+            ostr << *precondition << "\n";
         }
         ostr << "\nEnsures:\n";
         for (const auto& postcondition : p.postconditions)
         {
-            ostr << postcondition << "\n";
+            ostr << *postcondition << "\n";
         }
         ostr << "\n" << *p.loop;
         return ostr;

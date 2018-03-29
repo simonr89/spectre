@@ -23,7 +23,7 @@ namespace program {
   public:
     virtual bool isProgramVariable() = 0;
 
-    virtual logic::Term *toTerm(const logic::Term* i, bool updated=true) const = 0;
+    virtual logic::Term *toTerm(const logic::Term* i) const = 0;
     
     /** the name of this variable */
     const std::string& name() const { return _name; }
@@ -94,10 +94,10 @@ namespace program {
      * constructed, since the arity of the symbol depends on the value
      * of 'updated'
      */
-    logic::Term *toTerm(const logic::Term* i, bool updated=true) const override;
+    logic::Term *toTerm(const logic::Term* i) const override;
 
     /** Same as above for array variables */
-    logic::Term *toTerm(const logic::Term* i, const logic::Term* arrayIndex, bool updated=true) const;
+    logic::Term *toTerm(const logic::Term* i, const logic::Term* arrayIndex) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const PVariable& v);
 
@@ -134,9 +134,9 @@ namespace program {
 
     ~QVariable() {}
 
-    bool isProgramVariable() { return false; }
+    bool isProgramVariable() override { return false; }
 
-    logic::Term *toTerm(const logic::Term* i, bool updated=true) const { return _lvariable; }
+    logic::Term *toTerm(const logic::Term* i) const override { return _lvariable; }
 
     logic::LVariable* toVar() { return _lvariable; }
     

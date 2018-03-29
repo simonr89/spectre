@@ -25,6 +25,38 @@ namespace program {
             symbolEliminationAxioms();
         }
         
+        for (const auto& var : _vars)
+        {
+            if (!_updated.at(var))
+            {
+                LVariable* i = new LVariable(Sort::intSort());
+
+                Formula* eq;
+                // eq(i) := x(i) = x(0)
+                if (!isArrayType(var->vtype()))
+                {
+                    eq = new EqualityFormula(true,
+                                                      var->toTerm(i),
+                                                      var->toTerm(Theory::integerConstant(0)));
+                }
+                // eq(i) := forall p. x(i,p) = x(0,p)
+                else
+                {
+                    LVariable* p = new LVariable(Sort::intSort());
+                    Formula* eqWithoutQuantifiers = new EqualityFormula(true,
+                                             var->toTerm(i, p),
+                                             var->toTerm(Theory::integerConstant(0), p));
+                    eq = new UniversalFormula({p}, eqWithoutQuantifiers);
+                }
+                
+                // forall i. eq(i)
+                Formula* f = new UniversalFormula({i}, eq);
+                
+                // add property
+                addProperty("not_updated_" + var->name(), f);
+            }
+        }
+        
     }
     
     void Properties::outputTPTP()
@@ -51,7 +83,7 @@ namespace program {
         int i=0;
         for (const auto& precondition : _preconditions)
         {
-            ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++));
+            ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++)) << std::endl;
         }
         
         // dump loop condition
