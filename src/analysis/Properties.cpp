@@ -12,16 +12,8 @@ using namespace logic;
 
 namespace program {
     
-    FuncTerm* Properties::loopCounterSymbol()
-    {
-        // initialization note that the syntax of the guarded command
-        // language does not allow special characters such as $
-        static Symbol* s = new Symbol("$counter", Sort::intSort());
-        s->makeColored();
-        
-        return new FuncTerm(s, {});
-    }
-    
+#pragma mark - High level methods
+
     void Properties::analyze()
     {
         monotonicityProps();
@@ -32,6 +24,7 @@ namespace program {
         if (util::Configuration::instance().mainMode().getValue() == "generation") {
             symbolEliminationAxioms();
         }
+        
     }
     
     void Properties::outputTPTP()
@@ -87,6 +80,33 @@ namespace program {
             ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
         }
     }
+
+
+#pragma mark - General Properties
+
+    
+    FuncTerm* Properties::loopCounterSymbol()
+    {
+        // initialization note that the syntax of the guarded command
+        // language does not allow special characters such as $
+        static Symbol* s = new Symbol("$counter", Sort::intSort());
+        s->makeColored();
+        
+        return new FuncTerm(s, {});
+    }
+    
+    
+    // 0 <= i < n
+    Formula* Properties::iter(Term* i)
+    {
+        return new ConjunctionFormula( {
+            new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                              { i, Theory::integerConstant(0) } )),
+            new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
+                                              { loopCounterSymbol(), i })) } );
+    }
+    
+#pragma mark - Monotonicity Properties
     
     /*
      * Monotonicity propreties
@@ -272,6 +292,8 @@ namespace program {
                                                                    new ExistentialFormula( { i } , f)));
     }
     
+#pragma mark - Translation of Assignments
+
     /*
      * Translation of guarded assignments
      */
@@ -415,6 +437,8 @@ namespace program {
         return new UniversalFormula({ j }, f);
     }
     
+#pragma mark - Update predicates of arrays
+
     /*
      * Update predicates of arrays
      */
@@ -432,77 +456,6 @@ namespace program {
                 addProperty("unique_update_" + v->name(), uniqueUpdateAxiom(v));
             }
         }
-    }
-    
-    // counter >= 0
-    void Properties::loopCounterHypothesis()
-    {
-        addProperty("loop_counter", new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                                      { loopCounterSymbol(), Theory::integerConstant(0) })));
-    }
-    
-    // forall i, iter(i) => cond(i)
-    void Properties::loopConditionHypothesis()
-    {
-        LVariable* i = new LVariable(Sort::intSort());
-        
-        addProperty("loop_condition", new UniversalFormula({i},
-                                                           new ImplicationFormula(iter(i),
-                                                                                  _loop.loopCondition->toFormula(i))));
-    }
-    
-    // 0 <= i < n
-    Formula* Properties::iter(Term* i)
-    {
-        return new ConjunctionFormula( {
-            new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                              { i, Theory::integerConstant(0) } )),
-            new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
-                                              { loopCounterSymbol(), i })) } );
-    }
-    
-    // if v is nullptr, updatePredicate with 2 args
-    Formula* Properties::arrayUpdatePredicate(const PVariable *a,
-                                              const Term* i,
-                                              const Term* p,
-                                              const Term* v)
-    {
-        std::vector<Formula*> disj {};
-        
-        for (auto itCmd = _loop.commands.begin(); itCmd != _loop.commands.end(); ++itCmd) {
-            GuardedCommand *gc = *itCmd;
-            
-            for (auto itAsg = gc->assignments.begin(); itAsg != gc->assignments.end(); ++itAsg) {
-                Assignment *asg = *itAsg;
-                
-                if (asg->hasLhs(*a))
-                    disj.push_back(arrayAssignmentConditions(asg, gc->guard, i, p, v));
-            }
-        }
-        
-        // a is updated, this shouldn't be empty
-        assert(!disj.empty());
-        
-        return new DisjunctionFormula(disj);
-    }
-    
-    Formula* Properties::arrayAssignmentConditions(const Assignment *asg,
-                                                   const FExpression *guard,
-                                                   const Term* i,
-                                                   const Term* p,
-                                                   const Term* v)
-    {
-        std::vector<Formula*> conj;
-        conj.push_back(guard->toFormula(i));
-        conj.push_back(new EqualityFormula(true,
-                                           p,
-                                           asg->lhs->child(0)->toTerm(i)));
-        if (v)
-            conj.push_back(new EqualityFormula(true,
-                                               v,
-                                               asg->rhs->toTerm(i)));
-        
-        return new ConjunctionFormula(conj);
     }
     
     /** forall p, (forall i, iter(i) => !update_a(i, p)) => a(n, p) = a(0, p) */
@@ -579,6 +532,73 @@ namespace program {
         
         return new UniversalFormula({i, p, v} , new ImplicationFormula(fb, fc));
     }
+    
+    // if v is nullptr, updatePredicate with 2 args
+    Formula* Properties::arrayUpdatePredicate(const PVariable *a,
+                                              const Term* i,
+                                              const Term* p,
+                                              const Term* v)
+    {
+        std::vector<Formula*> disj {};
+        
+        for (auto itCmd = _loop.commands.begin(); itCmd != _loop.commands.end(); ++itCmd) {
+            GuardedCommand *gc = *itCmd;
+            
+            for (auto itAsg = gc->assignments.begin(); itAsg != gc->assignments.end(); ++itAsg) {
+                Assignment *asg = *itAsg;
+                
+                if (asg->hasLhs(*a))
+                    disj.push_back(arrayAssignmentConditions(asg, gc->guard, i, p, v));
+            }
+        }
+        
+        // a is updated, this shouldn't be empty
+        assert(!disj.empty());
+        
+        return new DisjunctionFormula(disj);
+    }
+    
+    Formula* Properties::arrayAssignmentConditions(const Assignment *asg,
+                                                   const FExpression *guard,
+                                                   const Term* i,
+                                                   const Term* p,
+                                                   const Term* v)
+    {
+        std::vector<Formula*> conj;
+        conj.push_back(guard->toFormula(i));
+        conj.push_back(new EqualityFormula(true,
+                                           p,
+                                           asg->lhs->child(0)->toTerm(i)));
+        if (v)
+            conj.push_back(new EqualityFormula(true,
+                                               v,
+                                               asg->rhs->toTerm(i)));
+        
+        return new ConjunctionFormula(conj);
+    }
+
+#pragma mark - loop counter properties
+
+    // counter >= 0
+    void Properties::loopCounterHypothesis()
+    {
+        addProperty("loop_counter", new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                                      { loopCounterSymbol(), Theory::integerConstant(0) })));
+    }
+    
+#pragma mark - loop condition properties
+
+    // forall i, iter(i) => cond(i)
+    void Properties::loopConditionHypothesis()
+    {
+        LVariable* i = new LVariable(Sort::intSort());
+        
+        addProperty("loop_condition", new UniversalFormula({i},
+                                                           new ImplicationFormula(iter(i),
+                                                                                  _loop.loopCondition->toFormula(i))));
+    }
+    
+#pragma mark - Symbol elimination properties
     
     void Properties::symbolEliminationAxioms()
     {
