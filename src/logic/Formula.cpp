@@ -28,11 +28,11 @@ namespace logic {
     {
         if (_conj.size() == 0)
             return "$true";
-        std::string str = "(";
+        std::string str = "";
         for (unsigned i = 0; i < _conj.size(); i++) {
-            str += _conj[i]->toTPTP();
+            str += "(" + _conj[i]->toTPTP() + ")";
             
-            str += (i == _conj.size() - 1) ? ")" : " & ";
+            str += (i == _conj.size() - 1) ? "" : " & ";
         }
         return str;
     }
@@ -41,11 +41,11 @@ namespace logic {
     {
         if (_disj.size() == 0)
             return "$false";
-        std::string str = "(";
+        std::string str = "";
         for (unsigned i = 0; i < _disj.size(); i++) {
-            str += _disj[i]->toTPTP();
+            str += "(" + _disj[i]->toTPTP() + ")";
             
-            str += (i == _disj.size() - 1) ? ")" : " | ";
+            str += (i == _disj.size() - 1) ? "" : " | ";
         }
         return str;  }
     
@@ -61,7 +61,7 @@ namespace logic {
             str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
             if (i != _vars.size() - 1) { str += ", "; }
         }
-        str += "] : " + _f->toTPTP();
+        str += "] : (" + _f->toTPTP() + ")";
         return str;
     }
     
@@ -72,13 +72,13 @@ namespace logic {
             str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
             if (i != _vars.size() - 1) { str += ", "; }
         }
-        str += "] : " + _f->toTPTP();
+        str += "] : (" + _f->toTPTP() + ")";
         return str;
     }
 
     std::string ImplicationFormula::toTPTP() const
     {
-        return "(" + _f1->toTPTP() + " => " + _f2->toTPTP() + ")";
+        return "(" + _f1->toTPTP() + ")" + " => (" + _f2->toTPTP() + ")";
     }
 
     Formula* Formula::quantify(bool univ) const
