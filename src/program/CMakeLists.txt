@@ -1,4 +1,4 @@
-set(INVGEN_PROGRAM_SOURCES
+set(SPECTRE_PROGRAM_SOURCES
     Expression.cpp
     GuardedCommandCollection.cpp
     Type.cpp
@@ -7,7 +7,7 @@ set(INVGEN_PROGRAM_SOURCES
     Program.cpp
 )
 
-set(INVGEN_PROGRAM_HEADERS
+set(SPECTRE_PROGRAM_HEADERS
     Expression.hpp
     GuardedCommandCollection.hpp
     Type.hpp
@@ -16,6 +16,6 @@ set(INVGEN_PROGRAM_HEADERS
     Program.hpp
 )
 
-add_library(program ${INVGEN_PROGRAM_SOURCES} ${INVGEN_PROGRAM_HEADERS})
+add_library(program ${SPECTRE_PROGRAM_SOURCES} ${SPECTRE_PROGRAM_HEADERS})
 target_include_directories(program PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(program logic util)

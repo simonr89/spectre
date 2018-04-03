@@ -1,6 +1,7 @@
 # Overview
+This README is outdated.
 
-INVGEN is a program verification tool that parses programs and
+SPECTRE is a program verification tool that parses programs and
 produces first-order logic problems in TPTP syntax. It can be used to
 generate loop invariants, or to verify that a loop satisfies a given
 specification, without user-supplied invariants.
@@ -63,7 +64,7 @@ installed. From the main directory, simply run
 ```
 $ make
 ```
-to build the executable 'invgen'. Optionally, run
+to build the executable 'spectre'. Optionally, run
 ```
 $ make clean
 ```

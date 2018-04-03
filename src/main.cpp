@@ -15,7 +15,7 @@
 extern FILE* yyin;
 
 void outputUsage() {
-    std::cout << "Usage: invgen <filename>" << std::endl;
+    std::cout << "Usage: spectre <filename>" << std::endl;
 }
 
 int main(int argc, char *argv[]) {

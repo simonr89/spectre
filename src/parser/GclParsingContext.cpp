@@ -79,7 +79,7 @@ namespace parser {
         
         ostr << util::Output::comment
         << "-------------------------------------------------\n"
-        << " This file was generated automatically by INVGEN \n"
+        << " This file was generated automatically by SPECTRE\n"
         << "-------------------------------------------------\n"
         << '\n'
         << "------------------ Parsed loop ------------------\n"

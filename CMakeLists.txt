@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.6.3)
 
 ################################################################
-project (Invgen)
+project (Spectre)
 ################################################################
 
 # require the compiler to use C++11
@@ -17,7 +17,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # Set the output folder where the binary will be created (i.e. build/dir)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_executable(invgen src/main.cpp)
+add_executable(spectre src/main.cpp)
 
 
 add_subdirectory(src/analysis)
@@ -26,4 +26,4 @@ add_subdirectory(src/parser)
 add_subdirectory(src/program)
 add_subdirectory(src/util)
 
-target_link_libraries(invgen analysis logic parser program util)
+target_link_libraries(spectre analysis logic parser program util)
