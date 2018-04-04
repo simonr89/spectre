@@ -19,16 +19,16 @@ namespace program {
         if (isArrayType(ty)) {
             if (util::Configuration::instance().arrayTheory().getValue()) {
                 // representation of arrays using array axioms
-                _symbol = new logic::Symbol(name, {}, logic::Sort::intArraySort());
-                _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort() }, logic::Sort::intArraySort());
+                _symbol = new logic::Symbol(name + "_nonext", {}, logic::Sort::intArraySort());
+                _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort() }, logic::Sort::intArraySort());
             } else {
                 // representation of arrays as functions
-                _symbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
-                _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
+                _symbol = new logic::Symbol(name + "_nonext", { logic::Sort::intSort() }, toSort(ty));
+                _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort(), logic::Sort::intSort() }, toSort(ty));
             }
         } else {
-            _symbol = new logic::Symbol(name, {}, toSort(ty));
-            _extendedSymbol = new logic::Symbol(name + "$ext", { logic::Sort::intSort() }, toSort(ty));
+            _symbol = new logic::Symbol(name + "_nonext", {}, toSort(ty));
+            _extendedSymbol = new logic::Symbol(name, { logic::Sort::intSort() }, toSort(ty));
         }
         _extendedSymbol->makeColored();
     }
