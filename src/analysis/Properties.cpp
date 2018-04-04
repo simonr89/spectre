@@ -126,7 +126,7 @@ namespace program {
     {
         // initialization note that the syntax of the guarded command
         // language does not allow special characters such as $
-        static Symbol* s = new Symbol("$counter", Sort::intSort());
+        static Symbol* s = new Symbol("$n", Sort::intSort());
         s->makeColored();
         
         return new FuncTerm(s, {});
