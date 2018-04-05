@@ -105,13 +105,19 @@ namespace logic {
         return freeVars;
     }
     
-    std::vector<LVariable*> PredTerm::freeVariables() const {
+    std::vector<LVariable*> PredTerm::freeVariables() const
+    {
         std::vector<LVariable*> freeVars;
+        // collect free vars from all subterms
         for (const auto& subterm : _subterms)
         {
             auto freeVarsSubterm = subterm->freeVariables();
             freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
         }
+        // sort and remove duplicates
+        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
+        freeVars.erase( unique(freeVars.begin(), freeVars.end(), eqLVarPointers), freeVars.end());
+        
         return freeVars;
     }
 }
