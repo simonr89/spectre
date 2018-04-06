@@ -40,17 +40,29 @@ namespace program {
                 // eq(i) := x(i) = x(0)
                 if (!isArrayType(var->vtype()))
                 {
+                    
+                    Symbol* var0Symbol = new Symbol(var->name()+"0", toSort(var->vtype()));
+                    Term* var0 = new FuncTerm(var0Symbol, {});
+                    
+                    
                     eq = new EqualityFormula(true,
                                              var->toTerm(i),
-                                             var->toTerm(Theory::integerConstant(0)));
+                                             var0);
                 }
                 // eq(i) := forall p. x(i,p) = x(0,p)
                 else
                 {
+                    // suppport for other options not implemented yet
+                    assert(!util::Configuration::instance().arrayTheory().getValue());
+                    
                     LVariable* p = new LVariable(Sort::intSort());
+
+                    Symbol* var0Symbol = new Symbol(var->name()+"0", { Sort::intSort() }, toSort(var->vtype()));
+                    Term* var0 = new FuncTerm(var0Symbol, {p});
+                    
                     Formula* eqWithoutQuantifiers = new EqualityFormula(true,
                                                                         var->toTerm(i, p),
-                                                                        var->toTerm(Theory::integerConstant(0), p));
+                                                                        var0);
                     eq = new UniversalFormula({p}, eqWithoutQuantifiers);
                 }
                 
