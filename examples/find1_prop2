@@ -1,0 +1,16 @@
+// The find example from the Invgen-repo where we want to prove that
+// forall positions p left to r, A[p] is different from v
+// note that this doesn't tell us anything about A, if r is -1
+
+int [] a;
+int i, alength, v, r;
+
+requires i == 0;
+requires r == -1;
+requires alength >= 0;
+ensures forall int p, 0 <= p & p < r ==> a[p] != v;
+
+while (i < alength & r == -1) do
+:: a[i] == v -> r = i;
+:: true      -> i = i + 1;
+od
