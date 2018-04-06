@@ -58,7 +58,7 @@ namespace logic {
     {
         std::string str = "? [";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->name();
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += "] : (" + _f->toTPTP() + ")";
@@ -69,7 +69,7 @@ namespace logic {
     {
         std::string str = "! [";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->name();
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += "] : (" + _f->toTPTP() + ")";
@@ -328,7 +328,7 @@ namespace logic {
     {
         std::string str = std::string(indentation, ' ') + "EXISTS ";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->name();
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += ".\n" + _f->prettyString(indentation + 3);
@@ -339,7 +339,7 @@ namespace logic {
     {
         std::string str = std::string(indentation, ' ') + "FORALL ";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name() + " : " + _vars[i]->sort()->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->name();
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += ".\n";

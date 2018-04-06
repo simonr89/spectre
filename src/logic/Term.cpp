@@ -5,12 +5,12 @@ namespace logic {
   unsigned LVariable::freshId = 0;
 
   std::string LVariable::toTPTP() const {
-    return name();
+    return name;
   }
     
     std::string LVariable::prettyString() const
     {
-        return name();
+        return name;
     }
 
   
@@ -78,11 +78,11 @@ namespace logic {
     }
     
     bool compareLVarPointers(LVariable* p1, LVariable* p2) {
-        return p1->id() < p2->id();
+        return p1->id < p2->id;
     }
     
     bool eqLVarPointers(const LVariable* p1, const LVariable* p2) {
-        return p1->id() == p2->id();
+        return p1->id == p2->id;
     }
 
     std::vector<LVariable*> LVariable::freeVariables() const {

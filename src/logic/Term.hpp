@@ -25,22 +25,17 @@ namespace logic {
     
     class LVariable : public Term {
     public:
-        LVariable(Sort* s) : _id(freshId++), _s(s){}
-        
-        unsigned id() const { return _id; }
-        
-        std::string name() const { return "X" + std::to_string(_id); }
-        
-        Sort* sort() const { return _s; }
+        LVariable(Sort* s) : id(freshId++), sort(s), name("X" + std::to_string(id)){}
+        LVariable(Sort* s, const std::string name) : id(freshId++), sort(s), name(name){}
+
+        const unsigned id;
+        const Sort* sort;
+        const std::string name;
         
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
         virtual std::string prettyString() const override;
-
-    protected:
-        unsigned _id;
-        Sort* _s;
         
         static unsigned freshId;
     };

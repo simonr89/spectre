@@ -174,7 +174,7 @@ namespace program {
                 {
                     // don't add updatePropertyOfVar here since dense prop is
                     // stronger and does not have an existential quantifier
-                    //addProperty("update_" + v->name(), updatePropertyOfVar(v));
+                    //addProperty("update_" + v->name, updatePropertyOfVar(v));
                     addProperty("dense_strict_" + v->name(), denseStrictProp(v)); // also implies strictProp
                 } else {
                     addProperty("update_" + v->name(), updatePropertyOfVar(v));

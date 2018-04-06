@@ -52,33 +52,6 @@ namespace program {
 
     bool isProgramVariable() override { return true; }
 
-//    /** true if the variable is on the LHS of at least one assignment in
-//        the loop */
-//    bool isUpdated() { return _updated; }
-//
-//    /** true if the variable is only incremented by positive constants,
-//        or only by negative constants */
-//    bool isMonotonic() { return _monotonic; }
-//
-//    /** true if the variable is incremented/decremented by at least one
-//        at every iteration */
-//    bool isStrict() { return _strict; }
-//
-//    /** true if the variable is incremented/decremented by at most one
-//        at every iteration */
-//    bool isDense() { return _dense; }
-//
-//    /** 1 if the variable is monotonic increasing, -1 if it is monotonic
-//        decreasing, 0 if constant or otherwise non-monotonic*/
-//    int monotonicity() { return _monotonic; }
-//
-//    void setUpdated() { _updated = true; }
-//
-//    void setStrict() { _strict = true; }
-//
-//    void setDense() { _dense = true; }
-//
-//    void setMonotonic(bool b) { _monotonic = b; }
 
     void recordScalarIncrement(int n);
 
