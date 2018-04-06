@@ -34,10 +34,10 @@ namespace program {
         {
             if (!_updated.at(var))
             {
-                LVariable* i = new LVariable(Sort::intSort());
+                LVariable* it = new LVariable(Sort::intSort(), "It");
                 
                 Formula* eq;
-                // eq(i) := x(i) = x(0)
+                // eq(it) := x(it) = x(0)
                 if (!isArrayType(var->vtype()))
                 {
                     
@@ -46,7 +46,7 @@ namespace program {
                     
                     
                     eq = new EqualityFormula(true,
-                                             var->toTerm(i),
+                                             var->toTerm(it),
                                              var0);
                 }
                 // eq(i) := forall p. x(i,p) = x(0,p)
@@ -55,19 +55,19 @@ namespace program {
                     // suppport for other options not implemented yet
                     assert(!util::Configuration::instance().arrayTheory().getValue());
                     
-                    LVariable* p = new LVariable(Sort::intSort());
+                    LVariable* p = new LVariable(Sort::intSort(), "P");
 
                     Symbol* var0Symbol = new Symbol(var->name()+"0", { Sort::intSort() }, toSort(var->vtype()));
                     Term* var0 = new FuncTerm(var0Symbol, {p});
                     
                     Formula* eqWithoutQuantifiers = new EqualityFormula(true,
-                                                                        var->toTerm(i, p),
+                                                                        var->toTerm(it, p),
                                                                         var0);
                     eq = new UniversalFormula({p}, eqWithoutQuantifiers);
                 }
                 
                 // forall i. eq(i)
-                Formula* f = new UniversalFormula({i}, eq);
+                Formula* f = new UniversalFormula({it}, eq);
                 
                 // add property
                 addProperty("not_updated_" + var->name(), f);
@@ -200,7 +200,7 @@ namespace program {
         assert(_dense.at(v));
         assert(_strict.at(v));
         
-        LVariable* i = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It");
         
         InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_PLUS
@@ -220,8 +220,8 @@ namespace program {
         assert(_dense.at(v));
         assert(_strict.at(v));
         
-        LVariable* i = new LVariable(Sort::intSort());
-        LVariable* j = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It1");
+        LVariable* j = new LVariable(Sort::intSort(), "It2");
         
         InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER
@@ -242,8 +242,8 @@ namespace program {
         assert(_dense.at(v));
         assert(!_strict.at(v));
         
-        LVariable* i = new LVariable(Sort::intSort());
-        LVariable* j = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It1");
+        LVariable* j = new LVariable(Sort::intSort(), "It2");
         
         bool incr = (_monotonic.at(v) == Monotonicity::INC);
         FuncTerm* lhs = new FuncTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
@@ -265,8 +265,8 @@ namespace program {
         assert(_monotonic.at(v) != Monotonicity::OTHER);
         assert(!_strict.at(v));
         
-        LVariable* i = new LVariable(Sort::intSort());
-        LVariable* j = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It1");
+        LVariable* j = new LVariable(Sort::intSort(), "It2");
         
         InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER_EQUAL
@@ -295,8 +295,8 @@ namespace program {
         assert(_updated.at(v));
         assert(_monotonic.at(v) != Monotonicity::OTHER);
         
-        LVariable* x = new LVariable(Sort::intSort());
-        LVariable* i = new LVariable(Sort::intSort());
+        LVariable* x = new LVariable(Sort::intSort(), "X");
+        LVariable* i = new LVariable(Sort::intSort(), "It");
         FuncTerm* iPlusOne = new FuncTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
                                           {i, Theory::integerConstant(1)});
         
@@ -360,7 +360,7 @@ namespace program {
         Assignment *a;
         std::vector<Formula*> conj {};
         
-        LVariable* i = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It1");
         Term* iPlusOne = new FuncTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
                                       { i, Theory::integerConstant(1) } );
         
@@ -466,7 +466,7 @@ namespace program {
         assert(_updated.at(v));
         assert(isArrayType(v->vtype()));
         
-        LVariable* j = new LVariable(Sort::intSort());
+        LVariable* j = new LVariable(Sort::intSort(), "It2");
         std::vector<Formula*> conj {};
         for (auto it = gc->assignments.begin();
              it != gc->assignments.end();
@@ -513,8 +513,8 @@ namespace program {
         assert(isArrayType(a->vtype()));
         assert(_updated.at(a));
         
-        LVariable* i = new LVariable(Sort::intSort());
-        LVariable* p = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It");
+        LVariable* p = new LVariable(Sort::intSort(), "P");
         
         Formula *fa = new ImplicationFormula(iter(i),
                                              new NegationFormula(arrayUpdatePredicate(a, i, p, nullptr)));
@@ -535,10 +535,10 @@ namespace program {
         assert(isArrayType(a->vtype()));
         assert(_updated.at(a));
         
-        LVariable* i = new LVariable(Sort::intSort());
-        LVariable* j = new LVariable(Sort::intSort());
-        LVariable* p = new LVariable(Sort::intSort());
-        LVariable* v = new LVariable(toSort(a->vtype()));
+        LVariable* i = new LVariable(Sort::intSort(), "It1");
+        LVariable* j = new LVariable(Sort::intSort(), "It2");
+        LVariable* p = new LVariable(Sort::intSort(), "P");
+        LVariable* v = new LVariable(toSort(a->vtype()), "V");
         
         Formula *fa = new ImplicationFormula(new ConjunctionFormula({ new EqualityFormula(false, i,j), iter(j) }),
                                              new NegationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
@@ -561,10 +561,10 @@ namespace program {
         assert(isArrayType(a->vtype()));
         assert(_updated.at(a));
         
-        LVariable* i = new LVariable(Sort::intSort());
-        LVariable* j = new LVariable(Sort::intSort());
-        LVariable* p = new LVariable(Sort::intSort());
-        LVariable* v = new LVariable(toSort(a->vtype()));
+        LVariable* i = new LVariable(Sort::intSort(), "It1");
+        LVariable* j = new LVariable(Sort::intSort(), "It2");
+        LVariable* p = new LVariable(Sort::intSort(), "P");
+        LVariable* v = new LVariable(toSort(a->vtype()), "V");
         
         PredTerm* gt = new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER), {j, i});
         Formula *fa = new ImplicationFormula(new ConjunctionFormula({ new PredicateFormula(gt), iter(j) }),
@@ -640,7 +640,7 @@ namespace program {
     // forall i, iter(i) => cond(i)
     void Properties::loopConditionHypothesis()
     {
-        LVariable* i = new LVariable(Sort::intSort());
+        LVariable* i = new LVariable(Sort::intSort(), "It");
         
         addProperty("loop_condition", new UniversalFormula({i},
                                                            new ImplicationFormula(iter(i),
