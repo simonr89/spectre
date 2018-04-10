@@ -2,7 +2,7 @@
 #define __ProgramType__
 
 #include <ostream>
-#include "logic/Sort.hpp"
+#include "Sort.hpp"
 
 namespace program {
 

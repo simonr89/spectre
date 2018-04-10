@@ -1,9 +1,9 @@
 #include "Expression.hpp"
 
 #include <cassert>
-#include "logic/Sort.hpp"
-#include "logic/Theory.hpp"
-#include "util/Options.hpp"
+#include "Sort.hpp"
+#include "Theory.hpp"
+#include "Options.hpp"
 
 namespace program {
   
@@ -11,7 +11,7 @@ namespace program {
     delete _children;
   }
 
-  Expression * Expression::child(unsigned n)
+  Expression * Expression::child(unsigned n) const
   {
     return (n < _arity ? _children[n] : nullptr);
   }
@@ -57,7 +57,7 @@ namespace program {
     return false;
   }
 
-  bool ArithmeticExpression::equivToVPlusX(PVariable *v, int &incr)
+  bool ArithmeticExpression::equivToVPlusX(const PVariable *v, int &incr) const
   {
     Expression *e1, *e2;
     int a, b;
@@ -86,7 +86,7 @@ namespace program {
     }
   }
 
-  bool LocationExpression::equivToVPlusX(PVariable *v, int &incr)
+  bool LocationExpression::equivToVPlusX(const PVariable *v, int &incr) const
   {
     if (_kind == LocationExprKind::EXP_VAR_LOC && _var == v) {
       incr = 0;
@@ -102,7 +102,7 @@ namespace program {
    * is empty, then the expression is in the non extended language (as
    * understood by the user)
    */
-  logic::Term* ArithmeticExpression::toTerm(logic::Term* index)
+  logic::Term* ArithmeticExpression::toTerm(const logic::Term* index) const
   {  
     using namespace logic;
 
@@ -144,25 +144,28 @@ namespace program {
     }
   }
 
-  logic::Term* LocationExpression::toTerm(logic::Term* index)
-  {      
-    switch (_kind) {
-    case LocationExprKind::EXP_VAR_LOC:
-      return _var->toTerm(index);
-    case LocationExprKind::EXP_ARRAY_LOC:
-      return _var->toTerm(index, _children[0]->toTerm(index));
-    }
+    logic::Term* LocationExpression::toTerm(const logic::Term* index) const
+    {
+        switch (_kind) {
+            case LocationExprKind::EXP_VAR_LOC:
+                return _var->toTerm(index);
+            case LocationExprKind::EXP_ARRAY_LOC:
+                return _var->toTerm(index, _children[0]->toTerm(index));
+            case LocationExprKind::EXP_FIELD_LOC:
+                assert(false); // TODO: not supported yet
+                break;
+        }
 
     assert(0); // unreachable
     return nullptr;
   }
 
-  logic::Term* VariableExpression::toTerm(logic::Term* index)
+  logic::Term* VariableExpression::toTerm(const logic::Term* index) const
   {
     return _var->toTerm(index);
   }
 
-  logic::Term* BooleanExpression::toTerm(logic::Term* index)
+  logic::Term* BooleanExpression::toTerm(const logic::Term* index) const
   {
     //TODO check original implementation
     //return toFormula(index);
@@ -170,27 +173,30 @@ namespace program {
     return nullptr;
   }
 
-  logic::Term* QuantifiedExpression::toTerm(logic::Term* index)
+  logic::Term* QuantifiedExpression::toTerm(const logic::Term* index) const
   {
     assert(0);
     return nullptr;
   }
 
-  logic::Formula* LocationExpression::toFormula(logic::Term* index)
-  {
-    switch (_kind) {
-    case LocationExprKind::EXP_VAR_LOC:
-      return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
-    case LocationExprKind::EXP_ARRAY_LOC:
-      return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index,
-                                                                                    _children[0]->toTerm(index))));
+    logic::Formula* LocationExpression::toFormula(const logic::Term* index) const
+    {
+        switch (_kind) {
+            case LocationExprKind::EXP_VAR_LOC:
+                return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
+            case LocationExprKind::EXP_ARRAY_LOC:
+                return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index,
+                                                                                              _children[0]->toTerm(index))));
+            case LocationExprKind::EXP_FIELD_LOC:
+                assert(false); // TODO: not supported yet
+                break;
+        }
+        
+        assert(0); // unreachable
+        return nullptr;
     }
-
-    assert(0); // unreachable
-    return nullptr;
-  }
   
-  logic::Formula* BooleanExpression::toFormula(logic::Term* index)
+  logic::Formula* BooleanExpression::toFormula(const logic::Term* index) const
   {
     using namespace logic;
     
@@ -237,12 +243,12 @@ namespace program {
     return nullptr;
   }
 
-  logic::Formula* VariableExpression::toFormula(logic::Term* index)
+  logic::Formula* VariableExpression::toFormula(const logic::Term* index) const
   {
     return new logic::PredicateFormula(static_cast<logic::PredTerm*>(_var->toTerm(index)));
   }
 
-  logic::Formula* QuantifiedExpression::toFormula(logic::Term* index)
+  logic::Formula* QuantifiedExpression::toFormula(const logic::Term* index) const
   {
     using namespace logic;
 
@@ -258,7 +264,7 @@ namespace program {
     }
   }
 
-  Type LocationExpression::etype() {
+  Type LocationExpression::etype() const {
     switch (_kind) {
     case LocationExprKind::EXP_ARRAY_LOC:
       return returnType(_var->vtype());
@@ -358,10 +364,27 @@ namespace program {
   {
     if (e1->etype() != Type::TY_BOOLEAN || e2->etype() != Type::TY_BOOLEAN)
       return nullptr;
-    BooleanExpression* r = new BooleanExpression(BooleanExprKind::EXP_AND, 2);
-    r->_children[0] = e1;
-    r->_children[1] = e2;
-    return r;
+      
+      if (e1->isTrue())
+      {
+          return dynamic_cast<BooleanExpression*>(e2);
+      }
+      if (e2->isTrue())
+      {
+          return dynamic_cast<BooleanExpression*>(e1);
+      }
+      if(e1->isFalse())
+      {
+          return dynamic_cast<BooleanExpression*>(e1);
+      }
+      if(e2->isFalse())
+      {
+          return dynamic_cast<BooleanExpression*>(e2);
+      }
+      BooleanExpression* r = new BooleanExpression(BooleanExprKind::EXP_AND, 2);
+      r->_children[0] = e1;
+      r->_children[1] = e2;
+      return r;
   }
 
   BooleanExpression* BooleanExpression::mkGe(Expression* e1, Expression* e2)
@@ -529,18 +552,21 @@ namespace program {
     return ostr;
   }
 
-  std::ostream& LocationExpression::toStream(std::ostream& ostr) const
-  {
-    switch (_kind) {
-    case LocationExprKind::EXP_ARRAY_LOC:
-      ostr << _var->name() << "[" << *_children[0] << "]";
-      break;
-    case LocationExprKind::EXP_VAR_LOC:
-      ostr << _var->name();
-      break;
+    std::ostream& LocationExpression::toStream(std::ostream& ostr) const
+    {
+        switch (_kind) {
+            case LocationExprKind::EXP_ARRAY_LOC:
+                ostr << _var->name() << "[" << *_children[0] << "]";
+                break;
+            case LocationExprKind::EXP_VAR_LOC:
+                ostr << _var->name();
+                break;
+            case LocationExprKind::EXP_FIELD_LOC:
+                assert(false); // TODO: not supported yet
+                break;
+        }
+        return ostr;
     }
-    return ostr;
-  }
 
   std::ostream& VariableExpression::toStream(std::ostream& ostr) const
   {

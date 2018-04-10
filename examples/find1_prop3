@@ -1,0 +1,15 @@
+// The find example from the Invgen-repo where we want to prove that
+// if we didn't find any position, then at all positions p, A[p] is different from v
+
+int [] a;
+int i, alength, v, r;
+
+requires i == 0;
+requires r == -1;
+requires alength >= 0;
+ensures forall int p, ((r == -1) ==> ( 0 <= p & p < alength  ==> a[p] != v));
+
+while (i < alength & r == -1) do
+:: a[i] == v -> r = i;
+:: true      -> i = i + 1;
+od

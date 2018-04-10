@@ -2,7 +2,7 @@
 #define __Theory__
 
 #include <string>
-#include "logic/Term.hpp"
+#include "Term.hpp"
 
 namespace logic {
 

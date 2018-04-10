@@ -1,0 +1,13 @@
+// a new encoding of find, which is easier for the solvers, where we want to prove that
+// if we found a position p, then we have A[p] == v.
+
+int [] a;
+int i, alength, v;
+
+requires i == 0;
+requires alength >= 0;
+ensures i < alength ==> a[i]==v;
+
+while (i < alength & a[i] != v) do
+:: true      -> i = i + 1;
+od

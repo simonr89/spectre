@@ -1,12 +1,12 @@
-int [] A, B, C;
+int [] aa, bb, cc;
 int a, b, alength;
 
 requires a == 0;
 requires b == 0;
 requires alength >= 0;
-ensures forall int i, 0 <= i & i < b ==> A[B[i]] == C[B[i]];
+ensures forall int i, 0 <= i & i < b ==> aa[bb[i]] == cc[bb[i]];
 
 while (a < alength) do
-:: A[a] == C[a] -> B[b] = a; a = a + 1; b = b + 1;
+:: aa[a] == cc[a] -> bb[b] = a; a = a + 1; b = b + 1;
 :: true         -> a = a + 1;
 od

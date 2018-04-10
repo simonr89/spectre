@@ -1,3 +1,6 @@
+// The find example from the Invgen-repo where we want to prove that
+// if we find a position, the element at that position is equal to v
+
 int [] a;
 int i, alength, v, r;
 

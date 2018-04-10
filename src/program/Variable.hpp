@@ -11,11 +11,11 @@
 
 #include <string>
 #include <ostream>
-#include "logic/Formula.hpp"
-#include "logic/Signature.hpp"
-#include "logic/Sort.hpp"
-#include "logic/Term.hpp"
-#include "program/Type.hpp"
+#include "Formula.hpp"
+#include "Signature.hpp"
+#include "Sort.hpp"
+#include "Term.hpp"
+#include "Type.hpp"
 
 namespace program {
 
@@ -23,12 +23,12 @@ namespace program {
   public:
     virtual bool isProgramVariable() = 0;
 
-    virtual logic::Term *toTerm(logic::Term* i) = 0;
+    virtual logic::Term *toTerm(const logic::Term* i) const = 0;
     
     /** the name of this variable */
-    const std::string& name() { return _name; }
+    const std::string& name() const { return _name; }
 
-    const Type vtype() { return _type; }
+    const Type vtype() const { return _type; }
     
   protected:
     
@@ -50,35 +50,8 @@ namespace program {
 
     ~PVariable() {}
 
-    bool isProgramVariable() { return true; }
+    bool isProgramVariable() override { return true; }
 
-    /** true if the variable is on the LHS of at least one assignment in
-        the loop */
-    bool isUpdated() { return _updated; }
-
-    /** true if the variable is only incremented by positive constants,
-        or only by negative constants */
-    bool isMonotonic() { return _monotonic; }
-
-    /** true if the variable is incremented/decremented by at least one
-        at every iteration */
-    bool isStrict() { return _strict; }
-
-    /** true if the variable is incremented/decremented by at most one
-        at every iteration */
-    bool isDense() { return _dense; }
-
-    /** 1 if the variable is monotonic increasing, -1 if it is monotonic
-        decreasing, 0 if constant or otherwise non-monotonic*/
-    int monotonicity() { return _monotonic; }
-  
-    void setUpdated() { _updated = true; }
-
-    void setStrict() { _strict = true; }
-
-    void setDense() { _dense = true; }
-
-    void setMonotonic(bool b) { _monotonic = b; }
 
     void recordScalarIncrement(int n);
 
@@ -94,29 +67,15 @@ namespace program {
      * constructed, since the arity of the symbol depends on the value
      * of 'updated'
      */
-    logic::Term *toTerm(logic::Term* i);
+    logic::Term *toTerm(const logic::Term* i) const override;
 
     /** Same as above for array variables */
-    logic::Term *toTerm(logic::Term* i, logic::Term* arrayIndex);
-
-    /** Same as above for boolean variables */
-    //logic::PredTerm* toPred(logic::Term* i);
-
-    /** Same as above for boolean arrays */
-    //logic::PredTerm* toPred(logic::Term* i, logic::Term* arrayIndex);
+    logic::Term *toTerm(const logic::Term* i, const logic::Term* arrayIndex) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const PVariable& v);
 
+      std::string toString() const;
   protected:
-    
-    /** Whether the variable is updated by the loop */
-    bool _updated;
-    /** -1, 0, or 1 */
-    short _monotonic;
-
-    bool _strict;
-
-    bool _dense;
 
     /** the symbol associated to that variable in FOL terms. If extended
         is set to true, this is the symbol for extended expressions
@@ -125,11 +84,7 @@ namespace program {
         expressions */
     logic::Symbol* _symbol;
     logic::Symbol* _extendedSymbol;
-
-    unsigned arityOfSymbol(bool extended);
-  
-    //Kernel::BaseType * typeOfSymbol(bool extended);
-  
+    
   }; // class PVariable
 
   class QVariable : public Variable {
@@ -152,9 +107,9 @@ namespace program {
 
     ~QVariable() {}
 
-    bool isProgramVariable() { return false; }
+    bool isProgramVariable() override { return false; }
 
-    logic::Term *toTerm(logic::Term* i) { return _lvariable; }
+    logic::Term *toTerm(const logic::Term* i) const override { return _lvariable; }
 
     logic::LVariable* toVar() { return _lvariable; }
     

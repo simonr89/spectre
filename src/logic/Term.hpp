@@ -7,94 +7,88 @@
 #include <ostream>
 #include <string>
 #include <vector>
-#include "logic/Signature.hpp"
-#include "logic/Sort.hpp"
+#include "Signature.hpp"
+#include "Sort.hpp"
 
 namespace logic {
-
-  class LVariable;
-
-  class Term
-  {
-  public:
-    virtual std::string toTPTP() const = 0;
-
-    virtual std::list<LVariable*> freeVariables() const = 0;
-  };
-
-  class LVariable : public Term {
-  public:
-    LVariable(Sort* s) :
-      _id(freshId++),
-      _s(s)
-    {}
-
-    ~LVariable() {}
-
-    unsigned id() { return _id; }
-
-    std::string name() const { return "X" + std::to_string(_id); }
-
-    Sort* sort() const { return _s; }
-
-    std::string toTPTP() const;
-
-    std::list<LVariable*> freeVariables() const;
     
-  protected:
-    unsigned _id;
-    Sort* _s;
-
-    static unsigned freshId;
-  };
-
-  class FuncTerm : public Term {
-  public:
-    FuncTerm(Symbol* head, std::initializer_list<Term*> subterms) :
-      _head(head),
-      _subterms(subterms)
-    {
-      assert(head);
-      assert(!head->isPredicateSymbol());
-      assert(head->arity() == subterms.size());
-    }
-
-    ~FuncTerm() {}
-
-    std::string toTPTP() const;
-
-    std::list<LVariable*> freeVariables() const;
+    class LVariable;
     
-  protected:
-    Symbol* _head;
-    std::vector<Term*> _subterms;
-  };
-
-  // taking the FOOL approach, predicates are alse terms
-  class PredTerm : public Term {
-  public:
-
-    PredTerm(Symbol* head, std::initializer_list<Term*> subterms) :
-      _head(head),
-      _subterms(subterms)
+    class Term
     {
-      assert(head);
-      assert(head->isPredicateSymbol());
-      assert(head->arity() == subterms.size());
-    }
+    public:
+        virtual std::vector<LVariable*> freeVariables() const = 0;
 
-    ~PredTerm() {}
+        virtual std::string toTPTP() const = 0;
+        virtual std::string prettyString() const = 0;
+    };
+    
+    class LVariable : public Term {
+    public:
+        LVariable(Sort* s) : id(freshId++), sort(s), name("X" + std::to_string(id)){}
+        LVariable(Sort* s, const std::string name) : id(freshId++), sort(s), name(name){}
 
-    std::string toTPTP() const;
+        const unsigned id;
+        const Sort* sort;
+        const std::string name;
+        
+        std::vector<LVariable*> freeVariables() const override;
 
-    std::list<LVariable*> freeVariables() const;
+        std::string toTPTP() const override;
+        virtual std::string prettyString() const override;
+        
+        static unsigned freshId;
+    };
+    
+    bool compareLVarPointers(LVariable* p1, LVariable* p2);
+    bool eqLVarPointers(const LVariable* p1, const LVariable* p2);
+    
+    class FuncTerm : public Term {
+    public:
+        FuncTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
+        _head(head),
+        _subterms(subterms)
+        {
+            assert(head);
+            assert(!head->isPredicateSymbol());
+            assert(head->arity() == subterms.size());
+        }
+        
+        std::vector<LVariable*> freeVariables() const override;
 
-  protected:
-    Symbol* _head;
-    std::vector<Term*> _subterms;
-  };
+        std::string toTPTP() const override;
+        virtual std::string prettyString() const override;
+        
+    protected:
+        Symbol* _head;
+        std::vector<const Term*> _subterms;
+    };
+    
+    // taking the FOOL approach, predicates are alse terms
+    class PredTerm : public Term {
+    public:
+        
+        PredTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
+        _head(head),
+        _subterms(subterms)
+        {
+            assert(head);
+            assert(head->isPredicateSymbol());
+            assert(head->arity() == subterms.size());
+        }
+        
+        std::vector<LVariable*> freeVariables() const override;
+        
+        std::string toTPTP() const override;
+        virtual std::string prettyString() const override;
 
-  inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { ostr << e.toTPTP(); return ostr; }
+    protected:
+        Symbol* _head;
+        std::vector<const Term*> _subterms;
+    };
+    
+    inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { ostr << e.toTPTP(); return ostr; }
 }
 
 #endif
+

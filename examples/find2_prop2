@@ -1,0 +1,13 @@
+// a new encoding of find, which is easier for the solvers, where we want to prove that
+// if we found a position, then for all previous positions p, we have A[p] != v.
+
+int [] a;
+int i, alength, v;
+
+requires i == 0;
+requires alength >= 0;
+ensures forall int j, 0 <= j & j < i ==> a[j] != v;
+
+while (i < alength & a[i] != v) do
+:: true      -> i = i + 1;
+od

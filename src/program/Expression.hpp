@@ -9,10 +9,10 @@
 #ifndef __ProgramExpression__
 #define __ProgramExpression__
 
-#include "logic/Term.hpp"
-#include "logic/Formula.hpp"
-#include "program/Variable.hpp"
-#include "program/Type.hpp"
+#include "Term.hpp"
+#include "Formula.hpp"
+#include "Variable.hpp"
+#include "Type.hpp"
 
 namespace program {
 
@@ -29,10 +29,10 @@ namespace program {
   public:
     virtual ~Expression() = 0;
     /** return the type of the expression */
-    virtual Type etype() = 0;
+    virtual Type etype() const = 0;
 
     // this could be a FOOL predicate
-    virtual logic::Term* toTerm(logic::Term* index) = 0;
+    virtual logic::Term* toTerm(const logic::Term* index) const = 0;
 
     virtual std::ostream& toStream(std::ostream& ostr) const = 0;
 
@@ -40,12 +40,14 @@ namespace program {
     int arity() { return _arity; }
 
     /** return the nth sub-expression, or nullptr if n > arity */
-    Expression *child(unsigned n);
+    Expression *child(unsigned n) const;
 
     virtual bool evalToCstInt(int &value) { return false; }
 
-    virtual bool equivToVPlusX(PVariable *v, int &value) { return false; }
+    virtual bool equivToVPlusX(const PVariable *v, int &value) const { return false; }
 
+      virtual bool isTrue() const {return false;}
+      virtual bool isFalse() const {return false;}
     // TODO remove this and leave it only in appropriate derived classes?
     //virtual logic::Term* toTerm(logic::Term* i) { return nullptr; }
 
@@ -72,7 +74,7 @@ namespace program {
   {
   public:
     
-    virtual logic::Formula* toFormula(logic::Term* index) = 0;
+    virtual logic::Formula* toFormula(const logic::Term* index) const = 0;
   };
   
   class ArithmeticExpression : public Expression
@@ -93,14 +95,14 @@ namespace program {
         value */
     bool evalToCstInt(int &value) override;
 
-    bool equivToVPlusX(PVariable *v, int &value) override;
+    bool equivToVPlusX(const PVariable *v, int &value) const override;
 
-    Type etype() { return Type::TY_INTEGER; }
+    Type etype() const override { return Type::TY_INTEGER; }
 
-    std::ostream& toStream(std::ostream& ostr) const;
+    std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire term */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -145,15 +147,15 @@ namespace program {
 
     bool constBooleanInfo(bool& value);
 
-    Type etype() { return Type::TY_BOOLEAN; }
+    Type etype() const override { return Type::TY_BOOLEAN; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a FOL
         term. */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -169,6 +171,8 @@ namespace program {
     static BooleanExpression* mkNeq(Expression *e1, Expression *e2);
     static BooleanExpression* mkImplication(Expression *e1, Expression *e2);
 
+      bool isTrue() const override {return _kind == BooleanExprKind::EXP_CST_BOOLEAN && _constInfo == true;}
+      bool isFalse() const override {return _kind == BooleanExprKind::EXP_CST_BOOLEAN && _constInfo == false;}
   protected:
     BooleanExpression(BooleanExprKind kind) :
       Expression(),
@@ -195,25 +199,25 @@ namespace program {
       EXP_FIELD_LOC
     };
 
-    bool equivToVPlusX(PVariable *v, int &value) override;
+    bool equivToVPlusX(const PVariable *v, int &value) const override;
 
-    PVariable *varInfo() { return _var; }
+    PVariable *varInfo() const { return _var; }
 
-    Type etype();
+    Type etype() const override;
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a FOL term
         (possibly a predicate) */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
     static LocationExpression * mkProgramVariable(PVariable* v);
     static LocationExpression * mkArrayApp(PVariable* v, Expression* e2);
-    static LocationExpression * mkFieldAccess(Expression *e, Expression* e2); 
+    static LocationExpression * mkFieldAccess(Expression *e, Expression* e2);
 
   protected:
 
@@ -237,15 +241,15 @@ namespace program {
   class VariableExpression : public FExpression
   {
   public:
-    Type etype() { return _var->vtype(); }
+    Type etype() const override { return _var->vtype(); }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -268,15 +272,15 @@ namespace program {
       EXP_EXISTS
     };
 
-    Type etype() { return Type::TY_FORMULA; }
+    Type etype() const override { return Type::TY_FORMULA; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(logic::Term* i) override;
+    logic::Term* toTerm(const logic::Term* i) const override;
 
-    logic::Formula* toFormula(logic::Term* i) override;
+    logic::Formula* toFormula(const logic::Term* i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */

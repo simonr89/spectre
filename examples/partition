@@ -1,13 +1,13 @@
-int [] A, B, C;
+int [] aa, bb, cc;
 int a, b, c, alength;
 
 requires a == 0;
 requires b == 0;
 requires c == 0;
 requires alength >= 0;
-ensures forall int i, 0 <= i & i < b ==> B[i] >= 0;
+ensures forall int i, 0 <= i & i < b ==> bb[i] >= 0;
 
 while (a < alength) do
-:: A[a] >= 0 -> B[b] = A[a]; a = a + 1 ; b = b + 1;
-:: true -> C[c] = A[a]; a = a + 1; c = c + 1;
+:: aa[a] >= 0 -> bb[b] = aa[a]; a = a + 1 ; b = b + 1;
+:: true -> cc[c] = aa[a]; a = a + 1; c = c + 1;
 od
