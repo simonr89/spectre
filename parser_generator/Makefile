@@ -4,7 +4,7 @@ PARSER_SRC=$(SRCDIR)/parser/GclParser.cpp
 PARSER_HDR=$(SRCDIR)/parser/GclParser.hpp
 SCANNER_SRC=$(SRCDIR)/parser/GclScanner.cpp
 
-BISON=/usr/local/Cellar/bison/3.0.4_1/bin/bison
+BISON=bison
 FLEX=flex
 
 all: $(PARSER_SRC) $(PARSER_HDR) $(SCANNER_SRC)

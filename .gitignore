@@ -1,5 +1,3 @@
-invgen
-obj/
 src/parser/GclParser.hpp
 src/parser/GclParser.cpp
 src/parser/GclScanner.cpp

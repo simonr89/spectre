@@ -1,9 +1,7 @@
-
-
-
 #ifndef __Program__
 #define __Program__
 
+#include <memory>
 #include <vector>
 #include "GuardedCommandCollection.hpp"
 #include "Variable.hpp"
@@ -18,8 +16,12 @@ namespace program
         Program(std::unique_ptr<GuardedCommandCollection> loop,
                 std::vector<const FExpression*> preconditions,
                 std::vector<const FExpression*> postconditions,
-                std::vector<const PVariable*> variables
-                ) : loop(std::move(loop)), variables(std::move(variables)), preconditions(std::move(preconditions)), postconditions(std::move(postconditions)) {}
+                std::vector<const PVariable*> variables) :
+          loop(std::move(loop)),
+          variables(std::move(variables)),
+          preconditions(std::move(preconditions)),
+          postconditions(std::move(postconditions))
+      {}
         
         const std::unique_ptr<GuardedCommandCollection> loop;
         const std::vector<const PVariable*> variables;

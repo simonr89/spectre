@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Term.hpp"
 
 namespace logic {
