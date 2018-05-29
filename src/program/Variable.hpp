@@ -95,10 +95,10 @@ namespace program {
     {
       switch (ty) {
       case Type::TY_INTEGER:
-        _lvariable = new logic::LVariable(logic::Sort::intSort());
+        _lvariable = new logic::LVariable(logic::Sorts::intSort());
         break;
       case Type::TY_BOOLEAN:
-        _lvariable = new logic::LVariable(logic::Sort::boolSort());
+        _lvariable = new logic::LVariable(logic::Sorts::boolSort());
         break;
       default:
         _lvariable = nullptr;

@@ -15,3 +15,4 @@ set(SPECTRE_LOGIC_HEADERS
 
 add_library(logic ${SPECTRE_LOGIC_SOURCES} ${SPECTRE_LOGIC_HEADERS})
 target_include_directories(logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(logic util)

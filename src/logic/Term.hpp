@@ -20,10 +20,12 @@ namespace logic {
         virtual std::vector<LVariable*> freeVariables() const = 0;
 
         virtual std::string toTPTP() const = 0;
+        virtual std::string toSMTLIB() const = 0;
         virtual std::string prettyString() const = 0;
     };
     
-    class LVariable : public Term {
+    class LVariable : public Term
+    {
     public:
         LVariable(Sort* s) : id(freshId++), sort(s), name("X" + std::to_string(id)){}
         LVariable(Sort* s, const std::string name) : id(freshId++), sort(s), name(name){}
@@ -35,6 +37,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
+        std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
         
         static unsigned freshId;
@@ -43,48 +46,49 @@ namespace logic {
     bool compareLVarPointers(LVariable* p1, LVariable* p2);
     bool eqLVarPointers(const LVariable* p1, const LVariable* p2);
     
-    class FuncTerm : public Term {
+    class FuncTerm : public Term
+    {
     public:
         FuncTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
-        _head(head),
-        _subterms(subterms)
+        head(head),
+        subterms(subterms)
         {
             assert(head);
             assert(!head->isPredicateSymbol());
-            assert(head->arity() == subterms.size());
+            assert(head->argSorts.size() == subterms.size());
         }
+        
+        const Symbol* head;
+        const std::vector<const Term*> subterms;
         
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
+        std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
-        
-    protected:
-        Symbol* _head;
-        std::vector<const Term*> _subterms;
     };
     
     // taking the FOOL approach, predicates are alse terms
-    class PredTerm : public Term {
+    class PredTerm : public Term
+    {
     public:
-        
         PredTerm(Symbol* head, std::initializer_list<const Term*> subterms) :
-        _head(head),
-        _subterms(subterms)
+        head(head),
+        subterms(subterms)
         {
             assert(head);
             assert(head->isPredicateSymbol());
-            assert(head->arity() == subterms.size());
+            assert(head->argSorts.size() == subterms.size());
         }
+        
+        const Symbol* head;
+        const std::vector<const Term*> subterms;
         
         std::vector<LVariable*> freeVariables() const override;
         
         std::string toTPTP() const override;
+        std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
-
-    protected:
-        Symbol* _head;
-        std::vector<const Term*> _subterms;
     };
     
     inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { ostr << e.toTPTP(); return ostr; }

@@ -35,10 +35,10 @@ namespace program {
     switch (t) {
     case Type::TY_BOOLEAN:
     case Type::TY_BOOLEAN_ARRAY:
-      return logic::Sort::boolSort();
+      return logic::Sorts::boolSort();
     case Type::TY_INTEGER:
     case Type::TY_INTEGER_ARRAY:
-      return logic::Sort::intSort();
+      return logic::Sorts::intSort();
     default:
       return nullptr;
     }

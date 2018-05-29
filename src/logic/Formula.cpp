@@ -11,9 +11,22 @@ namespace logic {
         return "tff(" + decl + ", " + (conjecture ? "conjecture, " : "hypothesis, ") + toTPTP() + ").";
     }
     
+    // TODO: for now we don't distinguish between conjectures and hypothesis.
+    // Should add a vampire-only SMTLIB-extension, which allows to distinguish
+    // between them, e.g. assert-hypothesis or assert-goal.
+    std::string Formula::declareSMTLIB(std::string decl, bool conjecture) const
+    {
+        return "; " + decl + "\n" + "assert(" + toSMTLIB() + ")";
+    }
+    
     std::string PredicateFormula::toTPTP() const
     {
         return _p->toTPTP();
+    }
+    
+    std::string PredicateFormula::toSMTLIB() const
+    {
+        return _p->toSMTLIB();
     }
     
     std::string EqualityFormula::toTPTP() const
@@ -22,6 +35,18 @@ namespace logic {
             return _left->toTPTP() + " = " + _right->toTPTP();
         else
             return _left->toTPTP() + " != " + _right->toTPTP();
+    }
+    
+    std::string EqualityFormula::toSMTLIB() const
+    {
+        if (_polarity)
+        {
+            return "(= " + _left->toSMTLIB() + " " + _right->toSMTLIB() + ")";
+        }
+        else
+        {
+            return "(not (= " + _left->toSMTLIB() + " " + _right->toSMTLIB() + "))";
+        }
     }
     
     std::string ConjunctionFormula::toTPTP() const
@@ -37,6 +62,18 @@ namespace logic {
         return str;
     }
     
+    std::string ConjunctionFormula::toSMTLIB() const
+    {
+        if (_conj.size() == 0)
+            return "true";
+        std::string str = "(and ";
+        for (unsigned i = 0; i < _conj.size(); i++) {
+            str += _conj[i]->toSMTLIB();
+            str += (i == _conj.size() - 1) ? ")" : " ";
+        }
+        return str;
+    }
+    
     std::string DisjunctionFormula::toTPTP() const
     {
         if (_disj.size() == 0)
@@ -47,21 +84,58 @@ namespace logic {
             
             str += (i == _disj.size() - 1) ? "" : " | ";
         }
-        return str;  }
+        return str;
+    }
+    
+    std::string DisjunctionFormula::toSMTLIB() const
+    {
+        if (_disj.size() == 0)
+            return "false";
+        std::string str = "(or ";
+        for (unsigned i = 0; i < _disj.size(); i++) {
+            str += _disj[i]->toSMTLIB();
+            str += (i == _disj.size() - 1) ? ")" : " ";
+        }
+        return str;
+    }
     
     std::string NegationFormula::toTPTP() const
     {
         return "~(" + _f->toTPTP() + ")";
     }
     
+    std::string NegationFormula::toSMTLIB() const
+    {
+        return "(not " + _f->toSMTLIB() + ")";
+    }
+    
     std::string ExistentialFormula::toTPTP() const
     {
         std::string str = "? [";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name + " : " + _vars[i]->sort->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->toTPTP();
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += "] : (" + _f->toTPTP() + ")";
+        return str;
+    }
+    
+    std::string ExistentialFormula::toSMTLIB() const
+    {
+        std::string str = "(exists ";
+        
+        //list of quantified variables
+        str += "(";
+        for (const auto& var : _vars)
+        {
+            str += "(" + var->name + " " + var->sort->toSMTLIB() + ")";
+        }
+        str += ")";
+        
+        // formula
+        str += "(" + _f->toSMTLIB() + ")";
+        
+        str += ")";
         return str;
     }
     
@@ -69,16 +143,40 @@ namespace logic {
     {
         std::string str = "! [";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name + " : " + _vars[i]->sort->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->toTPTP();
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += "] : (" + _f->toTPTP() + ")";
         return str;
     }
 
+    std::string UniversalFormula::toSMTLIB() const
+    {
+        std::string str = "(forall ";
+        
+        //list of quantified variables
+        str += "(";
+        for (const auto& var : _vars)
+        {
+            str += "(" + var->name + " " + var->sort->toSMTLIB() + ")";
+        }
+        str += ")";
+        
+        // formula
+        str += "(" + _f->toSMTLIB() + ")";
+        
+        str += ")";
+        return str;
+    }
+    
     std::string ImplicationFormula::toTPTP() const
     {
         return "(" + _f1->toTPTP() + ")" + " => (" + _f2->toTPTP() + ")";
+    }
+    
+    std::string ImplicationFormula::toSMTLIB() const
+    {
+        return "(=>" + _f1->toSMTLIB() + " " + _f2->toSMTLIB() + ")";
     }
 
     Formula* Formula::quantify(bool univ) const
@@ -328,7 +426,7 @@ namespace logic {
     {
         std::string str = std::string(indentation, ' ') + "EXISTS ";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name + " : " + _vars[i]->sort->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->name;
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += ".\n" + _f->prettyString(indentation + 3);
@@ -339,7 +437,7 @@ namespace logic {
     {
         std::string str = std::string(indentation, ' ') + "FORALL ";
         for (unsigned i = 0; i < _vars.size(); i++) {
-            str += _vars[i]->name + " : " + _vars[i]->sort->name();
+            str += _vars[i]->name + " : " + _vars[i]->sort->name;
             if (i != _vars.size() - 1) { str += ", "; }
         }
         str += ".\n";

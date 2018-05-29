@@ -8,82 +8,56 @@
 #include "Sort.hpp"
 
 namespace logic {
-
-  class Symbol {
-  public:
-    Symbol(std::string name, Sort* rngSort, bool userDefined = true) :
-      _name(name),
-      _argSorts(),
-      _rngSort(rngSort),
-      _userDefined(userDefined),
-      _colored(false)
-    {
-      _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, 0), this));
-    }
     
-    Symbol(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool userDefined = true) :
-      _name(name),
-      _argSorts(argSorts),
-      _rngSort(rngSort),
-      _userDefined(userDefined),
-      _colored(false)
-    {
-      _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, argSorts.size()), this));
-    }
-
-    ~Symbol() {}
-
-    std::string name() const { return _name; }
-
-    unsigned arity() const { return _argSorts.size(); }
-
-    bool isUserDefined() const { return _userDefined; }
-
-    bool isColored() const { return _colored; }
-
-    void makeColored() { _colored = true; }
-
-    bool isPredicateSymbol() const { return _rngSort == Sort::boolSort(); }
-
-    std::string declareTPTP(std::string decl) const;
-
-    std::string declareVampireColor() const;
-
-    static Symbol* getSymbol(std::string name, unsigned arity);
-
-    class const_iterator {
+    // TODO: we could simplify _signature to a std::unordered_set, if we make Symbol comply with the requirements of std::unordered_set
+    class Symbol {
     public:
-      const_iterator(std::map<std::pair<std::string, unsigned>, Symbol*>::const_iterator it) :
-        _it(it)
-      {}
-
-      ~const_iterator() {}
-      
-      const Symbol& operator*() { return *(*_it).second; }
-      
-      bool operator==(const_iterator other) { return _it == other._it; }
-
-      bool operator!=(const_iterator other) { return !(_it == other._it); }
-
-      const_iterator & operator++() { ++_it; return (*this); }
-
-    protected:      
-      std::map<std::pair<std::string, unsigned>, Symbol*>::const_iterator _it;
+        Symbol(std::string name, Sort* rngSort, bool colored=false) :
+        name(name),
+        argSorts(),
+        rngSort(rngSort),
+        colored(colored)
+        {
+            _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, 0), this));
+        }
+        
+        Symbol(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool colored=false) :
+        name(name),
+        argSorts(argSorts),
+        rngSort(rngSort),
+        colored(colored)
+        {
+            _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, argSorts.size()), this));
+        }
+        
+        const std::string name;
+        const std::vector<Sort*> argSorts;
+        const Sort* rngSort;
+        const bool colored;
+        
+        bool isPredicateSymbol() const { return rngSort == Sorts::boolSort(); }
+        
+        std::string toTPTP() const;
+        std::string declareSymbolTPTP() const;
+        std::string declareSymbolColorTPTP() const;
+ 
+        std::string toSMTLIB() const;
+        std::string declareSymbolSMTLIB() const;
+        std::string declareSymbolColorSMTLIB() const;
+        
+        static const std::map<std::pair<std::string, unsigned>, Symbol*> signature(){return _signature;}
+        
+    private:
+        // _signature collects all symbols used so far.
+        //
+        // maps each pair (symbolname/arity) to a symbol
+        // not sure why we need the arity here,
+        // this enables the case of two symbols with different arity
+        // which could easily lead to errors
+        static std::map<std::pair<std::string, unsigned>, Symbol*> _signature;
     };
-    
-    static const_iterator sigBegin() { return const_iterator(_signature.cbegin()); }
 
-    static const_iterator sigEnd() { return const_iterator(_signature.cend()); }
-    
-  protected:
-    std::string _name;
-    std::vector<Sort*> _argSorts;
-    Sort* _rngSort;
-    bool _userDefined;
-    bool _colored;
-
-    static std::map<std::pair<std::string, unsigned>, Symbol*> _signature;
-  };
 }
 
 #endif
+
