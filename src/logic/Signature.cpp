@@ -15,11 +15,11 @@ namespace logic {
         std::string s = "tff(symb_" + name + ", type, " + name + " : ";
         if (argSorts.size() == 0)
         {
-            s += rngSort->toTPTP() + ").";
+            s += rngSort->toTPTP() + ").\n";
         }
         else if (argSorts.size() == 1)
         {
-            s += argSorts[0]->toTPTP() + " > " + rngSort->toTPTP() + ").";
+            s += argSorts[0]->toTPTP() + " > " + rngSort->toTPTP() + ").\n";
         }
         else
         {
@@ -28,7 +28,7 @@ namespace logic {
             {
                 s += argSorts[i]->toTPTP() + " * ";
             }
-            s += argSorts[argSorts.size() - 1]->toTPTP() + ") > " + rngSort->toTPTP() + ").";
+            s += argSorts[argSorts.size() - 1]->toTPTP() + ") > " + rngSort->toTPTP() + ").\n";
         }
         return s;
     }
@@ -94,7 +94,7 @@ namespace logic {
         }
         if (argSorts.size() == 0)
         {
-            return "(declare-const " + toSMTLIB() + " " + rngSort->toSMTLIB() + ")";
+            return "(declare-const " + toSMTLIB() + " " + rngSort->toSMTLIB() + ")\n";
         }
         else
         {
@@ -103,7 +103,7 @@ namespace logic {
             {
                 res += arg->toSMTLIB() + (arg == argSorts.back() ? "" : " ");
             }
-            res += ") " + rngSort->toSMTLIB() + ")";
+            res += ") " + rngSort->toSMTLIB() + ")\n";
             return res;
         }
     }
@@ -169,13 +169,13 @@ namespace logic {
         s += name + ", ";
         s += std::to_string(argSorts.size()) + ", "; // arity
         s += colored ? "left" : "skip";
-        s += ").";
+        s += ").\n";
         return s;
     }
     
     std::string Symbol::declareSymbolColorSMTLIB() const
     {
-        return "color-symbol " + toSMTLIB() + " " + (colored ? "left" : "right") + ")";
+        return "color-symbol " + toSMTLIB() + " " + (colored ? "left" : "right") + ")\n";
     }
     
 }

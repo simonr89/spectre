@@ -54,7 +54,7 @@ namespace logic {
         }
         else
         {
-            return "tff(sort_" + s.toTPTP() + ", type, " + s.toTPTP() + " : $tType).";
+            return "tff(sort_" + s.toTPTP() + ", type, " + s.toTPTP() + " : $tType).\n";
         }
     }
     
@@ -70,7 +70,7 @@ namespace logic {
         }
         else
         {
-            return "(declare-sort " + s.toSMTLIB() + " 0)";
+            return "(declare-sort " + s.toSMTLIB() + " 0)\n";
         }
     }
     

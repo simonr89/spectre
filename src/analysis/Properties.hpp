@@ -35,7 +35,7 @@ namespace program {
         {}
         
         void analyze();
-        void outputTPTP();
+        void output();
         
     private:
         // used as input

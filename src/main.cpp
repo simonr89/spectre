@@ -84,10 +84,10 @@ int main(int argc, char *argv[])
                 util::Output::stream() << aRes.toString();
                 util::Output::stream() << util::Output::nocomment;
 
-                // create properties and dump them to TPTP
+                // create properties and dump them to TPTP/SMTLIB
                 program::Properties props(*p, aRes);
                 props.analyze();
-                props.outputTPTP();
+                props.output();
             }
         }
         return 0;

@@ -21,6 +21,13 @@ namespace program {
         updatePredicatesOfArrays();
         loopCounterHypothesis();
         loopConditionHypothesis();
+        // if in the verification mode, add loop exit property to properties
+        if (util::Configuration::instance().mainMode().getValue() == "verification")
+        {
+            Formula *f = _loop.loopCondition->toFormula(loopCounterSymbol());
+            addProperty("loop_exit", new NegationFormula(f));
+        }
+        
         if (util::Configuration::instance().mainMode().getValue() == "generation") {
             symbolEliminationAxioms();
         }
@@ -76,49 +83,89 @@ namespace program {
     }
 
     
-    void Properties::outputTPTP()
+    void Properties::output()
     {
+        assert(util::Configuration::instance().outputFormat().getValue() == "tptp" ||
+               util::Configuration::instance().outputFormat().getValue() == "smtlib");
+
         std::ostream& ostr = util::Output::stream();
         
-        // dump sorts
+        // output sort declarations
         for(const auto& pair : Sorts::nameToSort())
         {
-            ostr << declareSortTPTP(*pair.second) << std::endl;
-        }
-        
-        // dump symbols
-        for (const auto& pair : Symbol::signature())
-        {
-            const auto symbol = pair.second;
-            ostr << symbol->declareSymbolTPTP() << std::endl;
-            if (symbol->colored &&
-                util::Configuration::instance().mainMode().getValue() == "generation")
+            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
             {
-                ostr << symbol->declareSymbolColorTPTP() << std::endl;
+                ostr << declareSortTPTP(*pair.second);
+            }
+            else
+            {
+                ostr << declareSortSMTLIB(*pair.second);
             }
         }
         
-        // dump preconditions (at loop iteration 0)
+        // output symbol definitions
+        for (const auto& pair : Symbol::signature())
+        {
+            const auto symbol = pair.second;
+            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
+            {
+                ostr << symbol->declareSymbolTPTP();
+            }
+            else
+            {
+                ostr << symbol->declareSymbolSMTLIB();
+            }
+        }
+        
+        // if in generation-mode, also output symbol colors
+        if (util::Configuration::instance().mainMode().getValue() == "generation")
+        {
+            for (const auto& pair : Symbol::signature())
+            {
+                const auto symbol = pair.second;
+                if (symbol->colored)
+                {
+                    if (util::Configuration::instance().outputFormat().getValue() == "tptp")
+                    {
+                        ostr << symbol->declareSymbolColorTPTP();
+                    }
+                    else
+                    {
+                        ostr << symbol->declareSymbolColorSMTLIB();
+                    }
+                }
+            }
+        }
+        
+        // output preconditions (at loop iteration 0)
         int i=0;
         for (const auto& precondition : _preconditions)
         {
-            ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++)) << std::endl;
+            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
+            {
+                ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++)) << std::endl;
+            }
+            else
+            {
+                ostr << precondition->toFormula(Theory::integerConstant(0))->declareSMTLIB("precondition_" + std::to_string(i++)) << std::endl;
+            }
         }
         
-        // dump loop condition
-        if (util::Configuration::instance().mainMode().getValue() == "verification")
+        // output all properties
+        for (auto it = _properties.begin(); it != _properties.end(); ++it)
         {
-            Formula *f = _loop.loopCondition->toFormula(loopCounterSymbol());
-            addProperty("loop_exit", new NegationFormula(f));
-        }
-        
-        // dump all the properties
-        for (auto it = _properties.begin(); it != _properties.end(); ++it) {
             Property p = *it;
-            ostr << p.second->declareTPTP(p.first) << std::endl;
+            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
+            {
+                ostr << p.second->declareTPTP(p.first) << std::endl;
+            }
+            else
+            {
+                ostr << p.second->declareSMTLIB(p.first) << std::endl;
+            }
         }
         
-        // dump conjecture
+        // if in verification mode,
         if (util::Configuration::instance().mainMode().getValue() == "verification")
         {
             // conjoin post-conditions to conjecture
@@ -128,7 +175,16 @@ namespace program {
                 conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
             }
             Formula* conjecture = new ConjunctionFormula(conjuncts);
-            ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
+            
+            // output conjecture
+            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
+            {
+                ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
+            }
+            else
+            {
+                ostr << conjecture->declareSMTLIB("post_conditions", true) << std::endl;
+            }
         }
     }
 
