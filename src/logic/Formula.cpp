@@ -14,7 +14,7 @@ namespace logic {
     // TODO: for now we don't distinguish between conjectures and hypothesis.
     // Should add a vampire-only SMTLIB-extension, which allows to distinguish
     // between them, e.g. assert-hypothesis or assert-goal.
-    std::string Formula::declareSMTLIB(std::string decl, bool conjecture) const
+    std::string Formula::declareSMTLIB(std::string decl) const
     {
         return "; " + decl + "\n" + "(assert " + toSMTLIB() + ")";
     }
