@@ -12,29 +12,34 @@ namespace logic {
     // TODO: we could simplify _signature to a std::unordered_set, if we make Symbol comply with the requirements of std::unordered_set
     class Symbol {
     public:
-        Symbol(std::string name, Sort* rngSort, bool colored=false) :
+        Symbol(std::string name, Sort* rngSort, bool interpreted=false, bool colored=false) :
         name(name),
         argSorts(),
         rngSort(rngSort),
+        interpreted(interpreted),
         colored(colored)
         {
+            assert(!name.empty());
             _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, 0), this));
         }
         
-        Symbol(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool colored=false) :
+        Symbol(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool interpreted=false, bool colored=false) :
         name(name),
         argSorts(argSorts),
         rngSort(rngSort),
+        interpreted(interpreted),
         colored(colored)
         {
+            assert(!name.empty());
             _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, argSorts.size()), this));
         }
         
         const std::string name;
         const std::vector<Sort*> argSorts;
         const Sort* rngSort;
+        const bool interpreted; // true iff the symbol is interpreted, i.e. it is assumed to be already declared and defined
         const bool colored;
-        
+
         bool isPredicateSymbol() const { return rngSort == Sorts::boolSort(); }
         
         std::string toTPTP() const;

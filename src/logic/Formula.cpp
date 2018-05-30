@@ -16,7 +16,7 @@ namespace logic {
     // between them, e.g. assert-hypothesis or assert-goal.
     std::string Formula::declareSMTLIB(std::string decl, bool conjecture) const
     {
-        return "; " + decl + "\n" + "assert(" + toSMTLIB() + ")";
+        return "; " + decl + "\n" + "(assert " + toSMTLIB() + ")";
     }
     
     std::string PredicateFormula::toTPTP() const
@@ -133,7 +133,7 @@ namespace logic {
         str += ")";
         
         // formula
-        str += "(" + _f->toSMTLIB() + ")";
+        str += _f->toSMTLIB();
         
         str += ")";
         return str;
@@ -163,7 +163,7 @@ namespace logic {
         str += ")";
         
         // formula
-        str += "(" + _f->toSMTLIB() + ")";
+        str += _f->toSMTLIB();
         
         str += ")";
         return str;

@@ -196,7 +196,7 @@ namespace program {
     {
         // initialization note that the syntax of the guarded command
         // language does not allow special characters such as $
-        static Symbol* s = new Symbol("$n", Sorts::intSort(), true);
+        static Symbol* s = new Symbol("$n", Sorts::intSort(), false, true);
         
         return new FuncTerm(s, {});
     }

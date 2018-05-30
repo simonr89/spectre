@@ -57,20 +57,29 @@ namespace util {
     return ostr;
   }
 
-  int CommentingStreambuf::overflow(int c)
-  {
-    if (c == EOF || !_dest) {
-      return EOF;
+    int CommentingStreambuf::overflow(int c)
+    {
+        if (c == EOF || !_dest) {
+            return EOF;
+        }
+        if (_atLineStart)
+        {
+            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
+            {
+                _dest->sputc('%');
+            }
+            else
+            {
+                assert(util::Configuration::instance().outputFormat().getValue() == "smtlib");
+                _dest->sputc(';');
+            }
+            _dest->sputc(' ');
+            _atLineStart = false;
+        }
+        if (c == '\n') {
+            _atLineStart = true;
+        }
+        return _dest->sputc(c);
     }
-    if (_atLineStart) {
-      _dest->sputc('%');
-      _dest->sputc(' ');
-      _atLineStart = false;
-    }
-    if (c == '\n') {
-      _atLineStart = true;
-    }
-    return _dest->sputc(c);
-  }
   
 }

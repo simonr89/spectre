@@ -6,8 +6,7 @@ namespace logic {
     
     std::string Symbol::declareSymbolTPTP() const
     {
-        // if the name of a symbol is different from the TPTP-encoding, we know it's an interpreted symbol
-        if (toTPTP()==name)
+        if (interpreted)
         {
             return ""; // don't  need to declare symbols, which are already known to TPTP-solvers.
         }
@@ -35,7 +34,7 @@ namespace logic {
     
     std::string Symbol::toTPTP() const
     {
-        if (name == "int_sum")
+        if (name == "int_plus")
         {
             return "$sum";
         }
@@ -79,16 +78,30 @@ namespace logic {
         {
             return "$store";
         }
+        else if (name == "bool_true")
+        {
+            return "$true";
+        }
+        else if (name == "bool_false")
+        {
+            return "$false";
+        }
+        // test whether integer constant
+        else if (std::all_of(name.begin(), name.end(), ::isdigit) ||
+                 (name[0]=='-' && std::all_of(name.begin()+1, name.end(), ::isdigit)))
+        {
+            return name;
+        }
         else
         {
+            assert(!interpreted);
             return name;
         }
     }
 
     std::string Symbol::declareSymbolSMTLIB() const
     {
-        // if the name of a symbol is different from the TPTP-encoding, we know it's an interpreted symbol
-        if (toSMTLIB()==name)
+        if (interpreted)
         {
             return ""; // don't  need to declare symbols, which are already known to TPTP-solvers.
         }
@@ -99,9 +112,9 @@ namespace logic {
         else
         {
             std::string res = "(declare-fun " + toSMTLIB() + " (";
-            for (const auto& arg : argSorts)
+            for (int i=0; i < argSorts.size(); ++i)
             {
-                res += arg->toSMTLIB() + (arg == argSorts.back() ? "" : " ");
+                res += argSorts[i]->toSMTLIB() + (i+1 == argSorts.size() ? "" : " ");
             }
             res += ") " + rngSort->toSMTLIB() + ")\n";
             return res;
@@ -110,7 +123,7 @@ namespace logic {
     
     std::string Symbol::toSMTLIB() const
     {
-        if (name == "int_sum")
+        if (name == "int_plus")
         {
             return "+";
         }
@@ -156,14 +169,30 @@ namespace logic {
             assert(false); // TODO: not implemented yet
             return "$store";
         }
+        else if (name == "bool_true")
+        {
+            return "true";
+        }
+        else if (name == "bool_false")
+        {
+            return "false";
+        }
+        // test whether integer constant
+        else if (!name.empty() && std::all_of(name.begin(), name.end(), ::isdigit))
+        {
+            return name;
+        }
         else
         {
+            assert(!interpreted);
             return name;
         }
     }
     
     std::string Symbol::declareSymbolColorTPTP() const
     {
+        assert(!interpreted);
+        
         std::string s = "vampire(symbol, ";
         s += "function, "; // predicate or function
         s += name + ", ";
@@ -175,6 +204,7 @@ namespace logic {
     
     std::string Symbol::declareSymbolColorSMTLIB() const
     {
+        assert(!interpreted);
         return "color-symbol " + toSMTLIB() + " " + (colored ? "left" : "right") + ")\n";
     }
     

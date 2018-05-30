@@ -20,15 +20,15 @@ namespace program {
             if (util::Configuration::instance().arrayTheory().getValue()) {
                 // representation of arrays using array axioms
                 _symbol = new logic::Symbol(name + "_nonext", {}, logic::Sorts::intArraySort());
-                _extendedSymbol = new logic::Symbol(name, { logic::Sorts::intSort() }, logic::Sorts::intArraySort(), true);
+                _extendedSymbol = new logic::Symbol(name, { logic::Sorts::intSort() }, logic::Sorts::intArraySort(), false, true);
             } else {
                 // representation of arrays as functions
                 _symbol = new logic::Symbol(name + "_nonext", { logic::Sorts::intSort() }, toSort(ty));
-                _extendedSymbol = new logic::Symbol(name, { logic::Sorts::intSort(), logic::Sorts::intSort() }, toSort(ty), true);
+                _extendedSymbol = new logic::Symbol(name, { logic::Sorts::intSort(), logic::Sorts::intSort() }, toSort(ty), false, true);
             }
         } else {
             _symbol = new logic::Symbol(name + "_nonext", {}, toSort(ty));
-            _extendedSymbol = new logic::Symbol(name, { logic::Sorts::intSort() }, toSort(ty), true);
+            _extendedSymbol = new logic::Symbol(name, { logic::Sorts::intSort() }, toSort(ty), false, true);
         }
     }
     
