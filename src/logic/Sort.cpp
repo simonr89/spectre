@@ -1,4 +1,6 @@
 #include "Sort.hpp"
+
+#include <cassert>
 #include "Options.hpp"
 
 namespace logic {

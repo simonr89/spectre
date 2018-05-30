@@ -1,6 +1,7 @@
 #ifndef __Signature__
 #define __Signature__
 
+#include <cassert>
 #include <initializer_list>
 #include <map>
 #include <string>
