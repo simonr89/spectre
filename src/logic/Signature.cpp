@@ -177,11 +177,16 @@ namespace logic {
         {
             return "false";
         }
-        // test whether integer constant
-        else if (std::all_of(name.begin(), name.end(), ::isdigit) ||
-                 (name[0]=='-' && std::all_of(name.begin()+1, name.end(), ::isdigit)))
+        // if non-negative integer constant
+        else if (std::all_of(name.begin(), name.end(), ::isdigit))
         {
             return name;
+        }
+        // if negative integer constant
+        else if (name[0]=='-' && std::all_of(name.begin()+1, name.end(), ::isdigit))
+        {
+            // need to encode negative integer as unary minus of positive integer
+            return  "(- " + name.substr(1,name.size()-1) + ")";
         }
         else
         {
