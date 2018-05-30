@@ -178,7 +178,8 @@ namespace logic {
             return "false";
         }
         // test whether integer constant
-        else if (!name.empty() && std::all_of(name.begin(), name.end(), ::isdigit))
+        else if (std::all_of(name.begin(), name.end(), ::isdigit) ||
+                 (name[0]=='-' && std::all_of(name.begin()+1, name.end(), ::isdigit)))
         {
             return name;
         }
