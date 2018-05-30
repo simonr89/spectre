@@ -1,5 +1,6 @@
 #include "Output.hpp"
 
+#include <cassert>
 #include <fstream>
 #include <ios>
 #include <iostream>

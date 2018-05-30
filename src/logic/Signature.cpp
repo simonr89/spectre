@@ -1,5 +1,7 @@
 #include "Signature.hpp"
 
+#include <algorithm>
+
 namespace logic {
     
     std::map<std::pair<std::string, unsigned>, Symbol*> Symbol::_signature;
