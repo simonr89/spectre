@@ -213,7 +213,8 @@ namespace logic {
     std::string Symbol::declareSymbolColorSMTLIB() const
     {
         assert(!interpreted);
-        return "color-symbol " + toSMTLIB() + " " + (colored ? "left" : "right") + ")\n";
+        
+        return colored ? "(color-symbol " + toSMTLIB() + " :left)\n" : "";
     }
     
 }
