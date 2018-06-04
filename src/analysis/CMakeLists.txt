@@ -1,9 +1,11 @@
 set(SPECTRE_ANALYSIS_SOURCES
     Properties.cpp
+    PropertiesTime.cpp
     Analyzer.cpp
 )
 set(SPECTRE_ANALYSIS_HEADERS
     Properties.hpp
+    PropertiesTime.hpp
     Analyzer.hpp
 )
 
