@@ -44,7 +44,8 @@ namespace logic {
         static Sort* boolSort() { return fetchOrDeclare("bool"); }
         static Sort* intSort() { return fetchOrDeclare("int"); }
         static Sort* intArraySort() { return fetchOrDeclare("array(int,int)"); }
-        
+        static Sort* timeSort() { return fetchOrDeclare("Time"); }
+
         // returns map containing all previously constructed sorts as pairs (nameOfSort, Sort)
         static const std::map<std::string, Sort*> nameToSort(){return _sorts;};
         

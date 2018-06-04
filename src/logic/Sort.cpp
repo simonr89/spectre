@@ -54,6 +54,10 @@ namespace logic {
             // TPTP already knows bool and int.
             return "";
         }
+        else if (s.toTPTP() == "Time")
+        {
+            return "(declare-datatypes ((Time 0)) (( (zero) (s (p Time)) )) )";
+        }
         else
         {
             return "tff(sort_" + s.toTPTP() + ", type, " + s.toTPTP() + " : $tType).\n";
@@ -69,6 +73,10 @@ namespace logic {
         {
             // SMTLIB already knows Int and Bool.
             return "";
+        }
+        else if (s.toSMTLIB() == "Time")
+        {
+            return "(declare-datatypes ((Time 0)) (( (zero) (s (p Time)) )) )";
         }
         else
         {

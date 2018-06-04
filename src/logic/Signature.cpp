@@ -36,6 +36,12 @@ namespace logic {
     
     std::string Symbol::toTPTP() const
     {
+        if (name == "time_zero" || name == "time_succ" || name == "time_pre" || name == "time_sub")
+        {
+            assert(false); // term algebras are not supported with TPTP-syntax
+            return "";
+        }
+
         if (name == "int_plus")
         {
             return "$sum";
@@ -178,6 +184,22 @@ namespace logic {
         else if (name == "bool_false")
         {
             return "false";
+        }
+        else if (name == "time_zero")
+        {
+            return "zero";
+        }
+        else if (name == "time_succ")
+        {
+            return "s";
+        }
+        else if (name == "time_pre")
+        {
+            return "p";
+        }
+        else if (name == "time_sub")
+        {
+            return "Sub";
         }
         // if non-negative integer constant
         else if (std::all_of(name.begin(), name.end(), ::isdigit))
