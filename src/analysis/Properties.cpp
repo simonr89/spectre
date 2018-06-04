@@ -16,6 +16,7 @@ namespace program {
 
     void Properties::analyze()
     {
+        constnessProps();
         monotonicityProps();
         translateAssignments();
         updatePredicatesOfArrays();
@@ -31,57 +32,7 @@ namespace program {
         if (util::Configuration::instance().mainMode().getValue() == "generation") {
             symbolEliminationAxioms();
         }
-        
-        constnessProps();
     }
-    
-    void Properties::constnessProps()
-    {
-        for (const auto& var : _vars)
-        {
-            if (!_updated.at(var))
-            {
-                LVariable* it = new LVariable(Sorts::intSort(), "It");
-                
-                Formula* eq;
-                // eq(it) := x(it) = x(0)
-                if (!isArrayType(var->vtype()))
-                {
-                    
-                    Symbol* var0Symbol = new Symbol(var->name()+"0", toSort(var->vtype()));
-                    Term* var0 = new FuncTerm(var0Symbol, {});
-                    
-                    
-                    eq = new EqualityFormula(true,
-                                             var->toTerm(it),
-                                             var0);
-                }
-                // eq(i) := forall p. x(i,p) = x(0,p)
-                else
-                {
-                    // suppport for other options not implemented yet
-                    assert(!util::Configuration::instance().arrayTheory().getValue());
-                    
-                    LVariable* p = new LVariable(Sorts::intSort(), "P");
-
-                    Symbol* var0Symbol = new Symbol(var->name()+"0", { Sorts::intSort() }, toSort(var->vtype()));
-                    Term* var0 = new FuncTerm(var0Symbol, {p});
-                    
-                    Formula* eqWithoutQuantifiers = new EqualityFormula(true,
-                                                                        var->toTerm(it, p),
-                                                                        var0);
-                    eq = new UniversalFormula({p}, eqWithoutQuantifiers);
-                }
-                
-                // forall i. eq(i)
-                Formula* f = new UniversalFormula({it}, eq);
-                
-                // add property
-                addProperty("not_updated_" + var->name(), f);
-            }
-        }
-    }
-
     
     void Properties::output()
     {
@@ -192,7 +143,53 @@ namespace program {
 
 #pragma mark - General Properties
 
-    
+    void Properties::constnessProps()
+    {
+        for (const auto& var : _vars)
+        {
+            if (!_updated.at(var))
+            {
+                LVariable* it = new LVariable(Sorts::intSort(), "It");
+                
+                Formula* eq;
+                // eq(it) := x(it) = x(0)
+                if (!isArrayType(var->vtype()))
+                {
+                    
+                    Symbol* var0Symbol = new Symbol(var->name()+"0", toSort(var->vtype()));
+                    Term* var0 = new FuncTerm(var0Symbol, {});
+                    
+                    
+                    eq = new EqualityFormula(true,
+                                             var->toTerm(it),
+                                             var0);
+                }
+                // eq(i) := forall p. x(i,p) = x(0,p)
+                else
+                {
+                    // suppport for other options not implemented yet
+                    assert(!util::Configuration::instance().arrayTheory().getValue());
+                    
+                    LVariable* p = new LVariable(Sorts::intSort(), "P");
+                    
+                    Symbol* var0Symbol = new Symbol(var->name()+"0", { Sorts::intSort() }, toSort(var->vtype()));
+                    Term* var0 = new FuncTerm(var0Symbol, {p});
+                    
+                    Formula* eqWithoutQuantifiers = new EqualityFormula(true,
+                                                                        var->toTerm(it, p),
+                                                                        var0);
+                    eq = new UniversalFormula({p}, eqWithoutQuantifiers);
+                }
+                
+                // forall i. eq(i)
+                Formula* f = new UniversalFormula({it}, eq);
+                
+                // add property
+                addProperty("not_updated_" + var->name(), f);
+            }
+        }
+    }
+
     FuncTerm* Properties::loopCounterSymbol()
     {
         // initialization note that the syntax of the guarded command
@@ -613,7 +610,10 @@ namespace program {
         return ImplicationFormula(fb, fc).quantify();
     }
     
-    /** forall i p v, (iter(i) & update_a(i, p, v) & (forall j, iter(j) & j > i => !update_a(j, p))) => a(n, p) = v */
+    
+    /** forall i p v, (iter(i) & update_a(i, p, v) & (forall j, iter(j) & j > i => !update_a(j, p))) => a(n, p) = v
+     * Not used currently! (instead the weaker but more efficient uniqueUpdateAxiom is used)
+     */
     Formula* Properties::lastUpdateAxiom(const PVariable *a)
     {
         assert(isArrayType(a->vtype()));
