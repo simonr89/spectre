@@ -10,6 +10,8 @@
 
 #include "analysis/Analyzer.hpp"
 #include "analysis/Properties.hpp"
+#include "analysis/PropertiesTime.hpp"
+
 #include "program/Program.hpp"
 
 extern FILE *yyin;
@@ -85,9 +87,18 @@ int main(int argc, char *argv[])
                 util::Output::stream() << util::Output::nocomment;
 
                 // create properties and dump them to TPTP/SMTLIB
-                program::Properties props(*p, aRes);
-                props.analyze();
-                props.output();
+                if (!util::Configuration::instance().timepoints().getValue())
+                {
+                    program::Properties props(*p, aRes);
+                    props.analyze();
+                    props.output();
+                }
+                else
+                {
+                    program::PropertiesTime props(*p, aRes);
+                    props.analyze();
+                    props.output();
+                }
             }
         }
         return 0;

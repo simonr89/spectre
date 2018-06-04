@@ -612,7 +612,7 @@ namespace program {
     
     
     /** forall i p v, (iter(i) & update_a(i, p, v) & (forall j, iter(j) & j > i => !update_a(j, p))) => a(n, p) = v
-     * Not used currently! (instead the weaker but more efficient uniqueUpdateAxiom is used)
+     * Not used currently! (instead the weaker but more efficient uniqueUpdateAxiom)
      */
     Formula* Properties::lastUpdateAxiom(const PVariable *a)
     {

@@ -77,6 +77,7 @@ namespace util {
         _outputFile("output", ""),
         _outputFormat("output-format", {"tptp", "smtlib"}, "smtlib"),
         _mainMode("mode", { "generation", "verification" }, "verification"),
+        _timepoints("timepoints", false),
         _arrayTheory("arraytheory", false),
         _existentialAxioms("eaxioms", true),
         _allOptions()
@@ -84,6 +85,7 @@ namespace util {
             registerOption(&_outputFile);
             registerOption(&_outputFormat);
             registerOption(&_mainMode);
+            registerOption(&_timepoints);
             registerOption(&_arrayTheory);
             registerOption(&_existentialAxioms);
         }
@@ -95,6 +97,7 @@ namespace util {
         StringOption outputFile() { return _outputFile; }
         MultiChoiceOption outputFormat() { return _outputFormat; }
         MultiChoiceOption mainMode() { return _mainMode; }
+        BooleanOption timepoints() { return _timepoints; }
         BooleanOption arrayTheory() { return _arrayTheory; }
         BooleanOption existentialAxioms() { return _existentialAxioms; }
         
@@ -104,6 +107,7 @@ namespace util {
         StringOption _outputFile;
         MultiChoiceOption _outputFormat;
         MultiChoiceOption _mainMode;
+        BooleanOption _timepoints;
         BooleanOption _arrayTheory;
         BooleanOption _existentialAxioms;
         
