@@ -56,7 +56,8 @@ namespace logic {
         }
         else if (s.toTPTP() == "Time")
         {
-            return "(declare-datatypes ((Time 0)) (( (zero) (s (p Time)) )) )";
+            assert(false); // TPTP doesn't support term algebras
+            return "";
         }
         else
         {
