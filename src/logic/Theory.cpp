@@ -40,16 +40,16 @@ namespace logic {
                 static Symbol store("array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), true);
                 return &store;
             case InterpretedSymbol::TIME_ZERO:
-                static Symbol zero("time_zero", Sorts::timeSort(), true);// TODO:coloring?
+                static Symbol zero("time_zero", Sorts::timeSort(), true, true);
                 return &zero;
             case InterpretedSymbol::TIME_SUCC:
-                static Symbol succ("time_succ", {Sorts::timeSort()}, Sorts::timeSort(), true); // TODO:coloring?
+                static Symbol succ("time_succ", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
                 return &succ;
             case InterpretedSymbol::TIME_PRE:
-                static Symbol pred("time_pre", {Sorts::timeSort()}, Sorts::timeSort(), true); // TODO:coloring?
+                static Symbol pred("time_pre", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
                 return &pred;
             case InterpretedSymbol::TIME_SUB:
-                static Symbol sub("time_sub", {Sorts::timeSort(), Sorts::timeSort()}, Sorts::boolSort(), true); // TODO:coloring?
+                static Symbol sub("time_sub", {Sorts::timeSort(), Sorts::timeSort()}, Sorts::boolSort(), true, true);
                 return &sub;
             default:
                 assert(0); //unreachable
