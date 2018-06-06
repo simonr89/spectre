@@ -11,12 +11,17 @@ namespace logic {
         return "tff(" + decl + ", " + (conjecture ? "conjecture, " : "hypothesis, ") + toTPTP() + ").";
     }
     
-    // TODO: for now we don't distinguish between conjectures and hypothesis.
-    // Should add a vampire-only SMTLIB-extension, which allows to distinguish
-    // between them, e.g. assert-hypothesis or assert-goal.
-    std::string Formula::declareSMTLIB(std::string decl) const
+    std::string Formula::declareSMTLIB(std::string decl, bool conjecture) const
     {
-        return "; " + decl + "\n" + "(assert " + toSMTLIB() + ")";
+        if (conjecture)
+        {
+            // custom vampire smtlib-extension for asserting conjectures.
+            return "; " + decl + "\n" + "(assert-not " + toSMTLIB() + ")";
+        }
+        else
+        {
+            return "; " + decl + "\n" + "(assert " + toSMTLIB() + ")";
+        }
     }
     
     std::string PredicateFormula::toTPTP() const

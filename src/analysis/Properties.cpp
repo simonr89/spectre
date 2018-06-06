@@ -134,8 +134,7 @@ namespace program {
             }
             else
             {
-                auto negatedConjecture = new NegationFormula(conjecture);
-                ostr << negatedConjecture->declareSMTLIB("post_conditions") << std::endl;
+                ostr << conjecture->declareSMTLIB("post_conditions", true) << std::endl;
             }
         }
     }

@@ -77,7 +77,7 @@ namespace logic {
         }
         else if (s.toSMTLIB() == "Time")
         {
-            return "(declare-datatypes ((Time 0)) (( (zero) (s (p Time)) )) )";
+            return "(declare-datatypes ((Time 0)) (( (zero) (s (p Time)) )) )\n";
         }
         else
         {

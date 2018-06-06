@@ -14,7 +14,7 @@ namespace logic {
         Formula* quantify(bool univ = true) const;
 
         std::string declareTPTP(std::string decl, bool conjecture = false) const;
-        std::string declareSMTLIB(std::string decl) const;
+        std::string declareSMTLIB(std::string decl, bool conjecture = false) const;
 
         // returns a vector of the unbound variables of the formula
         virtual std::vector<LVariable*> freeVariables() const = 0;

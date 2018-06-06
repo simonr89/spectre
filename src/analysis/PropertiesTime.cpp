@@ -71,7 +71,7 @@ namespace program {
         int i=0;
         for (const auto& precondition : _preconditions)
         {
-            ostr << precondition->toFormula(Theory::integerConstant(0))->declareSMTLIB("precondition_" + std::to_string(i++)) << std::endl;
+            ostr << precondition->toFormula(Theory::timeZero())->declareSMTLIB("precondition_" + std::to_string(i++)) << std::endl;
         }
         
         // output all properties
@@ -93,8 +93,7 @@ namespace program {
             Formula* conjecture = new ConjunctionFormula(conjuncts);
             
             // output conjecture
-            auto negatedConjecture = new NegationFormula(conjecture);
-            ostr << negatedConjecture->declareSMTLIB("post_conditions") << std::endl;
+            ostr << conjecture->declareSMTLIB("post_conditions", true) << std::endl;
         }
     }
     
@@ -178,7 +177,7 @@ namespace program {
 
             if (_strict.at(v))
             {
-                addProperty("dense_strict_" + v->name(), strictProp(v));
+                addProperty("strict_" + v->name(), strictProp(v));
             }
             else
             {
@@ -201,18 +200,18 @@ namespace program {
         {
 
             ImplicationFormula imp(new PredicateFormula(Theory::timeSub(i, j)),
-                                   new PredicateFormula(Theory::timeSub(v->toTerm(i), v->toTerm(j))));
+                                   new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),{ v->toTerm(i), v->toTerm(j) })));
             return imp.quantify();
         }
         else
         {
             ImplicationFormula imp(new PredicateFormula(Theory::timeSub(i, j)),
-                                   new PredicateFormula(Theory::timeSub(v->toTerm(j), v->toTerm(i))));
+                                   new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),{ v->toTerm(j), v->toTerm(i) })));
             return imp.quantify();
         }
     }
     
-    /** forall i j. (j >= i => not(v(j) < v(i)) ) [not(v(i) < v(j)) if v is decreasing] */
+    /** forall i j. (i<j => v(i)<=v(j)) [v(j)<=v(i) if v is decreasing] */
     Formula *PropertiesTime::nonStrictProp(const PVariable *v)
     {
         assert(_updated.at(v));
@@ -225,13 +224,13 @@ namespace program {
         if (_monotonic.at(v) == Monotonicity::INC)
         {
             ImplicationFormula imp(new PredicateFormula(Theory::timeSub(i, j)),
-                                   new NegationFormula( new PredicateFormula(Theory::timeSub(v->toTerm(j), v->toTerm(i)))));
+                                   new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),{ v->toTerm(i), v->toTerm(j) })));
             return imp.quantify();
         }
         else
         {
             ImplicationFormula imp(new PredicateFormula(Theory::timeSub(i, j)),
-                                   new NegationFormula( new PredicateFormula(Theory::timeSub(v->toTerm(i), v->toTerm(j)))));
+                                   new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),{ v->toTerm(j), v->toTerm(i) })));
             return imp.quantify();
         }
     }
