@@ -82,7 +82,7 @@ namespace logic {
     
     FuncTerm* Theory::timePre(Term* term)
     {
-        Symbol* pre = getSymbol(InterpretedSymbol::TIME_SUCC);
+        Symbol* pre = getSymbol(InterpretedSymbol::TIME_PRE);
         return new FuncTerm(pre, {term});
     }
     
