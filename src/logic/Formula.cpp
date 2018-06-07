@@ -16,11 +16,11 @@ namespace logic {
         if (conjecture)
         {
             // custom vampire smtlib-extension for asserting conjectures.
-            return "; " + decl + "\n" + "(assert-not " + toSMTLIB() + ")";
+            return "; " + decl + "\n" + "(assert-not\n" + toSMTLIB(3) + "\n)\n";
         }
         else
         {
-            return "; " + decl + "\n" + "(assert " + toSMTLIB() + ")";
+            return "; " + decl + "\n" + "(assert\n" + toSMTLIB(3) + "\n)\n";
         }
     }
     
@@ -29,9 +29,9 @@ namespace logic {
         return _p->toTPTP();
     }
     
-    std::string PredicateFormula::toSMTLIB() const
+    std::string PredicateFormula::toSMTLIB(unsigned indentation) const
     {
-        return _p->toSMTLIB();
+        return std::string(indentation, ' ') + _p->toSMTLIB();
     }
     
     std::string EqualityFormula::toTPTP() const
@@ -42,18 +42,19 @@ namespace logic {
             return _left->toTPTP() + " != " + _right->toTPTP();
     }
     
-    std::string EqualityFormula::toSMTLIB() const
+    std::string EqualityFormula::toSMTLIB(unsigned indentation) const
     {
         if (_polarity)
         {
-            return "(= " + _left->toSMTLIB() + " " + _right->toSMTLIB() + ")";
+            return std::string(indentation, ' ') + "(= " + _left->toSMTLIB() + " " + _right->toSMTLIB() + ")";
         }
         else
         {
-            return "(not (= " + _left->toSMTLIB() + " " + _right->toSMTLIB() + "))";
+            return std::string(indentation, ' ')  + "(not (= " + _left->toSMTLIB() + " " + _right->toSMTLIB() + "))";
         }
     }
     
+ 
     std::string ConjunctionFormula::toTPTP() const
     {
         if (_conj.size() == 0)
@@ -67,15 +68,17 @@ namespace logic {
         return str;
     }
     
-    std::string ConjunctionFormula::toSMTLIB() const
+    std::string ConjunctionFormula::toSMTLIB(unsigned indentation) const
     {
         if (_conj.size() == 0)
-            return "true";
-        std::string str = "(and ";
-        for (unsigned i = 0; i < _conj.size(); i++) {
-            str += _conj[i]->toSMTLIB();
-            str += (i == _conj.size() - 1) ? ")" : " ";
+        {
+            return std::string(indentation, ' ') + "true";
         }
+        std::string str = std::string(indentation, ' ') + "(and\n";
+        for (unsigned i = 0; i < _conj.size(); i++) {
+            str += _conj[i]->toSMTLIB(indentation + 3) + "\n";
+        }
+        str += std::string(indentation, ' ') + ")";
         return str;
     }
     
@@ -92,15 +95,17 @@ namespace logic {
         return str;
     }
     
-    std::string DisjunctionFormula::toSMTLIB() const
+    std::string DisjunctionFormula::toSMTLIB(unsigned indentation) const
     {
         if (_disj.size() == 0)
-            return "false";
-        std::string str = "(or ";
-        for (unsigned i = 0; i < _disj.size(); i++) {
-            str += _disj[i]->toSMTLIB();
-            str += (i == _disj.size() - 1) ? ")" : " ";
+        {
+            return std::string(indentation, ' ') + "false";
         }
+        std::string str = std::string(indentation, ' ') + "(or\n";
+        for (unsigned i = 0; i < _disj.size(); i++) {
+            str += _disj[i]->toSMTLIB(indentation + 3) + "\n";
+        }
+        str += std::string(indentation, ' ') + ")";
         return str;
     }
     
@@ -109,9 +114,12 @@ namespace logic {
         return "~(" + _f->toTPTP() + ")";
     }
     
-    std::string NegationFormula::toSMTLIB() const
+    std::string NegationFormula::toSMTLIB(unsigned indentation) const
     {
-        return "(not " + _f->toSMTLIB() + ")";
+        std::string str = std::string(indentation, ' ') + "(not\n";
+        str += _f->toSMTLIB(indentation + 3) + "\n";
+        str += std::string(indentation, ' ') + ")";
+        return  str;
     }
     
     std::string ExistentialFormula::toTPTP() const
@@ -125,9 +133,9 @@ namespace logic {
         return str;
     }
     
-    std::string ExistentialFormula::toSMTLIB() const
+    std::string ExistentialFormula::toSMTLIB(unsigned indentation) const
     {
-        std::string str = "(exists ";
+        std::string str = std::string(indentation, ' ') + "(exists ";
         
         //list of quantified variables
         str += "(";
@@ -135,12 +143,12 @@ namespace logic {
         {
             str += "(" + var->name + " " + var->sort->toSMTLIB() + ")";
         }
-        str += ")";
+        str += ")\n";
         
         // formula
-        str += _f->toSMTLIB();
+        str += _f->toSMTLIB(indentation + 3) + "\n";
         
-        str += ")";
+        str += std::string(indentation, ' ') + ")";
         return str;
     }
     
@@ -155,9 +163,9 @@ namespace logic {
         return str;
     }
 
-    std::string UniversalFormula::toSMTLIB() const
+    std::string UniversalFormula::toSMTLIB(unsigned indentation) const
     {
-        std::string str = "(forall ";
+        std::string str = std::string(indentation, ' ') + "(forall ";
         
         //list of quantified variables
         str += "(";
@@ -165,12 +173,12 @@ namespace logic {
         {
             str += "(" + var->name + " " + var->sort->toSMTLIB() + ")";
         }
-        str += ")";
+        str += ")\n";
         
         // formula
-        str += _f->toSMTLIB();
+        str += _f->toSMTLIB(indentation + 3) + "\n";
         
-        str += ")";
+        str += std::string(indentation, ' ') + ")";
         return str;
     }
     
@@ -179,9 +187,13 @@ namespace logic {
         return "(" + _f1->toTPTP() + ")" + " => (" + _f2->toTPTP() + ")";
     }
     
-    std::string ImplicationFormula::toSMTLIB() const
+    std::string ImplicationFormula::toSMTLIB(unsigned indentation) const
     {
-        return "(=>" + _f1->toSMTLIB() + " " + _f2->toSMTLIB() + ")";
+        std::string str = std::string(indentation, ' ') + "(=>\n";
+        str += _f1->toSMTLIB(indentation + 3) + "\n";
+        str += _f2->toSMTLIB(indentation + 3) + "\n";
+        str += std::string(indentation, ' ') + ")";
+        return  str;
     }
 
     Formula* Formula::quantify(bool univ) const

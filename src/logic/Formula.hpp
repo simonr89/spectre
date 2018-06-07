@@ -20,7 +20,7 @@ namespace logic {
         virtual std::vector<LVariable*> freeVariables() const = 0;
         
         virtual std::string toTPTP() const = 0;
-        virtual std::string toSMTLIB() const = 0;
+        virtual std::string toSMTLIB(unsigned indentation = 0) const = 0;
         virtual std::string prettyString(unsigned indentation = 0) const = 0;
 
     protected:
@@ -35,7 +35,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
         
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
 
     protected:
@@ -56,7 +56,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         
     protected:
@@ -86,7 +86,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
         
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
 
     protected:
@@ -111,7 +111,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override ;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
 
     protected:
@@ -127,7 +127,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         
     protected:
@@ -151,7 +151,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
 
     protected:
@@ -176,7 +176,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
 
     protected:
@@ -193,7 +193,7 @@ namespace logic {
         std::vector<LVariable*> freeVariables() const override;
 
         std::string toTPTP() const override;
-        std::string toSMTLIB() const override;
+        std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
 
     protected:
