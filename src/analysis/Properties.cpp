@@ -465,11 +465,12 @@ namespace program {
         }
         
         assert(conj.size() > 0);
-        Formula *f1 = new ConjunctionFormula( { c->guard->toFormula(i), iter(i) } );
+        PredicateFormula *iGreaterEqual0 = new PredicateFormula(new PredTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                           { i, Theory::integerConstant(0) } ));
+        Formula *f1 = new ConjunctionFormula({ c->guard->toFormula(i), iGreaterEqual0});
         Formula *f2 = new ConjunctionFormula(conj);
         
         return new UniversalFormula( { i }, new ImplicationFormula(f1, f2));
-        
     }
     
     /** Given a scalar assignment v = e, return the formula v(i+1) = e(i) */
