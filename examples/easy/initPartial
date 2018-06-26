@@ -1,0 +1,10 @@
+int [] a;
+int i, alength, k;
+
+requires k <= alength;
+requires i == 0;
+ensures forall int i, 0 <= i & i < k ==> a[i] == 0;
+
+while (i < k) do
+:: true -> a[i] = 0; i = i + 1;
+od
