@@ -361,10 +361,10 @@ namespace program {
         }
         
         assert(conj.size() > 0);
-        Formula *f1 = new ConjunctionFormula( { c->guard->toFormula(i), iter(i) } );
+        Formula *guardAtI = c->guard->toFormula(i);
         Formula *f2 = new ConjunctionFormula(conj);
         
-        return new UniversalFormula( { i }, new ImplicationFormula(f1, f2));
+        return new UniversalFormula( { i }, new ImplicationFormula(guardAtI, f2));
     }
     
     /** Given a scalar assignment v = e, return the formula v(s(i)) = e(i) */
