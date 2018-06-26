@@ -85,6 +85,8 @@ namespace program {
         // properties derived from strictness and density of scalars
         void monotonicityProps();
         
+        logic::Formula* injectivityProp(const PVariable *v);
+
         logic::Formula* strictProp(const PVariable *v);
         logic::Formula* nonStrictProp(const PVariable *v);
         

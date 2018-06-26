@@ -177,6 +177,7 @@ namespace program {
 
             if (_strict.at(v))
             {
+                addProperty("injectivity_" + v->name(), injectivityProp(v));
                 addProperty("strict_" + v->name(), strictProp(v));
             }
             else
@@ -184,6 +185,21 @@ namespace program {
                 addProperty("non_strict_" + v->name(), nonStrictProp(v));
             }
         }
+    }
+    
+    /** forall i j. (i != j => v(i) != v(j) ) */
+    Formula *PropertiesTime::injectivityProp(const PVariable *v)
+    {
+        assert(_monotonic.at(v) != Monotonicity::OTHER);
+        assert(_updated.at(v));
+        assert(_strict.at(v));
+        
+        LVariable* i = new LVariable(Sorts::timeSort(), "It1");
+        LVariable* j = new LVariable(Sorts::timeSort(), "It2");
+        
+        ImplicationFormula imp(new EqualityFormula(false, i, j),
+                               new EqualityFormula(false, v->toTerm(i), v->toTerm(j)));
+        return imp.quantify();
     }
     
     /** forall i j. (i < j => v(i) < v(j)) [v(j) < v(i) if v is decreasing] */
