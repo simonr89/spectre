@@ -1,0 +1,12 @@
+// example which shows that we need the requirement that array-lengths are nonnegative: If we remove the precondition "0 <= alength", then neither the standard-encoding nor the timepoint encoding is able to prove the postcondition "i == alength".
+
+int i, alength;
+
+requires i == 0;
+requires 0 <= alength;
+
+ensures i == alength;
+
+while (i < alength) do
+:: true -> i = i + 1;
+od

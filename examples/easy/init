@@ -2,7 +2,9 @@ int [] a;
 int i, alength, v;
 
 requires i == 0;
-ensures forall int i, 0 <= i & i < alength ==> a[i] == v;
+requires 0 <= alength;
+
+ensures forall int j, 0 <= j & j < alength ==> a[j] == v;
 
 while (i < alength) do
 :: true -> a[i] = v; i = i + 1;

@@ -4,9 +4,9 @@
 int [] a;
 int i, alength, v, r;
 
+requires 0 <= alength;
 requires i == 0;
 requires r == -1;
-requires alength >= 0;
 ensures a[r] == v | r == -1;
 
 while (i < alength & r == -1) do

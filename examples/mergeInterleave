@@ -1,6 +1,9 @@
 int [] a, b, c;
 int i, alength, blength, clength;
 
+requires 0 <= alength;
+requires 0 <= blength;
+requires 0 <= clength;
 requires 2 * blength == clength;
 requires 2 * alength == clength;
 requires i == 0;

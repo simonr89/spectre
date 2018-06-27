@@ -1,6 +1,7 @@
 int [] a;
 int i, alength;
 
+requires 0 <= alength;
 requires i == 0;
 ensures forall int i, 0 <= i & i < (alength / 2) ==> a[i * 2] == 1;
 

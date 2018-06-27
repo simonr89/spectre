@@ -5,9 +5,9 @@
 int [] a;
 int i, alength, v, r;
 
+requires 0 <= alength;
 requires i == 0;
 requires r == -1;
-requires alength >= 0;
 ensures forall int p, 0 <= p & p < r ==> a[p] != v;
 
 while (i < alength & r == -1) do

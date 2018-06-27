@@ -1,10 +1,10 @@
 int [] aa, bb, cc;
 int a, b, c, alength;
 
+requires 0 <= alength;
 requires a == 0;
 requires b == 0;
 requires c == 0;
-requires alength >= 0;
 ensures forall int i, 0 <= i & i < b ==> bb[i] >= 0;
 
 while (a < alength) do

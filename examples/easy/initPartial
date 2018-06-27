@@ -1,6 +1,7 @@
 int [] a;
 int i, alength, k;
 
+requires 0 <= alength;
 requires k <= alength;
 requires i == 0;
 ensures forall int i, 0 <= i & i < k ==> a[i] == 0;

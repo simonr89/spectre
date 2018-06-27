@@ -2,6 +2,8 @@ int [] a;
 int i, alength, v;
 
 requires i == 0;
+requires 0 <= alength;
+
 ensures forall int i, 0 <= i & i < alength ==> a[i] == 2 * i + v;
 
 while (i < alength) do

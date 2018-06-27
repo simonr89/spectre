@@ -4,8 +4,8 @@
 int [] a;
 int i, alength, v;
 
+requires 0 <= alength;
 requires i == 0;
-requires alength >= 0;
 ensures forall int j, 0 <= j & j < i ==> a[j] != v;
 
 while (i < alength & a[i] != v) do
