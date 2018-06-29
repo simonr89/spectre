@@ -1,0 +1,13 @@
+// same program as init, but different postcondition: It seems that init with the timepoints-encoding can't derive the clause i^n = alength^n. Therefore one can try to prove this postcondition separately. Surprisingly, in such case Vampire finds a proof. 
+
+int [] a;
+int i, alength, v;
+
+requires i == 0;
+requires 0 <= alength;
+
+ensures i == alength;
+
+while (i < alength) do
+:: true -> a[i] = v; i = i + 1;
+od
