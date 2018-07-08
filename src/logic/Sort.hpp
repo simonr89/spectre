@@ -47,11 +47,11 @@ namespace logic {
         static Sort* timeSort() { return fetchOrDeclare("Time"); }
 
         // returns map containing all previously constructed sorts as pairs (nameOfSort, Sort)
-        static const std::map<std::string, Sort*> nameToSort(){return _sorts;};
+        static const std::map<std::string, std::unique_ptr<Sort>>& nameToSort(){return _sorts;};
         
     private:
         static Sort* fetchOrDeclare(std::string name);
-        static std::map<std::string, Sort*> _sorts;
+        static std::map<std::string, std::unique_ptr<Sort>> _sorts;
     };
 
 

@@ -21,16 +21,16 @@ namespace program {
         if (isArrayType(ty)) {
             if (util::Configuration::instance().arrayTheory().getValue()) {
                 // representation of arrays using array axioms
-                _symbol = new logic::Symbol(name + "_nonext", {}, logic::Sorts::intArraySort());
-                _extendedSymbol = new logic::Symbol(name, { sortToDescribeTime }, logic::Sorts::intArraySort(), false, true);
+                _symbol = Signature::fetchOrDeclare(name + "_nonext", {}, logic::Sorts::intArraySort());
+                _extendedSymbol = Signature::fetchOrDeclare(name, { sortToDescribeTime }, logic::Sorts::intArraySort(), false, true);
             } else {
                 // representation of arrays as functions
-                _symbol = new logic::Symbol(name + "_nonext", { logic::Sorts::intSort() }, toSort(ty));
-                _extendedSymbol = new logic::Symbol(name, { sortToDescribeTime, logic::Sorts::intSort() }, toSort(ty), false, true);
+                _symbol = Signature::fetchOrDeclare(name + "_nonext", { logic::Sorts::intSort() }, toSort(ty));
+                _extendedSymbol = Signature::fetchOrDeclare(name, { sortToDescribeTime, logic::Sorts::intSort() }, toSort(ty), false, true);
             }
         } else {
-            _symbol = new logic::Symbol(name + "_nonext", {}, toSort(ty));
-            _extendedSymbol = new logic::Symbol(name, { sortToDescribeTime }, toSort(ty), false, true);
+            _symbol = Signature::fetchOrDeclare(name + "_nonext", {}, toSort(ty));
+            _extendedSymbol = Signature::fetchOrDeclare(name, { sortToDescribeTime }, toSort(ty), false, true);
         }
     }
     

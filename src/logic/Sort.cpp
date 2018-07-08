@@ -97,17 +97,20 @@ namespace logic {
     
 #pragma mark - Sorts
 
-    std::map<std::string, Sort*> Sorts::_sorts;
+    std::map<std::string, std::unique_ptr<Sort>> Sorts::_sorts;
 
-    Sort* Sorts::fetchOrDeclare(std::string name) {
+    Sort* Sorts::fetchOrDeclare(std::string name)
+    {
         auto it = _sorts.find(name);
         
-        if (it == _sorts.end()) {
-            Sort* s = new Sort(name);
-            _sorts.insert(std::pair<std::string, Sort*>(name, s));
-            return s;
-        } else {
-            return (*it).second;
+        if (it == _sorts.end())
+        {
+            auto ret = _sorts.insert(std::make_pair(name, std::unique_ptr<Sort>(new Sort(name))));
+            return ret.first->second.get();
+        }
+        else
+        {
+            return (*it).second.get();
         }
     }
     

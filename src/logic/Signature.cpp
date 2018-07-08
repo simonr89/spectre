@@ -4,8 +4,8 @@
 
 namespace logic {
     
-    std::map<std::pair<std::string, unsigned>, Symbol*> Symbol::_signature;
-    
+#pragma mark - Symbol
+
     std::string Symbol::declareSymbolTPTP() const
     {
         if (interpreted)
@@ -246,4 +246,20 @@ namespace logic {
         return colored ? "(color-symbol " + toSMTLIB() + " :left)\n" : "";
     }
     
+#pragma mark - Signature
+    
+    std::unordered_set<std::unique_ptr<Symbol>, SymbolPtrHash, SymbolPtrEquality> Signature::_signature;
+
+    Symbol* Signature::fetchOrDeclare(std::string name, Sort* rngSort, bool interpreted, bool colored)
+    {
+        auto pair = _signature.insert(std::unique_ptr<Symbol>(new Symbol(name, rngSort, interpreted, colored)));
+        return pair.first->get();
+    }
+    
+    Symbol* Signature::fetchOrDeclare(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool interpreted, bool colored)
+    {
+        auto pair = _signature.insert(std::unique_ptr<Symbol>(new Symbol(name, argSorts, rngSort, interpreted, colored)));
+        return pair.first->get();
+    }
+
 }

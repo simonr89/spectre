@@ -55,9 +55,8 @@ namespace program {
         }
         
         // output symbol definitions
-        for (const auto& pair : Symbol::signature())
+        for (const auto& symbol : Signature::signature())
         {
-            const auto symbol = pair.second;
             if (util::Configuration::instance().outputFormat().getValue() == "tptp")
             {
                 ostr << symbol->declareSymbolTPTP();
@@ -71,9 +70,8 @@ namespace program {
         // if in generation-mode, also output symbol colors
         if (util::Configuration::instance().mainMode().getValue() == "generation")
         {
-            for (const auto& pair : Symbol::signature())
+            for (const auto& symbol : Signature::signature())
             {
-                const auto symbol = pair.second;
                 if (symbol->colored)
                 {
                     if (util::Configuration::instance().outputFormat().getValue() == "tptp")
@@ -155,7 +153,7 @@ namespace program {
                 if (!isArrayType(var->vtype()))
                 {
                     
-                    Symbol* var0Symbol = new Symbol(var->name()+"0", toSort(var->vtype()));
+                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name()+"0", toSort(var->vtype()));
                     Term* var0 = new FuncTerm(var0Symbol, {});
                     
                     
@@ -171,7 +169,7 @@ namespace program {
                     
                     LVariable* p = new LVariable(Sorts::intSort(), "P");
                     
-                    Symbol* var0Symbol = new Symbol(var->name()+"0", { Sorts::intSort() }, toSort(var->vtype()));
+                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name()+"0", { Sorts::intSort() }, toSort(var->vtype()));
                     Term* var0 = new FuncTerm(var0Symbol, {p});
                     
                     Formula* eqWithoutQuantifiers = new EqualityFormula(true,
@@ -193,7 +191,7 @@ namespace program {
     {
         // initialization note that the syntax of the guarded command
         // language does not allow special characters such as $
-        static Symbol* s = new Symbol("$n", Sorts::intSort(), false, true);
+        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::intSort(), false, true);
         
         return new FuncTerm(s, {});
     }
@@ -736,13 +734,13 @@ namespace program {
             assert (arity == 1);
             rhsCounter = v->toTerm(empty, i);
             lhsCounter = v->toTerm(loopCounterSymbol(), i);
-            s = new Symbol(v->name() + "$init", { Sorts::intSort() }, toSort(v->vtype()));
+            s = Signature::fetchOrDeclare(v->name() + "$init", { Sorts::intSort() }, toSort(v->vtype()));
             lhsInit = v->toTerm(Theory::integerConstant(0), i);
             rhsInit = new FuncTerm(s, {i});
         } else {
             rhsCounter = v->toTerm(empty);
             lhsCounter = v->toTerm(loopCounterSymbol());
-            s = new Symbol(v->name() + "$init", toSort(v->vtype()));
+            s = Signature::fetchOrDeclare(v->name() + "$init", toSort(v->vtype()));
             lhsInit = v->toTerm(Theory::integerConstant(0));
             rhsInit = new FuncTerm(s, {});
         }

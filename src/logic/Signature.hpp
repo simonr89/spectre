@@ -3,16 +3,21 @@
 
 #include <cassert>
 #include <initializer_list>
-#include <map>
+#include <unordered_set>
 #include <string>
 #include <vector>
 #include "Sort.hpp"
 
+# pragma mark - Symbol
+
 namespace logic {
     
-    // TODO: we could simplify _signature to a std::unordered_set, if we make Symbol comply with the requirements of std::unordered_set
     class Symbol {
-    public:
+        // we need each symbol to be defined in the signature
+        // We therefore use the Signature-class below as a manager-class for Symbol-objects
+        friend class Signature;
+        
+    private:
         Symbol(std::string name, Sort* rngSort, bool interpreted=false, bool colored=false) :
         name(name),
         argSorts(),
@@ -21,7 +26,6 @@ namespace logic {
         colored(colored)
         {
             assert(!name.empty());
-            _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, 0), this));
         }
         
         Symbol(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool interpreted=false, bool colored=false) :
@@ -32,9 +36,9 @@ namespace logic {
         colored(colored)
         {
             assert(!name.empty());
-            _signature.insert(std::pair<std::pair<std::string, unsigned>, Symbol*>(std::pair<std::string, unsigned>(name, argSorts.size()), this));
         }
-        
+     
+    public:
         const std::string name;
         const std::vector<Sort*> argSorts;
         const Sort* rngSort;
@@ -51,19 +55,52 @@ namespace logic {
         std::string declareSymbolSMTLIB() const;
         std::string declareSymbolColorSMTLIB() const;
         
-        static const std::map<std::pair<std::string, unsigned>, Symbol*> signature(){return _signature;}
+        bool operator==(const Symbol &s) const {return name == s.name;}
+    };
+}
+
+namespace std
+{
+    template<> struct hash<logic::Symbol>
+    {
+        using argument_type = logic::Symbol;
+        using result_type = std::size_t;
+        
+        result_type operator ()(argument_type const& s) const
+        {
+            return std::hash<std::string>()(s.name);
+        }
+    };
+}
+
+# pragma mark - Signature
+
+namespace logic {
+
+    struct SymbolPtrEquality
+    {
+        bool operator()(const std::unique_ptr<Symbol>& a, const std::unique_ptr<Symbol>& b) const {return *a == *b;}
+    };
+    
+    struct SymbolPtrHash
+    {
+        size_t operator()(const std::unique_ptr<Symbol>& ptr) const {return std::hash<Symbol>()(*ptr);}
+    };
+    
+    // We use Signature as a manager-class for Symbol-instances
+    class Signature
+    {
+    public:
+        // construct new symbols
+        static Symbol* fetchOrDeclare(std::string name, Sort* rngSort, bool interpreted=false, bool colored=false);
+        static Symbol* fetchOrDeclare(std::string name, std::initializer_list<Sort*> argSorts, Sort* rngSort, bool interpreted=false, bool colored=false);
+
+        static const std::unordered_set<std::unique_ptr<Symbol>, SymbolPtrHash, SymbolPtrEquality>& signature(){return _signature;}
         
     private:
         // _signature collects all symbols used so far.
-        //
-        // maps each pair (symbolname/arity) to a symbol
-        // not sure why we need the arity here,
-        // this enables the case of two symbols with different arity
-        // which could easily lead to errors
-        static std::map<std::pair<std::string, unsigned>, Symbol*> _signature;
+        static std::unordered_set<std::unique_ptr<Symbol>, SymbolPtrHash, SymbolPtrEquality> _signature;
     };
-
 }
-
 #endif
 

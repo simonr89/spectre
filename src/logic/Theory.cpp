@@ -7,65 +7,53 @@ namespace logic {
     Symbol* Theory::getSymbol(InterpretedSymbol s) {
         switch (s) {
             case InterpretedSymbol::INT_PLUS:
-                static Symbol plus("int_plus", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
-                return &plus;
+                return Signature::fetchOrDeclare("int_plus", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
             case InterpretedSymbol::INT_MINUS:
-                static Symbol minus("int_minus", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
-                return &minus;
+                return Signature::fetchOrDeclare("int_minus", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
             case InterpretedSymbol::INT_MULTIPLY:
-                static Symbol times("int_multiply", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
-                return &times;
+                return Signature::fetchOrDeclare("int_multiply", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
             case InterpretedSymbol::INT_QUOTIENT_E:
-                static Symbol divide("int_quotient_e", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
-                return &divide;
+                return Signature::fetchOrDeclare("int_quotient_e", { Sorts::intSort(), Sorts::intSort() }, Sorts::intSort(), true);
             case InterpretedSymbol::INT_UNARY_MINUS:
-                static Symbol uminus("int_unary_minus", { Sorts::intSort() } , Sorts::intSort(), true);
-                return &uminus;
+                return Signature::fetchOrDeclare("int_unary_minus", { Sorts::intSort() } , Sorts::intSort(), true);
             case InterpretedSymbol::INT_GREATER:
-                static Symbol greater("int_greater", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
-                return &greater;
+                return Signature::fetchOrDeclare("int_greater", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
             case InterpretedSymbol::INT_GREATER_EQUAL:
-                static Symbol greatereq("int_greater_eq", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
-                return &greatereq;
+                return Signature::fetchOrDeclare("int_greater_eq", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
             case InterpretedSymbol::INT_LESS:
-                static Symbol less("int_less", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
-                return &less;
+                return Signature::fetchOrDeclare("int_less", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
             case InterpretedSymbol::INT_LESS_EQUAL:
-                static Symbol lesseq("int_less_eq", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
-                return &lesseq;
+                return Signature::fetchOrDeclare("int_less_eq", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
             case InterpretedSymbol::ARRAY_SELECT:
-                static Symbol select("array_select", { Sorts::intArraySort(), Sorts::intSort() }, Sorts::intSort(), true);
-                return &select;
+                return Signature::fetchOrDeclare("array_select", { Sorts::intArraySort(), Sorts::intSort() }, Sorts::intSort(), true);
             case InterpretedSymbol::ARRAY_STORE:
-                static Symbol store("array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), true);
-                return &store;
+                return Signature::fetchOrDeclare("array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), true);
             case InterpretedSymbol::TIME_ZERO:
-                static Symbol zero("time_zero", Sorts::timeSort(), true, true);
-                return &zero;
+                return Signature::fetchOrDeclare("time_zero", Sorts::timeSort(), true, true);
             case InterpretedSymbol::TIME_SUCC:
-                static Symbol succ("time_succ", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
-                return &succ;
+                return Signature::fetchOrDeclare("time_succ", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
             case InterpretedSymbol::TIME_PRE:
-                static Symbol pred("time_pre", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
-                return &pred;
+                return Signature::fetchOrDeclare("time_pre", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
             case InterpretedSymbol::TIME_SUB:
-                static Symbol sub("time_sub", {Sorts::timeSort(), Sorts::timeSort()}, Sorts::boolSort(), true, true);
-                return &sub;
+                return Signature::fetchOrDeclare("time_sub", {Sorts::timeSort(), Sorts::timeSort()}, Sorts::boolSort(), true, true);
             default:
                 assert(0); //unreachable
                 return nullptr;
         }
     }
     
-    FuncTerm* Theory::integerConstant(int i) {
-        Symbol *s = new Symbol(std::to_string(i), Sorts::intSort(), true);
+    FuncTerm* Theory::integerConstant(int i)
+    {
+        Symbol *s = Signature::fetchOrDeclare(std::to_string(i), Sorts::intSort(), true);
         return new FuncTerm(s, {});
     }
     
-    PredTerm* Theory::booleanConstant(bool b) {
-        static Symbol t("bool_true", Sorts::boolSort(), true);
-        static Symbol f("bool_false", Sorts::boolSort(), true);
-        return b ? new PredTerm(&t, {}) : new PredTerm(&f, {});
+    PredTerm* Theory::booleanConstant(bool b)
+    {
+        Symbol *t = Signature::fetchOrDeclare("bool_true", Sorts::boolSort(), true);
+        Symbol *f = Signature::fetchOrDeclare("bool_false", Sorts::boolSort(), true);
+
+        return b ? new PredTerm(t, {}) : new PredTerm(f, {});
     }
     
     FuncTerm* Theory::timeZero()

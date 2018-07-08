@@ -48,18 +48,16 @@ namespace program {
         }
         
         // output symbol definitions
-        for (const auto& pair : Symbol::signature())
+        for (const auto& symbol : Signature::signature())
         {
-            const auto symbol = pair.second;
             ostr << symbol->declareSymbolSMTLIB();
         }
         
         // if in generation-mode, also output symbol colors
         if (util::Configuration::instance().mainMode().getValue() == "generation")
         {
-            for (const auto& pair : Symbol::signature())
+            for (const auto& symbol : Signature::signature())
             {
-                const auto symbol = pair.second;
                 if (symbol->colored)
                 {
                     ostr << symbol->declareSymbolColorSMTLIB();
@@ -112,7 +110,7 @@ namespace program {
                 // eq(it) := x(it) = x(0)
                 if (!isArrayType(var->vtype()))
                 {
-                    Symbol* var0Symbol = new Symbol(var->name()+"0", toSort(var->vtype()));
+                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name()+"0", toSort(var->vtype()));
                     Term* var0 = new FuncTerm(var0Symbol, {});
                     
                     eq = new EqualityFormula(true,
@@ -127,7 +125,7 @@ namespace program {
                     
                     LVariable* p = new LVariable(Sorts::intSort(), "P");
                     
-                    Symbol* var0Symbol = new Symbol(var->name()+"0", { Sorts::intSort() }, toSort(var->vtype()));
+                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name()+"0", { Sorts::intSort() }, toSort(var->vtype()));
                     Term* var0 = new FuncTerm(var0Symbol, {p});
                     
                     Formula* eqWithoutQuantifiers = new EqualityFormula(true,
@@ -149,7 +147,7 @@ namespace program {
     {
         // initialization note that the syntax of the guarded command
         // language does not allow special characters such as $
-        static Symbol* s = new Symbol("$n", Sorts::timeSort(), false, true);
+        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::timeSort(), false, true);
         return new FuncTerm(s, {});
     }
     
@@ -608,7 +606,7 @@ namespace program {
             assert (arity == 1);
             rhsCounter = v->toTerm(empty, p);
             lhsCounter = v->toTerm(loopCounterSymbol(), p);
-            Symbol* s = new Symbol(v->name() + "$init", { Sorts::intSort() }, toSort(v->vtype()));
+            Symbol* s = Signature::fetchOrDeclare(v->name() + "$init", { Sorts::intSort() }, toSort(v->vtype()));
             lhsInit = v->toTerm(Theory::integerConstant(0), p);
             rhsInit = new FuncTerm(s, {p});
         }
@@ -616,7 +614,7 @@ namespace program {
         {
             rhsCounter = v->toTerm(empty);
             lhsCounter = v->toTerm(loopCounterSymbol());
-            Symbol* s = new Symbol(v->name() + "$init", toSort(v->vtype()));
+            Symbol* s = Signature::fetchOrDeclare(v->name() + "$init", toSort(v->vtype()));
             lhsInit = v->toTerm(Theory::integerConstant(0));
             rhsInit = new FuncTerm(s, {});
         }
