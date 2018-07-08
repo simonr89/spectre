@@ -7,7 +7,7 @@ requires 0 <= blength;
 requires blength <= alength;
 requires k <= blength;
 requires i == 0;
-ensures forall int i, 0 <= i & i < k ==> a[i] == b[i];
+ensures forall int j, 0 <= j & j < k ==> a[j] == b[j];
 
 while (i < k) do
 :: true -> a[i] = b[i]; i = i + 1;

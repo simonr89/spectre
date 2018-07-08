@@ -5,7 +5,7 @@ requires 0 <= alength;
 requires 0 <= blength;
 requires blength == alength;
 requires i == 0;
-ensures forall int j, 0 <= j & j < alength ==> a[j] == b[alength - 1 - j];
+ensures forall int j, i == alength & 0 <= j & j < alength ==> a[j] == b[alength - 1 - j];
 
 while (i < alength) do
 :: true -> a[i] = b[alength - 1 - i]; i = i + 1;

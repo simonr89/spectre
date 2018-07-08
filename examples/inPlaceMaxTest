@@ -1,0 +1,11 @@
+int [] a, b;
+int i, alength, v;
+
+requires 0 <= alength;
+requires i == 0;
+ensures forall int j, i==alength & 0 <= j & j < alength ==> (a[j] == v | b[j] == v);
+
+while (i < alength) do
+:: b[i] == v -> i = i + 1;
+:: true      -> a[i] = v; i = i + 1;
+od
