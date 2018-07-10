@@ -33,7 +33,7 @@ namespace program
             for(const auto& keyValuePair : updated)
             {
                 auto var = keyValuePair.first;
-                result += var->name();
+                result += var->name;
                 
                 result += " {";
                 if (updated.at(var))

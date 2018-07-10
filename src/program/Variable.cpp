@@ -37,61 +37,61 @@ namespace program {
     
     
     
-    Term* PVariable::toTerm(const Term* index) const
+    std::shared_ptr<const logic::Term> PVariable::toTerm(std::shared_ptr<const logic::Term> index) const
     {
-        assert(!isArrayType(_type));
+        assert(!isArrayType(type));
 
         if (index)
         {
             // extended symbol
-            if (_type == Type::TY_BOOLEAN)
+            if (type == Type::TY_BOOLEAN)
             {
-                return new PredTerm(_extendedSymbol, { index });
+                return logic::Terms::predTerm(_extendedSymbol, { index });
             }
             else
             {
-                return new FuncTerm(_extendedSymbol, { index });
+                return logic::Terms::funcTerm(_extendedSymbol, { index });
             }
         }
         else
         {
-            if (_type == Type::TY_BOOLEAN)
+            if (type == Type::TY_BOOLEAN)
             {
-                return new PredTerm(_symbol, {});
+                return logic::Terms::predTerm(_symbol, {});
             }
             else
             {
-                return new FuncTerm(_symbol, {});
+                return logic::Terms::funcTerm(_symbol, {});
             }
         }
     }
     
-    Term* PVariable::toTerm(const Term* index, const Term* arrayIndex) const
+    std::shared_ptr<const logic::Term> PVariable::toTerm(std::shared_ptr<const logic::Term> index, std::shared_ptr<const logic::Term> arrayIndex) const
     {
-        assert(isArrayType(_type));
+        assert(isArrayType(type));
         
         if (util::Configuration::instance().arrayTheory().getValue())
         {
             // representation using array axioms
-            Term *array;
+            std::shared_ptr<const logic::Term> array;
             
             if (index)
             {
-                array = new FuncTerm(_extendedSymbol, { index });
+                array = logic::Terms::funcTerm(_extendedSymbol, { index });
             }
             else
             {
-                array = new FuncTerm(_symbol, {});
+                array = logic::Terms::funcTerm(_symbol, {});
             }
             assert(array);
             
-            if (_type == Type::TY_BOOLEAN)
+            if (type == Type::TY_BOOLEAN)
             {
-                return new PredTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT), { array, arrayIndex });
+                return logic::Terms::predTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT), { array, arrayIndex });
             }
             else
             {
-                return new FuncTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT), { array, arrayIndex });
+                return logic::Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_SELECT), { array, arrayIndex });
             }
         }
         else
@@ -99,24 +99,24 @@ namespace program {
             // representation of arrays as function
             if (index)
             {
-                if (_type == Type::TY_BOOLEAN)
+                if (type == Type::TY_BOOLEAN)
                 {
-                    return new PredTerm(_extendedSymbol, { index, arrayIndex });
+                    return logic::Terms::predTerm(_extendedSymbol, { index, arrayIndex });
                 }
                 else
                 {
-                    return new FuncTerm(_extendedSymbol, { index, arrayIndex });
+                    return logic::Terms::funcTerm(_extendedSymbol, { index, arrayIndex });
                 }
             }
             else
             {
-                if (_type == Type::TY_BOOLEAN)
+                if (type == Type::TY_BOOLEAN)
                 {
-                    return new PredTerm(_symbol, { arrayIndex });
+                    return logic::Terms::predTerm(_symbol, { arrayIndex });
                 }
                 else
                 {
-                    return new FuncTerm(_symbol, { arrayIndex });
+                    return logic::Terms::funcTerm(_symbol, { arrayIndex });
                 }
             }
         }
@@ -124,18 +124,18 @@ namespace program {
     
     std::string PVariable::toString() const
     {
-        return _name; // TODO: also print type
+        return name; // TODO: also print type
     }
     
     std::ostream& operator<<(std::ostream& ostr, const PVariable& v)
     {
-        ostr << v._name << " : " << v._type;
+        ostr << v.name << " : " << v.type;
         return ostr;
     }
     
     std::ostream& operator<<(std::ostream& ostr, const QVariable& v)
     {
-        ostr << "X" << v._id << " : " << v._type;
+        ostr << v.name << " : " << v.type;
         return ostr;
     }
 }

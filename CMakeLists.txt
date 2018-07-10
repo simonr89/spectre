@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 3.6.3)
 project (Spectre)
 ################################################################
 
-# require the compiler to use C++11
-set(CMAKE_CXX_STANDARD 11)
+# require the compiler to use C++14
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # add directoy, where we store all custom files for finding libraries which are not build using cmake (i.e. currently nothing), to the search path of cmake

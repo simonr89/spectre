@@ -55,17 +55,14 @@ namespace program {
          * after all properties are collected, the elements of
          * _properties will be dumped to TPTP
          */
-        typedef std::pair<std::string, logic::Formula*> Property;
+        typedef std::pair<std::string, std::shared_ptr<const logic::Formula>> Property;
         std::vector<Property> _properties;
-        void addProperty(std::string s, logic::Formula* f) { _properties.push_back(std::make_pair(s, f)); }
+        void addProperty(std::string s, std::shared_ptr<const logic::Formula> f) { _properties.push_back(std::make_pair(s, f)); }
         
         static unsigned toVampireSort(Type t);
         // the loop counter ($counter)
-        static logic::FuncTerm* loopCounterSymbol();
-        static logic::FuncTerm* constant(int n);
-        
-        static logic::Formula *binaryConj(const logic::Formula* a, const logic::Formula* b);
-        
+        static std::shared_ptr<const logic::FuncTerm> loopCounterSymbol();
+                
         void symbolEliminationAxioms();
         void addSymbolEliminationAxioms(const PVariable *v);
         
@@ -76,39 +73,39 @@ namespace program {
         
         void loopConditionHypothesis();
         
-        logic::Formula* commandToFormula(const GuardedCommand *c);
-        logic::Formula* assignment(const Assignment *a, const logic::Term* i, const logic::Term* succOfI);
-        logic::Formula* arrayAssignment(const Assignment *a, const logic::Term* i, const logic::Term* succOfI);
-        logic::Formula* nonAssignment(const PVariable *v, const logic::Term* i, const logic::Term* succOfI);
-        logic::Formula* arrayNonAssignment(const PVariable *v, const GuardedCommand *gc, const logic::Term* i, const logic::Term* succOfI);
+        std::shared_ptr<const logic::Formula> commandToFormula(const GuardedCommand *c);
+        std::shared_ptr<const logic::Formula> assignment(const Assignment *a, std::shared_ptr<const logic::Term> i, std::shared_ptr<const logic::Term> succOfI);
+        std::shared_ptr<const logic::Formula> arrayAssignment(const Assignment *a, std::shared_ptr<const logic::Term> i, std::shared_ptr<const logic::Term> succOfI);
+        std::shared_ptr<const logic::Formula> nonAssignment(const PVariable *v, std::shared_ptr<const logic::Term> i, std::shared_ptr<const logic::Term> succOfI);
+        std::shared_ptr<const logic::Formula> arrayNonAssignment(const PVariable *v, const GuardedCommand *gc, std::shared_ptr<const logic::Term> i, std::shared_ptr<const logic::Term> succOfI);
         
         // properties derived from strictness and density of scalars
         void monotonicityProps();
         
-        logic::Formula* injectivityProp(const PVariable *v);
+        std::shared_ptr<const logic::Formula> injectivityProp(const PVariable *v);
 
-        logic::Formula* strictProp(const PVariable *v);
-        logic::Formula* nonStrictProp(const PVariable *v);
+        std::shared_ptr<const logic::Formula> strictProp(const PVariable *v);
+        std::shared_ptr<const logic::Formula> nonStrictProp(const PVariable *v);
         
-        logic::Formula* updatePropertyOfVar(const PVariable *v);
+        std::shared_ptr<const logic::Formula> updatePropertyOfVar(const PVariable *v);
         
         //update predicates of arrays
         void updatePredicatesOfArrays();
         
-        logic::Formula* iter(logic::Term* i);
+        std::shared_ptr<const logic::Formula> iter(std::shared_ptr<const logic::Term> i);
         
-        logic::Formula* arrayUpdatePredicate(const PVariable *A,
-                                             const logic::Term* i,
-                                             const logic::Term* p,
-                                             const logic::Term* v);
-        logic::Formula* arrayAssignmentConditions(const Assignment *asg,
+        std::shared_ptr<const logic::Formula> arrayUpdatePredicate(const PVariable *A,
+                                             std::shared_ptr<const logic::Term> i,
+                                             std::shared_ptr<const logic::Term> p,
+                                             std::shared_ptr<const logic::Term> v);
+        std::shared_ptr<const logic::Formula> arrayAssignmentConditions(const Assignment *asg,
                                                   const FExpression *guard,
-                                                  const logic::Term* i,
-                                                  const logic::Term* p,
-                                                  const logic::Term* v);
-        logic::Formula* stabilityAxiom(const PVariable *v);
-        logic::Formula* uniqueUpdateAxiom(const PVariable *v);
-        logic::Formula* lastUpdateAxiom(const PVariable *v);
+                                                  std::shared_ptr<const logic::Term> i,
+                                                  std::shared_ptr<const logic::Term> p,
+                                                  std::shared_ptr<const logic::Term> v);
+        std::shared_ptr<const logic::Formula> stabilityAxiom(const PVariable *v);
+        std::shared_ptr<const logic::Formula> uniqueUpdateAxiom(const PVariable *v);
+        std::shared_ptr<const logic::Formula> lastUpdateAxiom(const PVariable *v);
     };
 }
 

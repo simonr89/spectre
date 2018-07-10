@@ -47,7 +47,7 @@ namespace program {
 
     bool Analyzer::isScalarIncrement(Assignment* a, int &incr)
     {
-        if (a->lhs->varInfo()->vtype() != Type::TY_INTEGER)
+        if (a->lhs->varInfo()->type != Type::TY_INTEGER)
             return false;
         
         incr = 0;

@@ -121,8 +121,9 @@ namespace logic {
             return str;
         }
     }
-    
-    bool compareLVarPointers(LVariable* p1, LVariable* p2) {
+
+    bool compareLVarPointers(const LVariable* p1, const LVariable* p2)
+    {
         return p1->id < p2->id;
     }
     
@@ -130,40 +131,60 @@ namespace logic {
         return p1->id == p2->id;
     }
 
-    std::vector<LVariable*> LVariable::freeVariables() const {
-        LVariable *v = new LVariable(*this);
-        return { v };
-    }
-
-    std::vector<LVariable*> FuncTerm::freeVariables() const {
-        std::vector<LVariable*> freeVars;
-        // collect free vars from all subterms
-        for (const auto& subterm : subterms)
-        {
-            auto freeVarsSubterm = subterm->freeVariables();
-            freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
-        }
-        // sort and remove duplicates
-        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
-        freeVars.erase( unique(freeVars.begin(), freeVars.end(), eqLVarPointers), freeVars.end());
-        
-        return freeVars;
+//    std::vector<std::shared_ptr<const LVariable>> LVariable::freeVariables() const
+//    {
+//        return { std::make_shared<const LVariable>(this) };
+//    }
+//
+//    std::vector<std::shared_ptr<const LVariable>> FuncTerm::freeVariables() const {
+//        std::vector<std::shared_ptr<const LVariable>> freeVars;
+//        // collect free vars from all subterms
+//        for (const auto& subterm : subterms)
+//        {
+//            auto freeVarsSubterm = subterm->freeVariables();
+//            freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
+//        }
+//        // sort and remove duplicates
+//        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
+//        freeVars.erase( unique(freeVars.begin(), freeVars.end(), eqLVarPointers), freeVars.end());
+//
+//        return freeVars;
+//    }
+//
+//    std::vector<std::shared_ptr<const LVariable>> PredTerm::freeVariables() const
+//    {
+//        std::vector<std::shared_ptr<const LVariable>> freeVars;
+//        // collect free vars from all subterms
+//        for (const auto& subterm : subterms)
+//        {
+//            auto freeVarsSubterm = subterm->freeVariables();
+//            freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
+//        }
+//        // sort and remove duplicates
+//        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
+//        freeVars.erase( unique(freeVars.begin(), freeVars.end(), eqLVarPointers), freeVars.end());
+//
+//        return freeVars;
+//    }
+    
+# pragma mark - Terms
+    
+    std::shared_ptr<const LVariable> Terms::lVariable(const Sort* s)
+    {
+        return std::shared_ptr<const LVariable>(new LVariable(s));
     }
     
-    std::vector<LVariable*> PredTerm::freeVariables() const
+    std::shared_ptr<const LVariable> Terms::lVariable(const Sort* s, const std::string name)
     {
-        std::vector<LVariable*> freeVars;
-        // collect free vars from all subterms
-        for (const auto& subterm : subterms)
-        {
-            auto freeVarsSubterm = subterm->freeVariables();
-            freeVars.insert(freeVars.end(), freeVarsSubterm.begin(), freeVarsSubterm.end());
-        }
-        // sort and remove duplicates
-        std::sort(freeVars.begin(), freeVars.end(), compareLVarPointers);
-        freeVars.erase( unique(freeVars.begin(), freeVars.end(), eqLVarPointers), freeVars.end());
-        
-        return freeVars;
+        return std::shared_ptr<const LVariable>(new LVariable(s, name));
+    }
+    std::shared_ptr<const FuncTerm> Terms::funcTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms)
+    {
+        return std::shared_ptr<const FuncTerm>(new FuncTerm(head, subterms));
+    }
+    std::shared_ptr<const PredTerm> Terms::predTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms)
+    {
+        return std::shared_ptr<const PredTerm>(new PredTerm(head, subterms));
     }
 }
 

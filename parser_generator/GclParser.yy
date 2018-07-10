@@ -305,7 +305,7 @@ assignment_list:
     { 
       if (gcla.containsAssignment($1, $2))
       {
-        if (isArrayType(static_cast<Assignment*>($2)->lhs->varInfo()->vtype()))
+        if (isArrayType(static_cast<Assignment*>($2)->lhs->varInfo()->type))
         {
           gcla.addAdditionalGuards($1, $2);
         }
@@ -329,7 +329,7 @@ assignment:
 location:
   ID                { Variable *v = gcla.getVariable($1);
                       if (v) {
-                        if (isArrayType(v->vtype())) {
+                        if (isArrayType(v->type)) {
                           error(@1, "Not a valid location");
                         } else {
                           if (v->isProgramVariable()) {
@@ -344,7 +344,7 @@ location:
                     }
 | ID LBRA expr RBRA { Variable *v = gcla.getVariable($1);
                       if (v) {
-                        if (isArrayType(v->vtype())) {
+                        if (isArrayType(v->type)) {
                           if ($3->etype() == Type::TY_INTEGER) {
                             $$ = LocationExpression::mkArrayApp(static_cast<PVariable*>(v), $3);
                           } else {

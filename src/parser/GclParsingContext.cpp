@@ -22,7 +22,7 @@ namespace parser {
     Variable* GclParsingContext::getVariable(const std::string& name)
     {
         for (auto it1 = _localScopes.begin(); it1 != _localScopes.end(); ++it1) {
-            if ((*it1)->name() == name)
+            if ((*it1)->name == name)
                 return *it1;
         }
         auto it2 = variables.find(name);
@@ -63,7 +63,7 @@ namespace parser {
     void GclParsingContext::addAdditionalGuards(std::pair<FExpression*, std::vector<Assignment*>> pairGuardsAssignments, Assignment* assignment)
     {
         PVariable *lhs = assignment->lhs->varInfo();
-        assert(isArrayType(lhs->vtype()));
+        assert(isArrayType(lhs->type));
         
         for (const auto a : pairGuardsAssignments.second)
         {

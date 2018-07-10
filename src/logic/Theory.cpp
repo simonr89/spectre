@@ -42,42 +42,42 @@ namespace logic {
         }
     }
     
-    FuncTerm* Theory::integerConstant(int i)
+    std::shared_ptr<const FuncTerm> Theory::integerConstant(int i)
     {
         Symbol *s = Signature::fetchOrDeclare(std::to_string(i), Sorts::intSort(), true);
-        return new FuncTerm(s, {});
+        return Terms::funcTerm(s, {});
     }
     
-    PredTerm* Theory::booleanConstant(bool b)
+    std::shared_ptr<const PredTerm> Theory::booleanConstant(bool b)
     {
         Symbol *t = Signature::fetchOrDeclare("bool_true", Sorts::boolSort(), true);
         Symbol *f = Signature::fetchOrDeclare("bool_false", Sorts::boolSort(), true);
 
-        return b ? new PredTerm(t, {}) : new PredTerm(f, {});
+        return b ? Terms::predTerm(t, {}) : Terms::predTerm(f, {});
     }
     
-    FuncTerm* Theory::timeZero()
+    std::shared_ptr<const FuncTerm> Theory::timeZero()
     {
         Symbol* zero = getSymbol(InterpretedSymbol::TIME_ZERO);
-        return new FuncTerm(zero, {});
+        return Terms::funcTerm(zero, {});
     }
     
-    FuncTerm* Theory::timeSucc(Term* term)
+    std::shared_ptr<const FuncTerm> Theory::timeSucc(std::shared_ptr<const Term> term)
     {
         Symbol* succ = getSymbol(InterpretedSymbol::TIME_SUCC);
-        return new FuncTerm(succ, {term});
+        return Terms::funcTerm(succ, {term});
     }
     
-    FuncTerm* Theory::timePre(Term* term)
+    std::shared_ptr<const FuncTerm> Theory::timePre(std::shared_ptr<const Term> term)
     {
         Symbol* pre = getSymbol(InterpretedSymbol::TIME_PRE);
-        return new FuncTerm(pre, {term});
+        return Terms::funcTerm(pre, {term});
     }
     
-    PredTerm* Theory::timeSub(Term* t1, Term* t2)
+    std::shared_ptr<const PredTerm> Theory::timeSub(std::shared_ptr<const Term> t1, std::shared_ptr<const Term> t2)
     {
         Symbol* sub = getSymbol(InterpretedSymbol::TIME_SUB);
-        return new PredTerm(sub, {t1,t2});
+        return Terms::predTerm(sub, {t1,t2});
     }
     
 }

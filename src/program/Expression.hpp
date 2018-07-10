@@ -32,7 +32,7 @@ namespace program {
     virtual Type etype() const = 0;
 
     // this could be a FOOL predicate
-    virtual logic::Term* toTerm(const logic::Term* index) const = 0;
+      virtual std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> index) const = 0;
 
     virtual std::ostream& toStream(std::ostream& ostr) const = 0;
 
@@ -74,7 +74,7 @@ namespace program {
   {
   public:
     
-    virtual logic::Formula* toFormula(const logic::Term* index) const = 0;
+    virtual std::shared_ptr<const logic::Formula> toFormula(std::shared_ptr<const logic::Term> index) const = 0;
   };
   
   class ArithmeticExpression : public Expression
@@ -102,7 +102,7 @@ namespace program {
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire term */
-    logic::Term* toTerm(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term>) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -153,9 +153,9 @@ namespace program {
 
     /** Relativised expression index at iteration, as a FOL
         term. */
-    logic::Term* toTerm(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const override;
 
-    logic::Formula* toFormula(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Formula> toFormula(std::shared_ptr<const logic::Term> i) const override;
 
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -209,9 +209,9 @@ namespace program {
 
     /** Relativised expression index at iteration, as a FOL term
         (possibly a predicate) */
-    logic::Term* toTerm(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const override;
 
-    logic::Formula* toFormula(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Formula> toFormula(std::shared_ptr<const logic::Term> i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -241,15 +241,15 @@ namespace program {
   class VariableExpression : public FExpression
   {
   public:
-    Type etype() const override { return _var->vtype(); }
+    Type etype() const override { return _var->type; }
 
     std::ostream& toStream(std::ostream& ostr) const override;
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const override;
 
-    logic::Formula* toFormula(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Formula> toFormula(std::shared_ptr<const logic::Term> i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
@@ -278,9 +278,9 @@ namespace program {
 
     /** Relativised expression index at iteration, as a vampire
         predicate. */
-    logic::Term* toTerm(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const override;
 
-    logic::Formula* toFormula(const logic::Term* i) const override;
+    std::shared_ptr<const logic::Formula> toFormula(std::shared_ptr<const logic::Term> i) const override;
     
     /** Static initializers, return nullptr if the sub-expressions are
         ill-typed */
