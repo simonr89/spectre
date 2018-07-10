@@ -483,10 +483,12 @@ namespace logic {
     {
         return std::shared_ptr<const EqualityFormula>(new EqualityFormula(polarity, left, right));
     }
+    
     std::shared_ptr<const NegationFormula>  Formulas::negationFormula(std::shared_ptr<const Formula> f)
     {
         return std::shared_ptr<const NegationFormula>(new NegationFormula(f));
     }
+    
     std::shared_ptr<const ConjunctionFormula> Formulas::conjunctionFormula(std::vector<std::shared_ptr<const Formula>> conj)
     {
         return std::shared_ptr<const ConjunctionFormula>(new ConjunctionFormula(conj));

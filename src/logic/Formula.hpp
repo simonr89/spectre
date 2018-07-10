@@ -9,20 +9,12 @@ namespace logic {
     
     class Formula {
     public:
-
-//        std::shared_ptr<const Formula> quantify(bool univ = true) const;
-
         std::string declareTPTP(std::string decl, bool conjecture = false) const;
         std::string declareSMTLIB(std::string decl, bool conjecture = false) const;
-
-        // returns a vector of the unbound variables of the formula
-//        virtual std::vector<std::shared_ptr<const LVariable>> freeVariables() const = 0;
         
         virtual std::string toTPTP() const = 0;
         virtual std::string toSMTLIB(unsigned indentation = 0) const = 0;
         virtual std::string prettyString(unsigned indentation = 0) const = 0;
-
-    protected:
     };
     
     class PredicateFormula : public Formula
@@ -31,14 +23,12 @@ namespace logic {
         
     public:
         PredicateFormula(std::shared_ptr<const PredTerm> p) : p(p) {}
-        
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
-        
+
+        const std::shared_ptr<const PredTerm> p;
+
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
-        
-        const std::shared_ptr<const PredTerm> p;
     };
     
     class EqualityFormula : public Formula
@@ -56,8 +46,6 @@ namespace logic {
         const std::shared_ptr<const Term> left;
         const std::shared_ptr<const Term> right;
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
-
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
@@ -71,13 +59,11 @@ namespace logic {
         ConjunctionFormula(std::vector<std::shared_ptr<const Formula>> conj) : conj(conj){}
         ConjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> conj) : conj(conj){}
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
-        
+        const std::vector<std::shared_ptr<const Formula>> conj;
+
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
-
-        const std::vector<std::shared_ptr<const Formula>> conj;
     };
     
     class DisjunctionFormula : public Formula
@@ -88,13 +74,11 @@ namespace logic {
         DisjunctionFormula(std::vector<std::shared_ptr<const Formula>> disj) : disj(disj){}
         DisjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> disj) : disj(disj){}
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
+        const std::vector<std::shared_ptr<const Formula>> disj;
 
         std::string toTPTP() const override ;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
-
-        const std::vector<std::shared_ptr<const Formula>> disj;
     };
     
     class NegationFormula : public Formula
@@ -104,13 +88,12 @@ namespace logic {
     public:
         NegationFormula(std::shared_ptr<const Formula> f) : f(f) {}
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
+        const std::shared_ptr<const Formula> f;
 
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         
-        const std::shared_ptr<const Formula> f;
     };
     
     class ExistentialFormula : public Formula
@@ -121,14 +104,12 @@ namespace logic {
         ExistentialFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
         ExistentialFormula(std::initializer_list<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
-
+        const std::vector<std::shared_ptr<const LVariable>> vars;
+        const std::shared_ptr<const Formula> f;
+        
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
-
-        const std::vector<std::shared_ptr<const LVariable>> vars;
-        const std::shared_ptr<const Formula> f;
     };
     
     class UniversalFormula : public Formula
@@ -138,15 +119,13 @@ namespace logic {
     public:
         UniversalFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
         UniversalFormula(std::initializer_list<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
-        
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
+
+        const std::vector<std::shared_ptr<const LVariable>> vars;
+        const std::shared_ptr<const Formula> f;
         
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
-        
-        const std::vector<std::shared_ptr<const LVariable>> vars;
-        const std::shared_ptr<const Formula> f;
     };
     
     class ImplicationFormula : public Formula
@@ -156,14 +135,12 @@ namespace logic {
     public:
         ImplicationFormula(std::shared_ptr<const Formula> f1, std::shared_ptr<const Formula> f2) : f1(f1), f2(f2) {}
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
-
+        const std::shared_ptr<const Formula> f1;
+        const std::shared_ptr<const Formula> f2;
+        
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
-
-        const std::shared_ptr<const Formula> f1;
-        const std::shared_ptr<const Formula> f2;
     };
     
     inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }
