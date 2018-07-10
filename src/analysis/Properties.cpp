@@ -323,7 +323,7 @@ namespace program {
         InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER_EQUAL
                                     : InterpretedSymbol::INT_LESS_EQUAL);
-        auto imp = (Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+        auto imp = Formulas::implicationFormula(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
                                                                  { i, j })),
                     Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
                                                                  { v->toTerm(i), v->toTerm(j) })));
