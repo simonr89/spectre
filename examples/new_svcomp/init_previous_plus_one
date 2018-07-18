@@ -1,0 +1,16 @@
+// initialize each position in the array to the value of the previous position + 1, starting with value v for the first element
+// similar to https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_seq_init_true-unreach-call_ground.c
+
+int [] a;
+int i, alength, v;
+
+requires 0 <= alength;
+
+requires i == 0;
+requires a[0] == v;
+
+ensures forall int j, 0 <= j & j + 1 < alength ==> a[j] <= a[j + 1];
+
+while (i + 1 < alength) do
+:: true -> a[i + 1] = a[i] + 1; i = i + 1;
+od
