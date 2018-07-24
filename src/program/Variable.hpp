@@ -27,7 +27,7 @@ namespace program {
         const Type type;
         
         virtual bool isProgramVariable() = 0;
-        virtual std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const = 0;
+        virtual logic::TermPtr toTerm(logic::TermPtr i) const = 0;
         
     protected:
         Variable(const std::string& name, const Type ty) : name(name), type(ty) {}
@@ -57,10 +57,10 @@ namespace program {
          * constructed, since the arity of the symbol depends on the value
          * of 'updated'
          */
-        std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const override;
+        logic::TermPtr toTerm(logic::TermPtr i) const override;
 
         /** Same as above for array variables */
-        std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i, std::shared_ptr<const logic::Term> arrayIndex) const;
+        logic::TermPtr toTerm(logic::TermPtr i, logic::TermPtr arrayIndex) const;
 
         friend std::ostream& operator<<(std::ostream& ostr, const PVariable& v);
         
@@ -99,14 +99,14 @@ namespace program {
         
         bool isProgramVariable() override { return false; }
         
-         std::shared_ptr<const logic::Term> toTerm(std::shared_ptr<const logic::Term> i) const override { return lvariable; }
+        logic::TermPtr toTerm(logic::TermPtr i) const override { return lvariable; }
         
 
-        std::shared_ptr<const logic::LVariable> toVar() { return lvariable; }
+        logic::LVariablePtr toVar() { return lvariable; }
         
         friend std::ostream& operator<<(std::ostream& ostr, const QVariable& v);
         
-        std::shared_ptr<const logic::LVariable> lvariable;
+        logic::LVariablePtr lvariable;
         
     }; // class QVariable
     

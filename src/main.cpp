@@ -10,7 +10,6 @@
 
 #include "analysis/Analyzer.hpp"
 #include "analysis/Properties.hpp"
-#include "analysis/PropertiesTime.hpp"
 
 #include "program/Program.hpp"
 
@@ -87,17 +86,13 @@ int main(int argc, char *argv[])
                 util::Output::stream() << util::Output::nocomment;
 
                 // create properties and dump them to TPTP/SMTLIB
-                if (!util::Configuration::instance().timepoints().getValue())
+                program::Properties props(*p, aRes);
+                props.analyze();
+                if (util::Configuration::instance().outputFormat().getValue() == "tptp")
                 {
-                    program::Properties props(*p, aRes);
-                    props.analyze();
-                    props.output();
-                }
-                else
-                {
-                    program::PropertiesTime props(*p, aRes);
-                    props.analyze();
-                    props.output();
+                    props.outputTPTP();
+                } else {
+                    props.outputSMTLIB();
                 }
             }
         }

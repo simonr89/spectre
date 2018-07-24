@@ -131,13 +131,13 @@ namespace logic {
         return p1->id == p2->id;
     }
 
-//    std::vector<std::shared_ptr<const LVariable>> LVariable::freeVariables() const
+//    std::vector<LVariablePtr> LVariable::freeVariables() const
 //    {
 //        return { std::make_shared<const LVariable>(this) };
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> FuncTerm::freeVariables() const {
-//        std::vector<std::shared_ptr<const LVariable>> freeVars;
+//    std::vector<LVariablePtr> FuncTerm::freeVariables() const {
+//        std::vector<LVariablePtr> freeVars;
 //        // collect free vars from all subterms
 //        for (const auto& subterm : subterms)
 //        {
@@ -151,9 +151,9 @@ namespace logic {
 //        return freeVars;
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> PredTerm::freeVariables() const
+//    std::vector<LVariablePtr> PredTerm::freeVariables() const
 //    {
-//        std::vector<std::shared_ptr<const LVariable>> freeVars;
+//        std::vector<LVariablePtr> freeVars;
 //        // collect free vars from all subterms
 //        for (const auto& subterm : subterms)
 //        {
@@ -169,22 +169,24 @@ namespace logic {
     
 # pragma mark - Terms
     
-    std::shared_ptr<const LVariable> Terms::lVariable(const Sort* s)
+    LVariablePtr Terms::lVariable(const Sort* s)
     {
-        return std::shared_ptr<const LVariable>(new LVariable(s));
+        return LVariablePtr(new LVariable(s));
     }
     
-    std::shared_ptr<const LVariable> Terms::lVariable(const Sort* s, const std::string name)
+    LVariablePtr Terms::lVariable(const Sort* s, const std::string name)
     {
-        return std::shared_ptr<const LVariable>(new LVariable(s, name));
+        return LVariablePtr(new LVariable(s, name));
     }
-    std::shared_ptr<const FuncTerm> Terms::funcTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms)
+    
+    FuncTermPtr Terms::funcTerm(const Symbol* head, std::initializer_list<TermPtr> subterms)
     {
-        return std::shared_ptr<const FuncTerm>(new FuncTerm(head, subterms));
+        return FuncTermPtr(new FuncTerm(head, subterms));
     }
-    std::shared_ptr<const PredTerm> Terms::predTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms)
+    
+    PredTermPtr Terms::predTerm(const Symbol* head, std::initializer_list<TermPtr> subterms)
     {
-        return std::shared_ptr<const PredTerm>(new PredTerm(head, subterms));
+        return PredTermPtr(new PredTerm(head, subterms));
     }
 }
 

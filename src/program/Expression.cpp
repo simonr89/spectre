@@ -5,6 +5,8 @@
 #include "Theory.hpp"
 #include "Options.hpp"
 
+using namespace logic;
+
 namespace program {
     
     Expression::~Expression() {
@@ -102,7 +104,7 @@ namespace program {
      * is empty, then the expression is in the non extended language (as
      * understood by the user)
      */
-    std::shared_ptr<const logic::Term> ArithmeticExpression::toTerm(std::shared_ptr<const logic::Term> index) const
+    TermPtr ArithmeticExpression::toTerm(TermPtr index) const
     {
         using namespace logic;
         
@@ -141,7 +143,7 @@ namespace program {
         }
     }
     
-    std::shared_ptr<const logic::Term> LocationExpression::toTerm(std::shared_ptr<const logic::Term> index) const
+    TermPtr LocationExpression::toTerm(TermPtr index) const
     {
         switch (_kind) {
             case LocationExprKind::EXP_VAR_LOC:
@@ -157,12 +159,12 @@ namespace program {
         return nullptr;
     }
     
-    std::shared_ptr<const logic::Term> VariableExpression::toTerm(std::shared_ptr<const logic::Term> index) const
+    TermPtr VariableExpression::toTerm(TermPtr index) const
     {
         return _var->toTerm(index);
     }
     
-    std::shared_ptr<const logic::Term> BooleanExpression::toTerm(std::shared_ptr<const logic::Term> index) const
+    TermPtr BooleanExpression::toTerm(TermPtr index) const
     {
         //TODO check original implementation
         //return toFormula(index);
@@ -170,13 +172,13 @@ namespace program {
         return nullptr;
     }
     
-    std::shared_ptr<const logic::Term> QuantifiedExpression::toTerm(std::shared_ptr<const logic::Term> index) const
+    TermPtr QuantifiedExpression::toTerm(TermPtr index) const
     {
         assert(0);
         return nullptr;
     }
     
-    std::shared_ptr<const logic::Formula> LocationExpression::toFormula(std::shared_ptr<const logic::Term> index) const
+    FormulaPtr LocationExpression::toFormula(TermPtr index) const
     {
         switch (_kind) {
             case LocationExprKind::EXP_VAR_LOC:
@@ -192,7 +194,7 @@ namespace program {
         return nullptr;
     }
     
-    std::shared_ptr<const logic::Formula> BooleanExpression::toFormula(std::shared_ptr<const logic::Term> index) const
+    FormulaPtr BooleanExpression::toFormula(TermPtr index) const
     {
         using namespace logic;
         
@@ -244,14 +246,14 @@ namespace program {
         return nullptr;
     }
     
-    std::shared_ptr<const logic::Formula> VariableExpression::toFormula(std::shared_ptr<const logic::Term> index) const
+    FormulaPtr VariableExpression::toFormula(TermPtr index) const
     {
         return std::make_shared<const logic::PredicateFormula>(std::dynamic_pointer_cast<const logic::PredTerm>(_var->toTerm(index)));
     }
     
-    std::shared_ptr<const logic::Formula> QuantifiedExpression::toFormula(std::shared_ptr<const logic::Term> index) const
+    FormulaPtr QuantifiedExpression::toFormula(TermPtr index) const
     {
-        std::shared_ptr<const logic::Formula> f = dynamic_cast<FExpression*>(_children[0])->toFormula(index);
+        FormulaPtr f = dynamic_cast<FExpression*>(_children[0])->toFormula(index);
         auto vars = {_var->toVar()};
 
         assert(_kind == QuantifiedExprKind::EXP_FORALL || _kind == QuantifiedExprKind::EXP_EXISTS);

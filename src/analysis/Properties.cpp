@@ -16,55 +16,43 @@ namespace program {
 
     void Properties::analyze()
     {
+        // main axiom
+        stepAxiom();
+
+        // trace lemmas
         constnessProps();
         monotonicityProps();
         translateAssignments();
         updatePredicatesOfArrays();
         loopCounterHypothesis();
         loopConditionHypothesis();
-        // if in the verification mode, add loop exit property to properties
+
+        // goal
         if (util::Configuration::instance().mainMode().getValue() == "verification")
         {
-            std::shared_ptr<const Formula> f = _loop.loopCondition->toFormula(loopCounterSymbol());
+            FormulaPtr f = loop.loopCondition->toFormula(loopCounterSymbol());
             addProperty("loop_exit", Formulas::negationFormula(f));
-        }
-        
-        if (util::Configuration::instance().mainMode().getValue() == "generation") {
+        } else if (util::Configuration::instance().mainMode().getValue() == "generation") {
             symbolEliminationAxioms();
+        } else if (util::Configuration::instance().mainMode().getValue() == "termination") {
+            //TODO
         }
     }
     
-    void Properties::output()
+    void Properties::outputTPTP()
     {
-        assert(util::Configuration::instance().outputFormat().getValue() == "tptp" ||
-               util::Configuration::instance().outputFormat().getValue() == "smtlib");
-
         std::ostream& ostr = util::Output::stream();
         
         // output sort declarations
         for(const auto& pair : Sorts::nameToSort())
         {
-            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
-            {
-                ostr << declareSortTPTP(*pair.second);
-            }
-            else
-            {
-                ostr << declareSortSMTLIB(*pair.second);
-            }
+            ostr << declareSortTPTP(*pair.second);
         }
         
         // output symbol definitions
         for (const auto& symbol : Signature::signature())
         {
-            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
-            {
-                ostr << symbol->declareSymbolTPTP();
-            }
-            else
-            {
-                ostr << symbol->declareSymbolSMTLIB();
-            }
+            ostr << symbol->declareSymbolTPTP();
         }
         
         // if in generation-mode, also output symbol colors
@@ -74,87 +62,130 @@ namespace program {
             {
                 if (symbol->colored)
                 {
-                    if (util::Configuration::instance().outputFormat().getValue() == "tptp")
-                    {
-                        ostr << symbol->declareSymbolColorTPTP();
-                    }
-                    else
-                    {
-                        ostr << symbol->declareSymbolColorSMTLIB();
-                    }
+                    ostr << symbol->declareSymbolColorTPTP();
                 }
             }
         }
-        
+
+        // TODO remove this and put pre-conditions in the verification goal
         // output preconditions (at loop iteration 0)
         int i=0;
-        for (const auto& precondition : _preconditions)
+        for (const auto& precondition : preconditions)
         {
-            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
-            {
-                ostr << precondition->toFormula(Theory::integerConstant(0))->declareTPTP("precondition_" + std::to_string(i++)) << std::endl;
-            }
-            else
-            {
-                ostr << precondition->toFormula(Theory::integerConstant(0))->declareSMTLIB("precondition_" + std::to_string(i++)) << std::endl;
-            }
+            FormulaPtr f = precondition->toFormula(Theory::timeZero());
+            ostr << f->declareTPTP("precondition_" + std::to_string(i++)) << std::endl;
         }
         
         // output all properties
-        for (auto it = _properties.begin(); it != _properties.end(); ++it)
+        for (auto it = properties.begin(); it != properties.end(); ++it)
         {
             Property p = *it;
-            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
-            {
-                ostr << p.second->declareTPTP(p.first) << std::endl;
-            }
-            else
-            {
-                ostr << p.second->declareSMTLIB(p.first) << std::endl;
-            }
+            ostr << p.second->declareTPTP(p.first) << std::endl;
         }
-        
+
+        // TODO remove this and put post-conditions in the verification goal
         // if in verification mode,
         if (util::Configuration::instance().mainMode().getValue() == "verification")
         {
             // conjoin post-conditions to conjecture
-            std::vector<std::shared_ptr<const Formula>> conjuncts;
-            for (const auto& postcondition : _postconditions)
+            std::vector<FormulaPtr> conjuncts;
+            for (const auto& postcondition : postconditions)
             {
                 conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
             }
             auto conjecture = Formulas::conjunctionFormula(conjuncts);
             
             // output conjecture
-            if (util::Configuration::instance().outputFormat().getValue() == "tptp")
-            {
-                ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
-            }
-            else
-            {
-                ostr << conjecture->declareSMTLIB("post_conditions", true) << std::endl;
-            }
+            ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
         }
     }
 
+    void Properties::outputSMTLIB()
+    {
+        std::ostream& ostr = util::Output::stream();
+        
+        // output sort declarations
+        for(const auto& pair : Sorts::nameToSort())
+        {
+                ostr << declareSortSMTLIB(*pair.second);
+        }
+        
+        // output symbol definitions
+        for (const auto& symbol : Signature::signature())
+        {
+            ostr << symbol->declareSymbolSMTLIB();
+        }
+        
+        // if in generation-mode, also output symbol colors
+        if (util::Configuration::instance().mainMode().getValue() == "generation")
+        {
+            for (const auto& symbol : Signature::signature())
+            {
+                if (symbol->colored)
+                {
+                    ostr << symbol->declareSymbolColorSMTLIB();
+                }
+            }
+        }
+
+        // TODO remove this and put pre-conditions in the verification goal
+        // output preconditions (at loop iteration 0)
+        int i=0;
+        for (const auto& precondition : preconditions)
+        {
+            FormulaPtr f = precondition->toFormula(Theory::timeZero());
+            ostr << f->declareSMTLIB("precondition_" + std::to_string(i++)) << std::endl;
+        }
+        
+        // output all properties
+        for (auto it = properties.begin(); it != properties.end(); ++it)
+        {
+            Property p = *it;
+            ostr << p.second->declareSMTLIB(p.first) << std::endl;
+        }
+
+        // TODO remove this and put post-conditions in the verification goal
+        // if in verification mode,
+        if (util::Configuration::instance().mainMode().getValue() == "verification")
+        {
+            // conjoin post-conditions to conjecture
+            std::vector<FormulaPtr> conjuncts;
+            for (const auto& postcondition : postconditions)
+            {
+                conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
+            }
+            auto conjecture = Formulas::conjunctionFormula(conjuncts);
+            
+            // output conjecture
+            ostr << conjecture->declareSMTLIB("post_conditions", true) << std::endl;
+        }
+    }
+    
+#pragma mark - Main axiom
+
+    void Properties::stepAxiom()
+    {
+        //TODO
+    }
 
 #pragma mark - General Properties
 
     void Properties::constnessProps()
     {
-        for (const auto& var : _vars)
+        for (const auto& var : vars)
         {
-            if (!_updated.at(var))
+            if (!updated.at(var))
             {
-                auto it = Terms::lVariable(Sorts::intSort(), "It");
+                Sort* iterSort = (Sorts::timeSort());
+                LVariablePtr it = Terms::lVariable(iterSort, "It");
                 
-                std::shared_ptr<const Formula> eq;
+                FormulaPtr eq;
                 // eq(it) := x(it) = x(0)
                 if (!isArrayType(var->type))
                 {
                     
                     Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "0", toSort(var->type));
-                    auto var0 = Terms::funcTerm(var0Symbol, {});
+                    TermPtr var0 = Terms::funcTerm(var0Symbol, {});
                     
                     eq = Formulas::equalityFormula(true,
                                              var->toTerm(it),
@@ -163,47 +194,52 @@ namespace program {
                 // eq(i) := forall p. x(i,p) = x(0,p)
                 else
                 {
-                    // suppport for other options not implemented yet
+                    // TODO suppport for other options not implemented yet
                     assert(!util::Configuration::instance().arrayTheory().getValue());
                     
-                    auto p = Terms::lVariable(Sorts::intSort(), "P");
+                    LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
                     
                     Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"0", { Sorts::intSort() }, toSort(var->type));
-                    auto var0 = Terms::funcTerm(var0Symbol, {p});
+                    TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
                     
-                    auto eqWithoutQuantifiers = Formulas::equalityFormula(true,
-                                                                        var->toTerm(it, p),
-                                                                        var0);
+                    FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true,
+                                                                                var->toTerm(it, p),
+                                                                                var0);
                     eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
                 }
                 
                 // forall i. eq(i)
-                auto f = Formulas::universalFormula({it}, eq);
+                FormulaPtr f = Formulas::universalFormula({it}, eq);
                 
                 // add property
-                addProperty("not_updated_" + var->name, f);
+                addProperty("notupdated_" + var->name, f);
             }
         }
     }
 
-    std::shared_ptr<const FuncTerm> Properties::loopCounterSymbol()
+    FuncTermPtr Properties::loopCounterSymbol()
     {
         // initialization note that the syntax of the guarded command
         // language does not allow special characters such as $
-        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::intSort(), false, true);
+        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::timeSort(), false, true);
         
         return Terms::funcTerm(s, {});
     }
     
     
     // 0 <= i < n
-    std::shared_ptr<const Formula> Properties::iter(std::shared_ptr<const Term> i)
+    FormulaPtr Properties::iter(TermPtr i)
     {
-        return Formulas::conjunctionFormula( {
-            Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                              { i, Theory::integerConstant(0) } )),
-            Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
-                                              { loopCounterSymbol(), i })) } );
+        // TODO actually 0 <= i should be enough, and needed only if time is represented by int
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            return Formulas::conjunctionFormula({
+                    Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                               { i, Theory::integerConstant(0) } )),
+                    Formulas::predicateFormula(Theory::timeLt(i, loopCounterSymbol())) } );
+        } else {
+            return Formulas::predicateFormula(Theory::timeLt(i, loopCounterSymbol()));
+        }
     }
     
 #pragma mark - Monotonicity Properties
@@ -214,119 +250,154 @@ namespace program {
     
     void Properties::monotonicityProps()
     {
-        for (auto it = _vars.begin(); it != _vars.end(); ++it) {
+        for (auto it = vars.begin(); it != vars.end(); ++it) {
             const PVariable *v = (*it);
-            if(_monotonic.at(v) == Monotonicity::OTHER)
+            if(monotonic.at(v) == Monotonicity::OTHER)
                 continue;
-            
-            if (_dense.at(v))
+
+            if (util::Configuration::instance().timepoints().getValue())
             {
-                if (_strict.at(v))
+                if (dense.at(v))
                 {
-                    // don't add updatePropertyOfVar here since dense prop is
-                    // stronger and does not have an existential quantifier
-                    //addProperty("update_" + v->name, updatePropertyOfVar(v));
-                    addProperty("dense_strict_" + v->name, denseStrictProp(v)); // also implies strictProp
+                    if (strict.at(v))
+                    {
+                        // don't add updatePropertyOfVar here since dense prop is
+                        // stronger and does not have an existential quantifier
+                        //addProperty("update_" + v->name, updatePropertyOfVar(v));
+                        addProperty("densestrict_" + v->name, denseStrictProp(v)); // also implies strictProp
+                    } else {
+                        addProperty("update_" + v->name, updatePropertyOfVar(v));
+                        addProperty("nonstrict_" + v->name, nonStrictProp(v));
+                        addProperty("dense_nonstrict" + v->name, denseNonStrictProp(v));
+                    }
                 } else {
                     addProperty("update_" + v->name, updatePropertyOfVar(v));
-                    addProperty("non_strict_" + v->name, nonStrictProp(v));
-                    addProperty("dense_non_strict" + v->name, denseNonStrictProp(v));
+                    if (strict.at(v)) {
+                        addProperty("strict_" + v->name, strictProp(v));
+                    } else {
+                        addProperty("nonstrict_" + v->name, nonStrictProp(v));
+                    }
                 }
             } else {
+                // term algebra representation of iteration requires
+                // different monotonicity props
                 addProperty("update_" + v->name, updatePropertyOfVar(v));
-                if (_strict.at(v)) {
+
+                if (strict.at(v))
+                {
+                    addProperty("injectivity_" + v->name, injectivityProp(v));
                     addProperty("strict_" + v->name, strictProp(v));
-                } else {
-                    addProperty("non_strict_" + v->name, nonStrictProp(v));
+                }
+                else
+                {
+                    addProperty("nonstrict_" + v->name, nonStrictProp(v));
                 }
             }
         }
     }
     
     /** forall i, v(i) = v(0) + i [v(0) - i if v is decreasing] */
-    std::shared_ptr<const logic::Formula> Properties::denseStrictProp(const PVariable *v)
+    FormulaPtr Properties::denseStrictProp(const PVariable *v)
     {
-        assert(_updated.at(v));
-        assert(_monotonic.at(v) != Monotonicity::OTHER);
-        assert(_dense.at(v));
-        assert(_strict.at(v));
+        assert(updated.at(v));
+        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(dense.at(v));
+        assert(strict.at(v));
+        assert(!util::Configuration::instance().timepoints().getValue());
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It");
+        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It");
         
-        InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_PLUS
                                     : InterpretedSymbol::INT_MINUS);
-        auto v0 = v->toTerm(Theory::integerConstant(0));
-        auto lhsTerm = v->toTerm(i);
-        auto rhsTerm = Terms::funcTerm(Theory::getSymbol(interp), {v0, i});
-        auto eq = Formulas::equalityFormula(true, lhsTerm, rhsTerm);
+        TermPtr v0 = v->toTerm(Theory::integerConstant(0));
+        TermPtr lhsTerm = v->toTerm(i);
+        TermPtr rhsTerm = Terms::funcTerm(Theory::getSymbol(interp), {v0, i});
+        FormulaPtr eq = Formulas::equalityFormula(true, lhsTerm, rhsTerm);
         return Formulas::universalFormula({i}, eq);
     }
     
-    /** forall i j, j > i => v(j) > v(i) [v(j) < v(i) if v is
+    /** forall i j, i < j => v(i) < v(j) [v(j) < v(i) if v is
      decreasing] */
-    std::shared_ptr<const logic::Formula> Properties::strictProp(const PVariable *v)
+    FormulaPtr Properties::strictProp(const PVariable *v)
     {
-        assert(_updated.at(v));
-        assert(_monotonic.at(v) != Monotonicity::OTHER);
-        assert(_dense.at(v));
-        assert(_strict.at(v));
-        
-        auto i = Terms::lVariable(Sorts::intSort(), "It1");
-        auto j = Terms::lVariable(Sorts::intSort(), "It2");
-        
-        InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
-                                    ? InterpretedSymbol::INT_GREATER
-                                    : InterpretedSymbol::INT_LESS);
-        auto imp = (Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
-                                                                 {j, i})),
-                    Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
-                                                                 { v->toTerm(j), v->toTerm(i) })));
-        return Formulas::universalFormula({i,j}, imp);
+        assert(updated.at(v));
+        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(strict.at(v));
+
+        Sort* iterSort = (Sorts::timeSort());
+        LVariablePtr i = Terms::lVariable(iterSort, "It1");
+        LVariablePtr j = Terms::lVariable(iterSort, "It2");
+
+        FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
+
+        InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
+                                    ? InterpretedSymbol::INT_LESS
+                                    : InterpretedSymbol::INT_GREATER);
+        FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
+                                                                   { v->toTerm(i), v->toTerm(j) }));
+        return Formulas::universalFormula({i,j}, Formulas::implicationFormula(f1, f2));
+    }
+
+    /** forall i j, i < j => v(i) <= v(j) [v(j) <= v(i) if v is
+        decreasing] */
+    FormulaPtr Properties::nonStrictProp(const PVariable *v)
+    {
+        assert(updated.at(v));
+        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(!strict.at(v));
+
+        Sort* iterSort = (Sorts::timeSort());
+        LVariablePtr i = Terms::lVariable(iterSort, "It1");
+        LVariablePtr j = Terms::lVariable(iterSort, "It2");
+
+        FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
+
+        InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
+                                    ? InterpretedSymbol::INT_LESS_EQUAL
+                                    : InterpretedSymbol::INT_GREATER_EQUAL);
+        FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
+                                                                   { v->toTerm(i), v->toTerm(j) }));
+        return Formulas::universalFormula({i,j}, Formulas::implicationFormula(f1, f2));
     }
     
-    /** forall i j, j >= i => v(i) + j >= v(j) + i [v(j) + j >= v(i) + i
-     if v is decreasing] */
-    std::shared_ptr<const logic::Formula> Properties::denseNonStrictProp(const PVariable *v)
+    /** forall i j, i < j => v(j) + i < v(i) + j [v(i) + i < v(j) + j
+        if v is decreasing] */
+    FormulaPtr Properties::denseNonStrictProp(const PVariable *v)
     {
-        assert(_updated.at(v));
-        assert(_monotonic.at(v) != Monotonicity::OTHER);
-        assert(_dense.at(v));
-        assert(!_strict.at(v));
+        assert(updated.at(v));
+        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(dense.at(v));
+        assert(!strict.at(v));
+        assert(!util::Configuration::instance().timepoints().getValue());
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It1");
-        auto j = Terms::lVariable(Sorts::intSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It2");
         
-        bool incr = (_monotonic.at(v) == Monotonicity::INC);
-        auto lhs = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
+        FormulaPtr f1 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
+                                                                   { i, j }));
+        bool incr = (monotonic.at(v) == Monotonicity::INC);
+        TermPtr t1 = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
+                                     { incr ? v->toTerm(j) : v->toTerm(i) , i });
+        TermPtr t2 = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
                                      { incr ? v->toTerm(i) : v->toTerm(j), j });
-        auto rhs = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
-                                     { incr ? v->toTerm(j) : v->toTerm(i), i });
-        auto imp = Formulas::implicationFormula(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                                 { j, i })),
-                                                 Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                                 { lhs, rhs })));
-        return Formulas::universalFormula({i,j}, imp);
+        FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
+                                                                   { t1, t2 }));
+        return Formulas::universalFormula({i,j}, Formulas::implicationFormula(f1, f2));
     }
-    
-    /** forall i j, j >= i => v(j) >= v(i) [v(j) <= v(i) if v is
-     decreasing] */
-    std::shared_ptr<const logic::Formula> Properties::nonStrictProp(const PVariable *v)
+
+    /** forall i j. (v(i) = v(j) => i = j ) */
+    FormulaPtr Properties::injectivityProp(const PVariable *v)
     {
-        assert(_updated.at(v));
-        assert(_monotonic.at(v) != Monotonicity::OTHER);
-        assert(!_strict.at(v));
+        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(updated.at(v));
+        assert(strict.at(v));
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It1");
-        auto j = Terms::lVariable(Sorts::intSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
         
-        InterpretedSymbol interp = (_monotonic.at(v) == Monotonicity::INC
-                                    ? InterpretedSymbol::INT_GREATER_EQUAL
-                                    : InterpretedSymbol::INT_LESS_EQUAL);
-        auto imp = Formulas::implicationFormula(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                                 { i, j })),
-                    Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
-                                                                 { v->toTerm(i), v->toTerm(j) })));
+        FormulaPtr imp = Formulas::implicationFormula(Formulas::equalityFormula(true, v->toTerm(i), v->toTerm(j)),
+                                                      Formulas::equalityFormula(true, i, j));
         return Formulas::universalFormula({i,j}, imp);
     }
     
@@ -342,33 +413,32 @@ namespace program {
      *  where if v is dense pred <=> v(i) = x
      *  and otherwise       pred <=> x >= v(i) & v(i+1) > x [resp. <=, < if decreasing]
      */
-    std::shared_ptr<const logic::Formula> Properties::updatePropertyOfVar(const PVariable *v)
+    FormulaPtr Properties::updatePropertyOfVar(const PVariable *v)
     {
-        assert(_updated.at(v));
-        assert(_monotonic.at(v) != Monotonicity::OTHER);
+        assert(updated.at(v));
+        assert(monotonic.at(v) != Monotonicity::OTHER);
         
-        auto x = Terms::lVariable(Sorts::intSort(), "X");
-        auto i = Terms::lVariable(Sorts::intSort(), "It");
-        auto iPlusOne = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
-                                          {i, Theory::integerConstant(1)});
+        LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        TermPtr iPlusOne = Theory::timeSucc(i);
         
-        InterpretedSymbol geOrLe = (_monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER_EQUAL
                                     : InterpretedSymbol::INT_LESS_EQUAL);
-        InterpretedSymbol gtOrLt = (_monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol gtOrLt = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER
                                     : InterpretedSymbol::INT_LESS);
         
         // build the disjunction
-        std::vector<std::shared_ptr<const Formula>> disj {};
-        for (const auto& command : _loop.commands)
+        std::vector<FormulaPtr> disj {};
+        for (const auto& command : loop.commands)
         {
             // only take into account commands that do affect v
             if (!(command)->findAssignment(*v))
                 continue;
             
-            std::vector<std::shared_ptr<const Formula>> conj { (command)->guard->toFormula(i) } ;
-            if (_dense.at(v))
+            std::vector<FormulaPtr> conj { (command)->guard->toFormula(i) } ;
+            if (dense.at(v))
             {
                 conj.push_back(Formulas::equalityFormula(true, v->toTerm(i), x));
             }
@@ -385,13 +455,13 @@ namespace program {
         // since v is monotonic, there should be at least one guard that updates it
         assert(disj.size() > 0);
         
-        auto f = Formulas::conjunctionFormula( { iter(i), Formulas::disjunctionFormula(disj) } );
+        FormulaPtr f = Formulas::conjunctionFormula( { iter(i), Formulas::disjunctionFormula(disj) } );
         
-        auto p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                    { x, v->toTerm(Theory::integerConstant(0)) });
-        auto p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
-                                    { v->toTerm(loopCounterSymbol()), x });
-        std::vector<std::shared_ptr<const Formula>> conds { Formulas::predicateFormula(p1), Formulas::predicateFormula(p2) };
+        PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                         { x, v->toTerm(Theory::timeZero()) });
+        PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
+                                         { v->toTerm(loopCounterSymbol()), x });
+        std::vector<FormulaPtr> conds { Formulas::predicateFormula(p1), Formulas::predicateFormula(p2) };
         
         return Formulas::universalFormula( { x }, Formulas::implicationFormula(Formulas::conjunctionFormula(conds),
                                                                                Formulas::existentialFormula( { i } , f)));
@@ -406,32 +476,32 @@ namespace program {
     void Properties::translateAssignments()
     {
         static unsigned i = 0;
-        for (auto it = _loop.commands.begin(); it != _loop.commands.end(); ++it) {
+        for (auto it = loop.commands.begin(); it != loop.commands.end(); ++it) {
             addProperty("assignment_" + std::to_string(i++), commandToFormula(*it));
         }
     }
-    
-    std::shared_ptr<const logic::Formula> Properties::commandToFormula(const GuardedCommand *c)
+
+    // TODO this will probably be replace by stepAxiom
+    FormulaPtr Properties::commandToFormula(const GuardedCommand *c)
     {
         Assignment *a;
-        std::vector<std::shared_ptr<const Formula>> conj;
+        std::vector<FormulaPtr> conj;
+
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        TermPtr iPlusOne = Theory::timeSucc(i);
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It1");
-        auto iPlusOne = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
-                                      { i, Theory::integerConstant(1) } );
-        
-        for (auto it = _vars.begin(); it != _vars.end(); ++it)
+        for (auto it = vars.begin(); it != vars.end(); ++it)
         {
             const PVariable* v = (*it);
             // constant variables are constant symbols in formulas, nothing
             // to do then
-            if (!_updated.at(v))
+            if (!updated.at(v))
                 continue;
             
             if (isArrayType(v->type)) {
                 if (util::Configuration::instance().arrayTheory().getValue()) {
                     // representation using array axiomatization
-                    auto store = v->toTerm(i);
+                    TermPtr store = v->toTerm(i);
                     for (auto itAsg = c->assignments.begin();
                          itAsg != c->assignments.end();
                          ++itAsg) {
@@ -468,21 +538,21 @@ namespace program {
         }
         
         assert(conj.size() > 0);
-        auto iGreaterEqual0 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                           { i, Theory::integerConstant(0) } ));
-        auto f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i), iGreaterEqual0});
-        auto f2 = Formulas::conjunctionFormula(conj);
+        FormulaPtr iGreaterEqual0 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                                               { i, Theory::integerConstant(0) } ));
+        FormulaPtr f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i), iGreaterEqual0});
+        FormulaPtr f2 = Formulas::conjunctionFormula(conj);
         
         return Formulas::universalFormula( { i }, Formulas::implicationFormula(f1, f2));
     }
     
     /** Given a scalar assignment v = e, return the formula v(i+1) = e(i) */
-    std::shared_ptr<const logic::Formula> Properties::assignment(const Assignment *a,
-                                    std::shared_ptr<const logic::Term> index,
-                                    std::shared_ptr<const logic::Term> indexPlusOne)
+    FormulaPtr Properties::assignment(const Assignment *a,
+                                    TermPtr index,
+                                    TermPtr indexPlusOne)
     {
         PVariable * lhsVar = a->lhs->varInfo();
-        assert(_updated.at(lhsVar));
+        assert(updated.at(lhsVar));
         
         return Formulas::equalityFormula(true,
                                    lhsVar->toTerm(indexPlusOne),
@@ -490,12 +560,12 @@ namespace program {
     }
     
     /** Given an array assignment v[x] = e, return the formula v(i+1, x(i)) = e(i) */
-    std::shared_ptr<const logic::Formula> Properties::arrayAssignment(const Assignment *a,
-                                         std::shared_ptr<const logic::Term> index,
-                                         std::shared_ptr<const logic::Term> indexPlusOne)
+    FormulaPtr Properties::arrayAssignment(const Assignment *a,
+                                         TermPtr index,
+                                         TermPtr indexPlusOne)
     {
         PVariable * lhsVar = a->lhs->varInfo();
-        assert(_updated.at(lhsVar));
+        assert(updated.at(lhsVar));
         
         return Formulas::equalityFormula(true,
                                    lhsVar->toTerm(indexPlusOne,
@@ -504,11 +574,11 @@ namespace program {
     }
     
     /** Given a scalar variable v, return the formula v(i+1) = v(i) */
-    std::shared_ptr<const logic::Formula> Properties::nonAssignment(const PVariable *v,
-                                       std::shared_ptr<const logic::Term> index,
-                                       std::shared_ptr<const logic::Term> indexPlusOne)
+    FormulaPtr Properties::nonAssignment(const PVariable *v,
+                                       TermPtr index,
+                                       TermPtr indexPlusOne)
     {
-        assert(_updated.at(v));
+        assert(updated.at(v));
         
         return Formulas::equalityFormula(true,
                                    v->toTerm(indexPlusOne),
@@ -516,16 +586,16 @@ namespace program {
     }
     
     /** Given an array variable v, return the formula forall j, cond => v(i+1, j) = v(i, j) */
-    std::shared_ptr<const logic::Formula> Properties::arrayNonAssignment(const PVariable *v,
+    FormulaPtr Properties::arrayNonAssignment(const PVariable *v,
                                             const GuardedCommand *gc,
-                                            std::shared_ptr<const logic::Term> index,
-                                            std::shared_ptr<const logic::Term> indexPlusOne)
+                                            TermPtr index,
+                                            TermPtr indexPlusOne)
     {
-        assert(_updated.at(v));
+        assert(updated.at(v));
         assert(isArrayType(v->type));
         
-        auto j = Terms::lVariable(Sorts::intSort(), "It2");
-        std::vector<std::shared_ptr<const logic::Formula>> conj;
+        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It2");
+        std::vector<FormulaPtr> conj;
         for (const auto& assignment : gc->assignments)
         {
             if (assignment->hasLhs(*v))
@@ -534,11 +604,11 @@ namespace program {
             }
         }
         
-        auto eq = Formulas::equalityFormula(true,
-                                          v->toTerm(indexPlusOne, j),
-                                          v->toTerm(index, j));
+        FormulaPtr eq = Formulas::equalityFormula(true,
+                                                  v->toTerm(indexPlusOne, j),
+                                                  v->toTerm(index, j));
         
-        std::shared_ptr<const Formula> f = Formulas::implicationFormula(Formulas::conjunctionFormula(conj), eq);
+        FormulaPtr f = Formulas::implicationFormula(Formulas::conjunctionFormula(conj), eq);
         
         return Formulas::universalFormula({ j }, f);
     }
@@ -550,10 +620,10 @@ namespace program {
      */
     void Properties::updatePredicatesOfArrays()
     {
-        for (auto it = _vars.begin(); it != _vars.end(); ++it) {
+        for (auto it = vars.begin(); it != vars.end(); ++it) {
             const PVariable *v = (*it);
             // only check updates array variables
-            if (!isArrayType(v->type) || !_updated.at(v))
+            if (!isArrayType(v->type) || !updated.at(v))
                 continue;
             
             if (util::Configuration::instance().existentialAxioms().getValue())
@@ -566,20 +636,20 @@ namespace program {
     }
     
     /** forall p, (forall i, iter(i) => !update_a(i, p)) => a(n, p) = a(0, p) */
-    std::shared_ptr<const logic::Formula> Properties::stabilityAxiom(const PVariable *a)
+    FormulaPtr Properties::stabilityAxiom(const PVariable *a)
     {
         assert(isArrayType(a->type));
-        assert(_updated.at(a));
+        assert(updated.at(a));
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It");
-        auto p = Terms::lVariable(Sorts::intSort(), "P");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         
-        auto fa = Formulas::implicationFormula(iter(i), Formulas::negationFormula(arrayUpdatePredicate(a, i, p, nullptr)));
+        FormulaPtr fa = Formulas::implicationFormula(iter(i), Formulas::negationFormula(arrayUpdatePredicate(a, i, p, nullptr)));
         
-        auto fb = Formulas::universalFormula( {i}, fa);
-        auto fc = Formulas::equalityFormula(true,
-                                          a->toTerm(Theory::integerConstant(0), p),
-                                          a->toTerm(loopCounterSymbol(), p));
+        FormulaPtr fb = Formulas::universalFormula( {i}, fa);
+        FormulaPtr fc = Formulas::equalityFormula(true,
+                                            a->toTerm(Theory::timeZero(), p),
+                                            a->toTerm(loopCounterSymbol(), p));
         
         return Formulas::universalFormula( {p}, Formulas::implicationFormula(fb, fc));
         
@@ -587,27 +657,27 @@ namespace program {
     
     /** forall i p v, (iter(i) & update_a(i, p, v) & (forall j, iter(j) & j != i => !update_a(j, p))) => a(n, p) = v */
     /* this is true only if the array is written at most once by the loop! */
-    std::shared_ptr<const logic::Formula> Properties::uniqueUpdateAxiom(const PVariable *a)
+    FormulaPtr Properties::uniqueUpdateAxiom(const PVariable *a)
     {
         assert(isArrayType(a->type));
-        assert(_updated.at(a));
+        assert(updated.at(a));
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It1");
-        auto j = Terms::lVariable(Sorts::intSort(), "It2");
-        auto p = Terms::lVariable(Sorts::intSort(), "P");
-        auto v = Terms::lVariable(toSort(a->type), "V");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+        LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
         
-        auto fa = Formulas::implicationFormula(Formulas::conjunctionFormula({ Formulas::equalityFormula(false, i,j), iter(j) }),
-                                               Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
-        auto fb = Formulas::conjunctionFormula(
-                                             { Formulas::universalFormula({j}, fa),
-                                                 arrayUpdatePredicate(a, i, p, v),
-                                                 iter(i) }
-                                             );
+        FormulaPtr fa = Formulas::implicationFormula(Formulas::conjunctionFormula({ Formulas::equalityFormula(false, i,j), iter(j) }),
+                                                     Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
+        FormulaPtr fb = Formulas::conjunctionFormula(
+            { Formulas::universalFormula({j}, fa),
+              arrayUpdatePredicate(a, i, p, v),
+              iter(i) }
+            );
         
-        auto fc = Formulas::equalityFormula(true,
-                                          v,
-                                          a->toTerm(loopCounterSymbol(), p));
+        FormulaPtr fc = Formulas::equalityFormula(true,
+                                                  v,
+                                                  a->toTerm(loopCounterSymbol(), p));
         return Formulas::universalFormula({i, p, v}, Formulas::implicationFormula(fb, fc));
     }
     
@@ -615,46 +685,48 @@ namespace program {
     /** forall i p v, (iter(i) & update_a(i, p, v) & (forall j, iter(j) & j > i => !update_a(j, p))) => a(n, p) = v
      * Not used currently! (instead the weaker but more efficient uniqueUpdateAxiom)
      */
-    std::shared_ptr<const logic::Formula> Properties::lastUpdateAxiom(const PVariable *a)
+    FormulaPtr Properties::lastUpdateAxiom(const PVariable *a)
     {
         assert(isArrayType(a->type));
-        assert(_updated.at(a));
+        assert(updated.at(a));
         
-        auto i = Terms::lVariable(Sorts::intSort(), "It1");
-        auto j = Terms::lVariable(Sorts::intSort(), "It2");
-        auto p = Terms::lVariable(Sorts::intSort(), "P");
-        auto v = Terms::lVariable(toSort(a->type), "V");
+        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It2");
+        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+        LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
         
-        auto gt = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER), {j, i});
-        auto fa = Formulas::implicationFormula(Formulas::conjunctionFormula({ Formulas::predicateFormula(gt), iter(j) }),
-                                             Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
-        auto fb = Formulas::conjunctionFormula(
-                                             { Formulas::universalFormula({j}, fa),
-                                                 arrayUpdatePredicate(a, i, p, v),
-                                                 iter(i) }
-                                             );
+        PredTermPtr gt = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER), {j, i});
+        FormulaPtr fa = Formulas::implicationFormula(Formulas::conjunctionFormula({ Formulas::predicateFormula(gt), iter(j) }),
+                                                     Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
+        FormulaPtr fb = Formulas::conjunctionFormula(
+            { Formulas::universalFormula({j}, fa),
+              arrayUpdatePredicate(a, i, p, v),
+              iter(i) }
+            );
         
-        auto fc = Formulas::equalityFormula(true,
-                                          v,
-                                          a->toTerm(loopCounterSymbol(), p));
+        FormulaPtr fc = Formulas::equalityFormula(true,
+                                                  v,
+                                                  a->toTerm(loopCounterSymbol(), p));
         
         return Formulas::universalFormula({i, p, v}, Formulas::implicationFormula(fb, fc));
     }
     
     // if v is nullptr, updatePredicate with 2 args
-    std::shared_ptr<const logic::Formula> Properties::arrayUpdatePredicate(const PVariable *a,
-                                              std::shared_ptr<const logic::Term> i,
-                                              std::shared_ptr<const logic::Term> p,
-                                              std::shared_ptr<const logic::Term> v)
+    FormulaPtr Properties::arrayUpdatePredicate(const PVariable *a,
+                                                TermPtr i,
+                                                TermPtr p,
+                                                TermPtr v)
     {
-        std::vector<std::shared_ptr<const Formula>> disj {};
+        std::vector<FormulaPtr> disj {};
         
-        for(const auto& command : _loop.commands)
+        for(const auto& command : loop.commands)
         {
             for (const auto& assignment : command->assignments)
             {
                 if (assignment->hasLhs(*a))
+                {
                     disj.push_back(arrayAssignmentConditions(assignment, command->guard, i, p, v));
+                }
             }
         }
         
@@ -664,21 +736,23 @@ namespace program {
         return Formulas::disjunctionFormula(disj);
     }
     
-    std::shared_ptr<const logic::Formula> Properties::arrayAssignmentConditions(const Assignment *asg,
-                                                   const FExpression *guard,
-                                                   std::shared_ptr<const Term> i,
-                                                   std::shared_ptr<const Term> p,
-                                                   std::shared_ptr<const Term> v)
+    FormulaPtr Properties::arrayAssignmentConditions(const Assignment *asg,
+                                                     const FExpression *guard,
+                                                     TermPtr i,
+                                                     TermPtr p,
+                                                     TermPtr v)
     {
-        std::vector<std::shared_ptr<const Formula>> conj;
+        std::vector<FormulaPtr> conj;
         conj.push_back(guard->toFormula(i));
         conj.push_back(Formulas::equalityFormula(true,
                                            p,
                                            asg->lhs->child(0)->toTerm(i)));
         if (v)
+        {
             conj.push_back(Formulas::equalityFormula(true,
                                                v,
                                                asg->rhs->toTerm(i)));
+        }
         
         return Formulas::conjunctionFormula(conj);
     }
@@ -694,57 +768,56 @@ namespace program {
     
 #pragma mark - loop condition properties
 
+    // TODO this will be part of the goal
     // forall i, iter(i) => cond(i)
     void Properties::loopConditionHypothesis()
     {
-        auto i = Terms::lVariable(Sorts::intSort(), "It");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         
         addProperty("loop_condition", Formulas::universalFormula({i},
                                                                  Formulas::implicationFormula(iter(i),
-                                                                                  _loop.loopCondition->toFormula(i))));
+                                                                                              loop.loopCondition->toFormula(i))));
     }
     
 #pragma mark - Symbol elimination properties
     
     void Properties::symbolEliminationAxioms()
     {
-        for (auto it = _vars.begin(); it != _vars.end(); ++it) {
+        for (auto it = vars.begin(); it != vars.end(); ++it) {
             const PVariable *v = (*it);
-            if (_updated.at(v))
+            if (updated.at(v))
                 addSymbolEliminationAxioms(v);
         }
     }
     
     void Properties::addSymbolEliminationAxioms(const PVariable* v)
     {
-        if (!_updated.at(v))
+        if (!updated.at(v))
             return; // v's symbol won't be eliminated, no need for axiom
         
-        std::shared_ptr<const LVariable> i = Terms::lVariable(Sorts::intSort());
-        std::shared_ptr<const Term> empty = nullptr;
+        TermPtr empty = nullptr;
         unsigned arity = isArrayType(v->type) ? 1 : 0;
+        std::vector<LVariablePtr> vars;
         
-        std::shared_ptr<const Term> lhsCounter;
-        std::shared_ptr<const Term>  rhsCounter;
+        TermPtr lhsCounter;
+        TermPtr  rhsCounter;
         Symbol* s;
-        std::shared_ptr<const Term>  lhsInit;
-        std::shared_ptr<const Term>  rhsInit;
+        TermPtr  lhsInit;
+        TermPtr  rhsInit;
         
-        std::vector<std::shared_ptr<const LVariable>> vars;
-        
-        if (isArrayType(v->type))
+        if (isArrayType(v->type)
+            && util::Configuration::instance().arrayTheory().getValue())
         {
+            LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+            vars.push_back(p);
             // array symbol
             assert (arity == 1);
-            rhsCounter = v->toTerm(empty, i);
-            lhsCounter = v->toTerm(loopCounterSymbol(), i);
+            rhsCounter = v->toTerm(nullptr, p);
+            lhsCounter = v->toTerm(loopCounterSymbol(), p);
             s = Signature::fetchOrDeclare(v->name + "$init", { Sorts::intSort() }, toSort(v->type));
-            lhsInit = v->toTerm(Theory::integerConstant(0), i);
-            rhsInit = Terms::funcTerm(s, {i});
-            vars.push_back(i);
-        }
-        else
-        {
+            lhsInit = v->toTerm(Theory::integerConstant(0), p);
+            rhsInit = Terms::funcTerm(s, {p});            
+        } else {
             rhsCounter = v->toTerm(empty);
             lhsCounter = v->toTerm(loopCounterSymbol());
             s = Signature::fetchOrDeclare(v->name + "$init", toSort(v->type));

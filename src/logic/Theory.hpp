@@ -32,13 +32,16 @@ namespace logic {
         
         static Symbol* getSymbol(InterpretedSymbol s);
         
-        static std::shared_ptr<const FuncTerm> integerConstant(int i);
-        static std::shared_ptr<const PredTerm> booleanConstant(bool b);
-        
-        static std::shared_ptr<const FuncTerm> timeZero();
-        static std::shared_ptr<const FuncTerm> timeSucc(std::shared_ptr<const Term>);
-        static std::shared_ptr<const FuncTerm> timePre(std::shared_ptr<const Term>);
-        static std::shared_ptr<const PredTerm> timeSub(std::shared_ptr<const Term>, std::shared_ptr<const Term>);
+        static FuncTermPtr integerConstant(int i);
+        static PredTermPtr booleanConstant(bool b);
+
+        // these function might deal with integers or natural number
+        // (term algebra) depending on the chosen representation of
+        // timepoints
+        static FuncTermPtr timeZero();
+        static FuncTermPtr timeSucc(TermPtr t);
+        static FuncTermPtr timePred(TermPtr t);
+        static PredTermPtr timeLt(TermPtr t1, TermPtr t2);
     };
     
 }

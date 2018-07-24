@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "Options.hpp"
+
 namespace logic {
     
     Symbol* Theory::getSymbol(InterpretedSymbol s) {
@@ -42,13 +44,13 @@ namespace logic {
         }
     }
     
-    std::shared_ptr<const FuncTerm> Theory::integerConstant(int i)
+    FuncTermPtr Theory::integerConstant(int i)
     {
         Symbol *s = Signature::fetchOrDeclare(std::to_string(i), Sorts::intSort(), true);
         return Terms::funcTerm(s, {});
     }
     
-    std::shared_ptr<const PredTerm> Theory::booleanConstant(bool b)
+    PredTermPtr Theory::booleanConstant(bool b)
     {
         Symbol *t = Signature::fetchOrDeclare("bool_true", Sorts::boolSort(), true);
         Symbol *f = Signature::fetchOrDeclare("bool_false", Sorts::boolSort(), true);
@@ -56,28 +58,48 @@ namespace logic {
         return b ? Terms::predTerm(t, {}) : Terms::predTerm(f, {});
     }
     
-    std::shared_ptr<const FuncTerm> Theory::timeZero()
+    FuncTermPtr Theory::timeZero()
     {
-        Symbol* zero = getSymbol(InterpretedSymbol::TIME_ZERO);
-        return Terms::funcTerm(zero, {});
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            Symbol* zero = getSymbol(InterpretedSymbol::TIME_ZERO);
+            return Terms::funcTerm(zero, {});
+        } else {
+            return integerConstant(0);
+        }
+        
     }
     
-    std::shared_ptr<const FuncTerm> Theory::timeSucc(std::shared_ptr<const Term> term)
+    FuncTermPtr Theory::timeSucc(TermPtr t)
     {
-        Symbol* succ = getSymbol(InterpretedSymbol::TIME_SUCC);
-        return Terms::funcTerm(succ, {term});
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            return Terms::funcTerm(getSymbol(InterpretedSymbol::TIME_SUCC),
+                                   {t});
+        } else {
+            return Terms::funcTerm(getSymbol(InterpretedSymbol::INT_PLUS),
+                                   {t, Theory::integerConstant(1)});
+        }
     }
     
-    std::shared_ptr<const FuncTerm> Theory::timePre(std::shared_ptr<const Term> term)
+    FuncTermPtr Theory::timePred(TermPtr t)
     {
-        Symbol* pre = getSymbol(InterpretedSymbol::TIME_PRE);
-        return Terms::funcTerm(pre, {term});
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            return Terms::funcTerm(getSymbol(InterpretedSymbol::TIME_PRE),
+                                   {t});
+        } else {
+            return Terms::funcTerm(getSymbol(InterpretedSymbol::INT_MINUS),
+                                   {t, Theory::integerConstant(1)});
+        }
     }
     
-    std::shared_ptr<const PredTerm> Theory::timeSub(std::shared_ptr<const Term> t1, std::shared_ptr<const Term> t2)
+    PredTermPtr Theory::timeLt(TermPtr t1, TermPtr t2)
     {
-        Symbol* sub = getSymbol(InterpretedSymbol::TIME_SUB);
-        return Terms::predTerm(sub, {t1,t2});
+        Symbol* lt = (util::Configuration::instance().timepoints().getValue()
+                      ? getSymbol(InterpretedSymbol::TIME_SUB)
+                      : getSymbol(InterpretedSymbol::INT_LESS));
+        return Terms::predTerm(lt, {t1,t2});
     }
     
 }

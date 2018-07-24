@@ -4,6 +4,7 @@
 #include <cassert>
 #include <initializer_list>
 #include <list>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -13,16 +14,20 @@
 namespace logic {
     
     class LVariable;
+
+    typedef std::shared_ptr<const LVariable> LVariablePtr;
     
     class Term
     {
     public:
-//        virtual std::vector<std::shared_ptr<const LVariable>> freeVariables() const = 0;
+//        virtual std::vector<LVariablePtr> freeVariables() const = 0;
 
         virtual std::string toTPTP() const = 0;
         virtual std::string toSMTLIB() const = 0;
         virtual std::string prettyString() const = 0;
     };
+
+    typedef std::shared_ptr<const Term> TermPtr;
     
     class LVariable : public Term
     {
@@ -35,7 +40,7 @@ namespace logic {
         const Sort* sort;
         const std::string name;
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
+//        std::vector<LVariablePtr> freeVariables() const override;
 
         std::string toTPTP() const override;
         std::string toSMTLIB() const override;
@@ -51,7 +56,7 @@ namespace logic {
     {
         friend class Terms;
 
-        FuncTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms) :
+        FuncTerm(const Symbol* head, std::initializer_list<TermPtr> subterms) :
         head(head),
         subterms(subterms)
         {
@@ -62,21 +67,23 @@ namespace logic {
     public:
 
         const Symbol* const head;
-        const std::vector<const std::shared_ptr<const Term>> subterms;
+        const std::vector<TermPtr> subterms;
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
+//        std::vector<LVariablePtr> freeVariables() const override;
 
         std::string toTPTP() const override;
         std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
     };
+
+    typedef std::shared_ptr<const FuncTerm> FuncTermPtr;
     
-    // taking the FOOL approach, predicates are alse terms
+    // taking the FOOL approach, predicates are also terms
     class PredTerm : public Term
     {
         friend class Terms;
 
-        PredTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms) :
+        PredTerm(const Symbol* head, std::initializer_list<TermPtr> subterms) :
         head(head),
         subterms(subterms)
         {
@@ -87,14 +94,16 @@ namespace logic {
     public:
 
         const Symbol* head;
-        const std::vector<const std::shared_ptr<const Term>> subterms;
+        const std::vector<TermPtr> subterms;
         
-//        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
+//        std::vector<LVariablePtr> freeVariables() const override;
         
         std::string toTPTP() const override;
         std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
     };
+
+    typedef std::shared_ptr<const PredTerm> PredTermPtr;
     
     inline std::ostream& operator<<(std::ostream& ostr, const Term& e) { ostr << e.toTPTP(); return ostr; }
 
@@ -107,10 +116,10 @@ namespace logic {
     public:
 
         // construct new terms
-        static std::shared_ptr<const LVariable> lVariable(const Sort* s);
-        static std::shared_ptr<const LVariable> lVariable(const Sort* s, const std::string name);
-        static std::shared_ptr<const FuncTerm> funcTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms);
-        static std::shared_ptr<const PredTerm> predTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms);
+        static LVariablePtr lVariable(const Sort* s);
+        static LVariablePtr lVariable(const Sort* s, const std::string name);
+        static FuncTermPtr funcTerm(const Symbol* head, std::initializer_list<TermPtr> subterms);
+        static PredTermPtr predTerm(const Symbol* head, std::initializer_list<TermPtr> subterms);
     };
 }
 #endif

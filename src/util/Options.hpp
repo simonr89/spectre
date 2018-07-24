@@ -76,7 +76,7 @@ namespace util {
         Configuration() :
         _outputFile("output", ""),
         _outputFormat("output-format", {"tptp", "smtlib"}, "smtlib"),
-        _mainMode("mode", { "generation", "verification" }, "verification"),
+        _mainMode("mode", { "generation", "verification", "termination" }, "verification"),
         _timepoints("timepoints", false),
         _arrayTheory("arraytheory", false),
         _existentialAxioms("eaxioms", true),

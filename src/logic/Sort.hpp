@@ -2,6 +2,7 @@
 #define __Sort__
 
 #include <map>
+#include <memory>
 #include <string>
 
 namespace logic {
@@ -44,7 +45,8 @@ namespace logic {
         static Sort* boolSort() { return fetchOrDeclare("bool"); }
         static Sort* intSort() { return fetchOrDeclare("int"); }
         static Sort* intArraySort() { return fetchOrDeclare("array(int,int)"); }
-        static Sort* timeSort() { return fetchOrDeclare("Time"); }
+        // time can either be represented by int or by a dedicated term algebra sort
+        static Sort* timeSort();
 
         // returns map containing all previously constructed sorts as pairs (nameOfSort, Sort)
         static const std::map<std::string, std::unique_ptr<Sort>>& nameToSort(){return _sorts;};

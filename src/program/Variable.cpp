@@ -37,7 +37,7 @@ namespace program {
     
     
     
-    std::shared_ptr<const logic::Term> PVariable::toTerm(std::shared_ptr<const logic::Term> index) const
+    TermPtr PVariable::toTerm(TermPtr index) const
     {
         assert(!isArrayType(type));
 
@@ -66,14 +66,14 @@ namespace program {
         }
     }
     
-    std::shared_ptr<const logic::Term> PVariable::toTerm(std::shared_ptr<const logic::Term> index, std::shared_ptr<const logic::Term> arrayIndex) const
+    TermPtr PVariable::toTerm(TermPtr index, TermPtr arrayIndex) const
     {
         assert(isArrayType(type));
         
         if (util::Configuration::instance().arrayTheory().getValue())
         {
             // representation using array axioms
-            std::shared_ptr<const logic::Term> array;
+            TermPtr array;
             
             if (index)
             {

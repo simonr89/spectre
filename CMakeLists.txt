@@ -8,6 +8,9 @@ project (Spectre)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# compiler flags
+set(CMAKE_CXX_FLAGS "-Wfatal-errors")
+
 # add directoy, where we store all custom files for finding libraries which are not build using cmake (i.e. currently nothing), to the search path of cmake
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 

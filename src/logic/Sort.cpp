@@ -99,6 +99,16 @@ namespace logic {
 
     std::map<std::string, std::unique_ptr<Sort>> Sorts::_sorts;
 
+    Sort* Sorts::timeSort()
+    {
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            return fetchOrDeclare("Time");
+        } else {
+            return fetchOrDeclare("int");
+        }
+    }
+
     Sort* Sorts::fetchOrDeclare(std::string name)
     {
         auto it = _sorts.find(name);

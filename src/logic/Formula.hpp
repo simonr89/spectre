@@ -2,6 +2,7 @@
 #define __Formula__
 
 #include <initializer_list>
+#include <memory>
 #include <ostream>
 #include "Term.hpp"
 
@@ -16,15 +17,17 @@ namespace logic {
         virtual std::string toSMTLIB(unsigned indentation = 0) const = 0;
         virtual std::string prettyString(unsigned indentation = 0) const = 0;
     };
+
+    typedef std::shared_ptr<const Formula> FormulaPtr;
     
     class PredicateFormula : public Formula
     {
         friend class Formulas;
         
     public:
-        PredicateFormula(std::shared_ptr<const PredTerm> p) : p(p) {}
+        PredicateFormula(PredTermPtr p) : p(p) {}
 
-        const std::shared_ptr<const PredTerm> p;
+        const PredTermPtr p;
 
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -36,15 +39,15 @@ namespace logic {
         friend class Formulas;
         
     public:
-        EqualityFormula(bool polarity, std::shared_ptr<const Term> left, std::shared_ptr<const Term> right) :
+        EqualityFormula(bool polarity, TermPtr left, TermPtr right) :
         polarity(polarity),
         left(left),
         right(right)
         {}
 
         const bool polarity;
-        const std::shared_ptr<const Term> left;
-        const std::shared_ptr<const Term> right;
+        const TermPtr left;
+        const TermPtr right;
         
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -56,10 +59,10 @@ namespace logic {
         friend class Formulas;
         
     public:
-        ConjunctionFormula(std::vector<std::shared_ptr<const Formula>> conj) : conj(conj){}
-        ConjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> conj) : conj(conj){}
+        ConjunctionFormula(std::vector<FormulaPtr> conj) : conj(conj){}
+        ConjunctionFormula(std::initializer_list<FormulaPtr> conj) : conj(conj){}
         
-        const std::vector<std::shared_ptr<const Formula>> conj;
+        const std::vector<FormulaPtr> conj;
 
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -71,10 +74,10 @@ namespace logic {
         friend class Formulas;
         
     public:
-        DisjunctionFormula(std::vector<std::shared_ptr<const Formula>> disj) : disj(disj){}
-        DisjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> disj) : disj(disj){}
+        DisjunctionFormula(std::vector<FormulaPtr> disj) : disj(disj){}
+        DisjunctionFormula(std::initializer_list<FormulaPtr> disj) : disj(disj){}
         
-        const std::vector<std::shared_ptr<const Formula>> disj;
+        const std::vector<FormulaPtr> disj;
 
         std::string toTPTP() const override ;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -86,9 +89,9 @@ namespace logic {
         friend class Formulas;
         
     public:
-        NegationFormula(std::shared_ptr<const Formula> f) : f(f) {}
+        NegationFormula(FormulaPtr f) : f(f) {}
         
-        const std::shared_ptr<const Formula> f;
+        const FormulaPtr f;
 
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -101,11 +104,11 @@ namespace logic {
         friend class Formulas;
         
     public:
-        ExistentialFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
-        ExistentialFormula(std::initializer_list<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
+        ExistentialFormula(std::vector<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
+        ExistentialFormula(std::initializer_list<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
         
-        const std::vector<std::shared_ptr<const LVariable>> vars;
-        const std::shared_ptr<const Formula> f;
+        const std::vector<LVariablePtr> vars;
+        const FormulaPtr f;
         
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -117,11 +120,11 @@ namespace logic {
         friend class Formulas;
         
     public:
-        UniversalFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
-        UniversalFormula(std::initializer_list<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f) : vars(vars), f(f){}
+        UniversalFormula(std::vector<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
+        UniversalFormula(std::initializer_list<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
 
-        const std::vector<std::shared_ptr<const LVariable>> vars;
-        const std::shared_ptr<const Formula> f;
+        const std::vector<LVariablePtr> vars;
+        const FormulaPtr f;
         
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -133,10 +136,10 @@ namespace logic {
         friend class Formulas;
         
     public:
-        ImplicationFormula(std::shared_ptr<const Formula> f1, std::shared_ptr<const Formula> f2) : f1(f1), f2(f2) {}
+        ImplicationFormula(FormulaPtr f1, FormulaPtr f2) : f1(f1), f2(f2) {}
         
-        const std::shared_ptr<const Formula> f1;
-        const std::shared_ptr<const Formula> f2;
+        const FormulaPtr f1;
+        const FormulaPtr f2;
         
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
@@ -153,20 +156,20 @@ namespace logic {
     public:
         
         // construct new terms
-        static std::shared_ptr<const PredicateFormula> predicateFormula(std::shared_ptr<const PredTerm> p);
-        static std::shared_ptr<const EqualityFormula> equalityFormula(bool polarity, std::shared_ptr<const Term> left, std::shared_ptr<const Term> right);
+        static FormulaPtr predicateFormula(PredTermPtr p);
+        static FormulaPtr equalityFormula(bool polarity, TermPtr left, TermPtr right);
 
-        static std::shared_ptr<const NegationFormula>  negationFormula(std::shared_ptr<const Formula> f);
+        static FormulaPtr negationFormula(FormulaPtr f);
 
-        static std::shared_ptr<const ConjunctionFormula> conjunctionFormula(std::vector<std::shared_ptr<const Formula>> conj);
-        static std::shared_ptr<const ConjunctionFormula> conjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> conj);
-        static std::shared_ptr<const DisjunctionFormula> disjunctionFormula(std::vector<std::shared_ptr<const Formula>> disj);
-        static std::shared_ptr<const DisjunctionFormula> disjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> disj);
+        static FormulaPtr conjunctionFormula(std::vector<FormulaPtr> conj);
+        static FormulaPtr conjunctionFormula(std::initializer_list<FormulaPtr> conj);
+        static FormulaPtr disjunctionFormula(std::vector<FormulaPtr> disj);
+        static FormulaPtr disjunctionFormula(std::initializer_list<FormulaPtr> disj);
         
-        static std::shared_ptr<const ImplicationFormula> implicationFormula(std::shared_ptr<const Formula> f1, std::shared_ptr<const Formula> f2);
+        static FormulaPtr implicationFormula(FormulaPtr f1, FormulaPtr f2);
         
-        static std::shared_ptr<const ExistentialFormula> existentialFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f);
-        static std::shared_ptr<const UniversalFormula> universalFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f);
+        static FormulaPtr existentialFormula(std::vector<LVariablePtr> vars, FormulaPtr f);
+        static FormulaPtr universalFormula(std::vector<LVariablePtr> vars, FormulaPtr f);
     };
 }
 

@@ -196,9 +196,9 @@ namespace logic {
         return  str;
     }
 
-//    std::shared_ptr<const Formula> Formula::quantify(bool univ) const
+//    FormulaPtr Formula::quantify(bool univ) const
 //    {
-//        std::vector<std::shared_ptr<const LVariable>> vars = freeVariables();
+//        std::vector<LVariablePtr> vars = freeVariables();
 //
 //        if (vars.empty())
 //        {
@@ -215,12 +215,12 @@ namespace logic {
 //        }
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> PredicateFormula::freeVariables() const
+//    std::vector<LVariablePtr> PredicateFormula::freeVariables() const
 //    {
 //        return p->freeVariables();
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> EqualityFormula::freeVariables() const
+//    std::vector<LVariablePtr> EqualityFormula::freeVariables() const
 //    {
 //        auto l = left->freeVariables();
 //        auto r = right->freeVariables();
@@ -228,7 +228,7 @@ namespace logic {
 //        std::sort(l.begin(), l.end(), compareLVarPointers);
 //        std::sort(r.begin(), r.end(), compareLVarPointers);
 //
-//        std::vector<std::shared_ptr<const LVariable>> res;
+//        std::vector<LVariablePtr> res;
 //        std::set_union(l.begin(), l.end(),
 //                       r.begin(), r.end(),
 //                       std::back_inserter(res),compareLVarPointers);
@@ -236,10 +236,10 @@ namespace logic {
 //        return res;
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> ConjunctionFormula::freeVariables() const
+//    std::vector<LVariablePtr> ConjunctionFormula::freeVariables() const
 //    {
 //        // collect free variables from all conjuncts
-//        std::vector<std::shared_ptr<const LVariable>> res;
+//        std::vector<LVariablePtr> res;
 //        for(const auto& conjunct : conj)
 //        {
 //            auto freeVarsConjunct = conjunct->freeVariables();
@@ -253,10 +253,10 @@ namespace logic {
 //        return res;
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> DisjunctionFormula::freeVariables() const
+//    std::vector<LVariablePtr> DisjunctionFormula::freeVariables() const
 //    {
 //        // collect free variables from all disjuncts
-//        std::vector<std::shared_ptr<const LVariable>> res;
+//        std::vector<LVariablePtr> res;
 //        for(const auto& disjunct : disj)
 //        {
 //            auto freeVarsDisjunct = disjunct->freeVariables();
@@ -270,15 +270,15 @@ namespace logic {
 //        return res;
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> NegationFormula::freeVariables() const
+//    std::vector<LVariablePtr> NegationFormula::freeVariables() const
 //    {
 //        return f->freeVariables();
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> ExistentialFormula::freeVariables() const
+//    std::vector<LVariablePtr> ExistentialFormula::freeVariables() const
 //    {
 //        // could be done more efficient if we would be able to assume that vars are ordered too.
-//        std::vector<std::shared_ptr<const LVariable>> res = f->freeVariables();
+//        std::vector<LVariablePtr> res = f->freeVariables();
 //
 //        // perform std::remove,
 //        // couldn't figure out how to pass eqLVarPointers as custom comparison function
@@ -325,10 +325,10 @@ namespace logic {
 //        return res;
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> UniversalFormula::freeVariables() const
+//    std::vector<LVariablePtr> UniversalFormula::freeVariables() const
 //    {
 //        // could be done more efficient if we would be able to assume that vars are ordered too.
-//        std::vector<std::shared_ptr<const LVariable>> res = f->freeVariables();
+//        std::vector<LVariablePtr> res = f->freeVariables();
 //
 //        // perform std::remove,
 //        // couldn't figure out how to pass eqLVarPointers as custom comparison function
@@ -375,14 +375,14 @@ namespace logic {
 //        return res;
 //    }
 //
-//    std::vector<std::shared_ptr<const LVariable>> ImplicationFormula::freeVariables() const
+//    std::vector<LVariablePtr> ImplicationFormula::freeVariables() const
 //    {
 //        auto l = f1->freeVariables();
 //        auto r = f2->freeVariables();
 //        std::sort(l.begin(), l.end(), compareLVarPointers);
 //        std::sort(r.begin(), r.end(), compareLVarPointers);
 //
-//        std::vector<std::shared_ptr<const LVariable>> res;
+//        std::vector<LVariablePtr> res;
 //        std::set_union(l.begin(), l.end(),
 //                       r.begin(), r.end(),
 //                       std::back_inserter(res), compareLVarPointers);
@@ -475,49 +475,54 @@ namespace logic {
     
 # pragma mark - Formulas
     
-    std::shared_ptr<const PredicateFormula> Formulas::predicateFormula(std::shared_ptr<const PredTerm> p)
+    FormulaPtr Formulas::predicateFormula(PredTermPtr p)
     {
-        return std::shared_ptr<const PredicateFormula>(new PredicateFormula(p));
-    }
-    std::shared_ptr<const EqualityFormula> Formulas::equalityFormula(bool polarity, std::shared_ptr<const Term> left, std::shared_ptr<const Term> right)
-    {
-        return std::shared_ptr<const EqualityFormula>(new EqualityFormula(polarity, left, right));
+        return FormulaPtr(new PredicateFormula(p));
     }
     
-    std::shared_ptr<const NegationFormula>  Formulas::negationFormula(std::shared_ptr<const Formula> f)
+    FormulaPtr Formulas::equalityFormula(bool polarity, TermPtr left, TermPtr right)
     {
-        return std::shared_ptr<const NegationFormula>(new NegationFormula(f));
+        return FormulaPtr(new EqualityFormula(polarity, left, right));
     }
     
-    std::shared_ptr<const ConjunctionFormula> Formulas::conjunctionFormula(std::vector<std::shared_ptr<const Formula>> conj)
+    FormulaPtr Formulas::negationFormula(FormulaPtr f)
     {
-        return std::shared_ptr<const ConjunctionFormula>(new ConjunctionFormula(conj));
-    }
-    std::shared_ptr<const ConjunctionFormula> Formulas::conjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> conj)
-    {
-        return std::shared_ptr<const ConjunctionFormula>(new ConjunctionFormula(conj));
-    }
-    std::shared_ptr<const DisjunctionFormula> Formulas::disjunctionFormula(std::vector<std::shared_ptr<const Formula>> disj)
-    {
-        return std::shared_ptr<const DisjunctionFormula>(new DisjunctionFormula(disj));
-    }
-    std::shared_ptr<const DisjunctionFormula> Formulas::disjunctionFormula(std::initializer_list<std::shared_ptr<const Formula>> disj)
-    {
-        return std::shared_ptr<const DisjunctionFormula>(new DisjunctionFormula(disj));
+        return FormulaPtr(new NegationFormula(f));
     }
     
-    std::shared_ptr<const ImplicationFormula> Formulas::implicationFormula(std::shared_ptr<const Formula> f1, std::shared_ptr<const Formula> f2)
+    FormulaPtr Formulas::conjunctionFormula(std::vector<FormulaPtr> conj)
     {
-        return std::shared_ptr<const ImplicationFormula>(new ImplicationFormula(f1, f2));
+        return FormulaPtr(new ConjunctionFormula(conj));
     }
     
-    std::shared_ptr<const ExistentialFormula> Formulas::existentialFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f)
+    FormulaPtr Formulas::conjunctionFormula(std::initializer_list<FormulaPtr> conj)
     {
-        return std::shared_ptr<const ExistentialFormula>(new ExistentialFormula(vars, f));
+        return FormulaPtr(new ConjunctionFormula(conj));
     }
-    std::shared_ptr<const UniversalFormula> Formulas::universalFormula(std::vector<std::shared_ptr<const LVariable>> vars, std::shared_ptr<const Formula> f)
+    
+    FormulaPtr Formulas::disjunctionFormula(std::vector<FormulaPtr> disj)
     {
-        return std::shared_ptr<const UniversalFormula>(new UniversalFormula(vars, f));
+        return FormulaPtr(new DisjunctionFormula(disj));
+    }
+    
+    FormulaPtr Formulas::disjunctionFormula(std::initializer_list<FormulaPtr> disj)
+    {
+        return FormulaPtr(new DisjunctionFormula(disj));
+    }
+    
+    FormulaPtr Formulas::implicationFormula(FormulaPtr f1, FormulaPtr f2)
+    {
+        return FormulaPtr(new ImplicationFormula(f1, f2));
+    }
+    
+    FormulaPtr Formulas::existentialFormula(std::vector<LVariablePtr> vars, FormulaPtr f)
+    {
+        return FormulaPtr(new ExistentialFormula(vars, f));
+    }
+    
+    FormulaPtr Formulas::universalFormula(std::vector<LVariablePtr> vars, FormulaPtr f)
+    {
+        return FormulaPtr(new UniversalFormula(vars, f));
     }
 }
 
