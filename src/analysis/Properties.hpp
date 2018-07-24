@@ -64,6 +64,10 @@ namespace program {
         unsigned toVampireSort(Type t);
         // the loop counter ($counter)
         logic::FuncTermPtr loopCounterSymbol();
+
+        // return [forall vars, var_1 >= 0 & ... & var_n => f] if time
+        // is represented with integers, [forall vars, f] otherwise
+        logic::FormulaPtr timepointQuantified(std::vector<logic::LVariablePtr> vars, logic::FormulaPtr f);
                 
         void symbolEliminationAxioms();
         void addSymbolEliminationAxioms(const PVariable *v);
@@ -98,7 +102,7 @@ namespace program {
         //update predicates of arrays
         void updatePredicatesOfArrays();
         
-        logic::FormulaPtr iter(logic::TermPtr i);
+        //logic::FormulaPtr iter(logic::TermPtr i);
         
         logic::FormulaPtr arrayUpdatePredicate(const PVariable *A,
                                                logic::TermPtr i,
