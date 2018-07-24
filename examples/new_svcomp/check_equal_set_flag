@@ -1,0 +1,22 @@
+// check whether two arrays are the same at each position. If not, set the flag r to 1.
+// Prove that if flag was not set to 1, then arrays are equal.
+// similar to all of the following examples:
+// https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_compare_true-unreach-call_ground.c 
+// https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_strcmp_true-unreach-call_ground.c
+// https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_password_true-unreach-call_ground.c 
+
+int [] a, b;
+int i, length, r;
+
+requires 0 <= length;
+
+requires i == 0;
+
+requires r != 1;
+
+ensures forall int p, ((r != 1) ==> ( 0 <= p & p < length  ==> a[p]==b[p]));
+
+while (i < length) do
+:: a[i] != b[i] -> r = 1; i = i + 1;
+:: true -> i = i + 1;
+od

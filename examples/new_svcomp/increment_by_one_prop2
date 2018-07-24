@@ -1,0 +1,13 @@
+// increment each position in the array by one, then check that every position was incremented by 1
+// similar to https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/sanfoundry_43_true-unreach-call_ground.c
+int [] a, b;
+int i, alength;
+
+requires 0 <= alength;
+
+requires i == 0;
+ensures forall int j, 0 <= j & j < alength ==> a[j] == b[j] - 1;
+
+while (i < alength) do
+:: true -> b[i] = a[i] + 1; i = i + 1;
+od

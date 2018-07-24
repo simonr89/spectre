@@ -1,0 +1,18 @@
+// same as copy, but use two different indices, which happen to be the same at all times.
+// in other words, one needs the invariant forall i=j.
+// similar to https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_two_index_01_true-unreach-call.c
+
+int [] a, b;
+int i1, i2, alength, blength;
+
+requires 0 <= alength;
+requires 0 <= blength;
+
+requires blength <= alength;
+requires i1 == 0;
+requires i2 == 0;
+ensures forall int j, 0 <= j & j < blength ==> a[j] == b[j];
+
+while (i1 < blength) do
+:: true -> a[i1] = b[i2]; i1 = i1 + 1; i2= i2 + 1;
+od
