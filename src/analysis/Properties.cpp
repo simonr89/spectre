@@ -706,7 +706,7 @@ namespace program {
                                                   v,
                                                   a->toTerm(k, p));
         
-        return timepointQuantified({i, j}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+        return timepointQuantified({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
     }
     
     
@@ -737,7 +737,7 @@ namespace program {
                                                   v,
                                                   a->toTerm(k, p));
         
-        return timepointQuantified({i, j}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+        return timepointQuantified({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
     }
     
     // if v is nullptr, updatePredicate with 2 args
