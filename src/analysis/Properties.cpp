@@ -688,9 +688,9 @@ namespace program {
         assert(isArrayType(a->type));
         assert(updated.at(a));
         
-        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It2");
-        LVariablePtr k = Terms::lVariable(Sorts::intSort(), "It3");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It3");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
         
@@ -719,9 +719,9 @@ namespace program {
         assert(isArrayType(a->type));
         assert(updated.at(a));
         
-        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It2");
-        LVariablePtr k = Terms::lVariable(Sorts::intSort(), "It3");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It3");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
         
