@@ -78,14 +78,6 @@ namespace logic {
         {
             return "$lesseq";
         }
-        else if (name == "array_select")
-        {
-            return "select";
-        }
-        else if (name == "array_store")
-        {
-            return "store";
-        }
         else if (name == "bool_true")
         {
             return "$true";
@@ -166,14 +158,6 @@ namespace logic {
         else if (name == "int_less_eq")
         {
             return "<=";
-        }
-        else if (name == "array_select")
-        {
-            return "array_select";
-        }
-        else if (name == "array_store")
-        {
-            return "array_store";
         }
         else if (name == "bool_true")
         {
