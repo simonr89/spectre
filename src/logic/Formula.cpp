@@ -59,6 +59,8 @@ namespace logic {
     {
         if (conj.size() == 0)
             return "$true";
+        if (conj.size() == 1)
+            return conj[0]->toTPTP();
         std::string str = "";
         for (unsigned i = 0; i < conj.size(); i++) {
             str += "(" + conj[i]->toTPTP() + ")";
@@ -74,6 +76,10 @@ namespace logic {
         {
             return std::string(indentation, ' ') + "true";
         }
+        if (conj.size() == 1)
+        {
+            return conj[0]->toSMTLIB();
+        }
         std::string str = std::string(indentation, ' ') + "(and\n";
         for (unsigned i = 0; i < conj.size(); i++) {
             str += conj[i]->toSMTLIB(indentation + 3) + "\n";
@@ -86,6 +92,8 @@ namespace logic {
     {
         if (disj.size() == 0)
             return "$false";
+        if (disj.size() == 1)
+            return disj[0]->toTPTP();
         std::string str = "";
         for (unsigned i = 0; i < disj.size(); i++) {
             str += "(" + disj[i]->toTPTP() + ")";
@@ -100,6 +108,10 @@ namespace logic {
         if (disj.size() == 0)
         {
             return std::string(indentation, ' ') + "false";
+        }
+        if (disj.size() == 1)
+        {
+            return disj[0]->toSMTLIB();
         }
         std::string str = std::string(indentation, ' ') + "(or\n";
         for (unsigned i = 0; i < disj.size(); i++) {
