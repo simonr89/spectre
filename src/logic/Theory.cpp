@@ -27,9 +27,9 @@ namespace logic {
             case InterpretedSymbol::INT_LESS_EQUAL:
                 return Signature::fetchOrDeclare("int_less_eq", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
             case InterpretedSymbol::ARRAY_SELECT:
-                return Signature::fetchOrDeclare("array_select", { Sorts::intArraySort(), Sorts::intSort() }, Sorts::intSort(), false);
+                return Signature::fetchOrDeclare("$array_select", { Sorts::intArraySort(), Sorts::intSort() }, Sorts::intSort(), false);
             case InterpretedSymbol::ARRAY_STORE:
-                return Signature::fetchOrDeclare("array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), false);
+                return Signature::fetchOrDeclare("$array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), false);
             case InterpretedSymbol::TIME_ZERO:
                 return Signature::fetchOrDeclare("time_zero", Sorts::timeSort(), true);
             case InterpretedSymbol::TIME_SUCC:
