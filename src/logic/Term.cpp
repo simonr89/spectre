@@ -178,11 +178,11 @@ namespace logic {
     {
         return std::shared_ptr<const LVariable>(new LVariable(s, name));
     }
-    std::shared_ptr<const FuncTerm> Terms::funcTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms)
+    std::shared_ptr<const FuncTerm> Terms::funcTerm(const Symbol* head, std::initializer_list<std::shared_ptr<const Term>> subterms)
     {
         return std::shared_ptr<const FuncTerm>(new FuncTerm(head, subterms));
     }
-    std::shared_ptr<const PredTerm> Terms::predTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms)
+    std::shared_ptr<const PredTerm> Terms::predTerm(const Symbol* head, std::initializer_list<std::shared_ptr<const Term>> subterms)
     {
         return std::shared_ptr<const PredTerm>(new PredTerm(head, subterms));
     }

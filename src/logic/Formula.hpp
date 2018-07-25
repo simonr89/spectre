@@ -3,6 +3,7 @@
 
 #include <initializer_list>
 #include <ostream>
+#include <memory>
 #include "Term.hpp"
 
 namespace logic {

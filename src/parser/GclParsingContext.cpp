@@ -100,17 +100,17 @@ namespace parser {
     // TODO: refactor this at some point
     std::unique_ptr<Program> GclParsingContext::generateProgram()
     {
-        std::vector<const PVariable*> vars;
+        std::vector<PVariable*> vars;
         for (const auto& pairNameVar : variables)
         {
             vars.push_back(pairNameVar.second);
         }
-        std::vector<const FExpression*> constPreconditions;
+        std::vector<FExpression*> constPreconditions;
         for (const auto& element : preconditions)
         {
             constPreconditions.push_back(element);
         }
-        std::vector<const FExpression*> constPostconditions;
+        std::vector<FExpression*> constPostconditions;
         for (const auto& element : postconditions)
         {
             constPostconditions.push_back(element);

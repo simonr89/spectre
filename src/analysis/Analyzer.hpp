@@ -82,9 +82,9 @@ namespace program
     private:
         // used as input
         const GuardedCommandCollection& _loop;
-        const std::vector<const FExpression*> _preconditions;
-        const std::vector<const FExpression*> _postconditions;
-        const std::vector<const PVariable*> _variables;
+        const std::vector<FExpression*> _preconditions;
+        const std::vector<FExpression*> _postconditions;
+        const std::vector<PVariable*> _variables;
         
         // the aim of this class is to compute the following 4 maps
         std::map<const PVariable*,bool> _updated;

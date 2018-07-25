@@ -40,9 +40,9 @@ namespace program {
     private:
         // used as input
         const GuardedCommandCollection& _loop;
-        const std::vector<const PVariable*>& _vars;
-        const std::vector<const FExpression*>& _preconditions;
-        const std::vector<const FExpression*>& _postconditions;
+        const std::vector<PVariable*>& _vars;
+        const std::vector<FExpression*>& _preconditions;
+        const std::vector<FExpression*>& _postconditions;
         
         const std::map<const PVariable*,bool>& _updated;
         const std::map<const PVariable*,Monotonicity>& _monotonic;

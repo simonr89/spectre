@@ -51,7 +51,7 @@ namespace logic {
     {
         friend class Terms;
 
-        FuncTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms) :
+        FuncTerm(const Symbol* head, std::initializer_list<std::shared_ptr<const Term>> subterms) :
         head(head),
         subterms(subterms)
         {
@@ -62,7 +62,7 @@ namespace logic {
     public:
 
         const Symbol* const head;
-        const std::vector<const std::shared_ptr<const Term>> subterms;
+        const std::vector<std::shared_ptr<const Term>> subterms;
         
 //        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
 
@@ -76,7 +76,7 @@ namespace logic {
     {
         friend class Terms;
 
-        PredTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms) :
+        PredTerm(const Symbol* head, std::initializer_list<std::shared_ptr<const Term>> subterms) :
         head(head),
         subterms(subterms)
         {
@@ -87,7 +87,7 @@ namespace logic {
     public:
 
         const Symbol* head;
-        const std::vector<const std::shared_ptr<const Term>> subterms;
+        const std::vector<std::shared_ptr<const Term>> subterms;
         
 //        std::vector<std::shared_ptr<const LVariable>> freeVariables() const override;
         
@@ -109,8 +109,8 @@ namespace logic {
         // construct new terms
         static std::shared_ptr<const LVariable> lVariable(const Sort* s);
         static std::shared_ptr<const LVariable> lVariable(const Sort* s, const std::string name);
-        static std::shared_ptr<const FuncTerm> funcTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms);
-        static std::shared_ptr<const PredTerm> predTerm(const Symbol* head, std::initializer_list<const std::shared_ptr<const Term>> subterms);
+        static std::shared_ptr<const FuncTerm> funcTerm(const Symbol* head, std::initializer_list<std::shared_ptr<const Term>> subterms);
+        static std::shared_ptr<const PredTerm> predTerm(const Symbol* head, std::initializer_list<std::shared_ptr<const Term>> subterms);
     };
 }
 #endif
