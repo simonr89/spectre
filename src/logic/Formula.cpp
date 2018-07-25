@@ -78,7 +78,7 @@ namespace logic {
         }
         if (conj.size() == 1)
         {
-            return conj[0]->toSMTLIB();
+            return conj[0]->toSMTLIB(indentation);
         }
         std::string str = std::string(indentation, ' ') + "(and\n";
         for (unsigned i = 0; i < conj.size(); i++) {
@@ -111,7 +111,7 @@ namespace logic {
         }
         if (disj.size() == 1)
         {
-            return disj[0]->toSMTLIB();
+            return disj[0]->toSMTLIB(indentation);
         }
         std::string str = std::string(indentation, ' ') + "(or\n";
         for (unsigned i = 0; i < disj.size(); i++) {
