@@ -19,23 +19,33 @@ namespace program {
         // main axiom
         stepAxiom();
 
-        // trace lemmas
+        // trace lemmas to complement the axiom
         constnessProps();
         monotonicityProps();
         translateAssignments();
         updatePredicatesOfArrays();
-        loopCounterHypothesis();
-        loopConditionHypothesis();
+
+        // theory axioms
+        // TODO
 
         // goal
         if (util::Configuration::instance().mainMode().getValue() == "verification")
         {
-            FormulaPtr f = loop.loopCondition->toFormula(loopCounterSymbol());
-            addProperty("loop_exit", Formulas::negationFormula(f));
+            // negation of the formula forall n, P(0) & (forall m, m < n -> C(m)) & ~C(n) -> Q(n) 
+            preconditionsSatisfied();
+            loopCounterNonNegative();
+            loopCondition();
+            loopExit();
+            verificationGoal();
         } else if (util::Configuration::instance().mainMode().getValue() == "generation") {
+            preconditionsSatisfied();
+            loopCounterNonNegative();
+            loopCondition();
             symbolEliminationAxioms();
         } else if (util::Configuration::instance().mainMode().getValue() == "termination") {
-            //TODO
+            // negation of the formula P(0) => exists n, ~C(n)
+            preconditionsSatisfied();
+            terminationGoal();
         }
     }
     
@@ -66,37 +76,12 @@ namespace program {
                 }
             }
         }
-
-        // TODO remove this and put pre-conditions in the verification goal
-        // output preconditions (at loop iteration 0)
-        int i=0;
-        for (const auto& precondition : preconditions)
-        {
-            FormulaPtr f = precondition->toFormula(Theory::timeZero());
-            ostr << f->declareTPTP("precondition_" + std::to_string(i++)) << std::endl;
-        }
         
         // output all properties
         for (auto it = properties.begin(); it != properties.end(); ++it)
         {
             Property p = *it;
             ostr << p.second->declareTPTP(p.first) << std::endl;
-        }
-
-        // TODO remove this and put post-conditions in the verification goal
-        // if in verification mode,
-        if (util::Configuration::instance().mainMode().getValue() == "verification")
-        {
-            // conjoin post-conditions to conjecture
-            std::vector<FormulaPtr> conjuncts;
-            for (const auto& postcondition : postconditions)
-            {
-                conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
-            }
-            auto conjecture = Formulas::conjunctionFormula(conjuncts);
-            
-            // output conjecture
-            ostr << conjecture->declareTPTP("post_conditions", true) << std::endl;
         }
     }
 
@@ -127,37 +112,12 @@ namespace program {
                 }
             }
         }
-
-        // TODO remove this and put pre-conditions in the verification goal
-        // output preconditions (at loop iteration 0)
-        int i=0;
-        for (const auto& precondition : preconditions)
-        {
-            FormulaPtr f = precondition->toFormula(Theory::timeZero());
-            ostr << f->declareSMTLIB("precondition_" + std::to_string(i++)) << std::endl;
-        }
         
         // output all properties
         for (auto it = properties.begin(); it != properties.end(); ++it)
         {
             Property p = *it;
             ostr << p.second->declareSMTLIB(p.first) << std::endl;
-        }
-
-        // TODO remove this and put post-conditions in the verification goal
-        // if in verification mode,
-        if (util::Configuration::instance().mainMode().getValue() == "verification")
-        {
-            // conjoin post-conditions to conjecture
-            std::vector<FormulaPtr> conjuncts;
-            for (const auto& postcondition : postconditions)
-            {
-                conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
-            }
-            auto conjecture = Formulas::conjunctionFormula(conjuncts);
-            
-            // output conjecture
-            ostr << conjecture->declareSMTLIB("post_conditions", true) << std::endl;
         }
     }
     
@@ -233,31 +193,6 @@ namespace program {
             }
         }
     }
-
-    FuncTermPtr Properties::loopCounterSymbol()
-    {
-        // initialization note that the syntax of the guarded command
-        // language does not allow special characters such as $
-        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::timeSort(), false, true);
-        
-        return Terms::funcTerm(s, {});
-    }
-    
-    
-    // 0 <= i < n
-    /*FormulaPtr Properties::iter(TermPtr i)
-    {
-        // TODO actually 0 <= i should be enough, and needed only if time is represented by int
-        if (util::Configuration::instance().timepoints().getValue())
-        {
-            return Formulas::predicateFormula(Theory::timeLt(i, loopCounterSymbol()));
-        } else  {
-            return Formulas::conjunctionFormula({
-                    Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                               { i, Theory::integerConstant(0) } )),
-                    Formulas::predicateFormula(Theory::timeLt(i, loopCounterSymbol())) } );
-        }
-        }*/
     
 #pragma mark - Monotonicity Properties
     
@@ -786,10 +721,29 @@ namespace program {
         return Formulas::conjunctionFormula(conj);
     }
 
+    void Properties::preconditionsSatisfied()
+    {
+        int i=0;
+        for (const auto& precondition : preconditions)
+        {
+            addProperty("precondition_" + std::to_string(i++),
+                        precondition->toFormula(Theory::timeZero()));
+        }
+    }
+
 #pragma mark - loop counter properties
 
-    // counter >= 0
-    void Properties::loopCounterHypothesis()
+    FuncTermPtr Properties::loopCounterSymbol()
+    {
+        // initialization note that the syntax of the guarded command
+        // language does not allow special characters such as $
+        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::timeSort(), false, true);
+        
+        return Terms::funcTerm(s, {});
+    }
+
+    // $counter >= 0
+    void Properties::loopCounterNonNegative()
     {
         if (!util::Configuration::instance().timepoints().getValue())
         {
@@ -797,18 +751,22 @@ namespace program {
                                                                                    { loopCounterSymbol(), Theory::integerConstant(0) })));
         }
     }
-    
-#pragma mark - loop condition properties
 
-    // TODO this will be part of the goal
-    // forall i, i < n => cond(i)
-    void Properties::loopConditionHypothesis()
+    // forall m, m < $counter => cond(m)
+    void Properties::loopCondition()
     {
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
 
         FormulaPtr f = Formulas::implicationFormula(Formulas::predicateFormula(Theory::timeLt(i, loopCounterSymbol())),
                                                     loop.loopCondition->toFormula(i));
         addProperty("loop_condition", timepointQuantified({i}, f));
+    }
+
+    // ~cond($counter)
+    void Properties::loopExit()
+    {
+        FormulaPtr f = Formulas::negationFormula(loop.loopCondition->toFormula(loopCounterSymbol()));
+        addProperty("loop_exit", f);
     }
     
 #pragma mark - Symbol elimination properties
@@ -859,6 +817,28 @@ namespace program {
         
         addProperty("final_value_" + v->name, Formulas::universalFormula(vars, Formulas::equalityFormula(true, lhsCounter, rhsCounter)));
         addProperty("initial_value_" + v->name, Formulas::universalFormula(vars, Formulas::equalityFormula(true, lhsInit, rhsInit)));
+    }
+
+    void Properties::verificationGoal()
+    {
+        std::vector<FormulaPtr> conjuncts;
+        for (const auto& postcondition : postconditions)
+        {
+            conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
+        }
+        FormulaPtr goal = Formulas::negationFormula(Formulas::conjunctionFormula(conjuncts));
+
+        // TODO mark this as negated conjecture in TPTP output
+        addProperty("post_condition", goal);
+    }
+
+    void Properties::terminationGoal()
+    {
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        FormulaPtr goal = timepointQuantified({i}, loop.loopCondition->toFormula(i));
+
+        // TODO mark this as negated conjecture
+        addProperty("loop_termination", goal);
     }
 }
 

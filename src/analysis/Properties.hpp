@@ -62,25 +62,17 @@ namespace program {
         void addProperty(std::string s, logic::FormulaPtr f) { properties.push_back(std::make_pair(s, f)); }
         
         unsigned toVampireSort(Type t);
-        // the loop counter ($counter)
-        logic::FuncTermPtr loopCounterSymbol();
 
         // return [forall vars, var_1 >= 0 & ... & var_n => f] if time
         // is represented with integers, [forall vars, f] otherwise
         logic::FormulaPtr timepointQuantified(std::vector<logic::LVariablePtr> vars, logic::FormulaPtr f);
                 
-        void symbolEliminationAxioms();
-        void addSymbolEliminationAxioms(const PVariable *v);
-
         void stepAxiom();
         
         void constnessProps();
 
         // translation of assignments
         void translateAssignments();
-        
-        void loopCounterHypothesis();
-        void loopConditionHypothesis();
         
         logic::FormulaPtr commandToFormula(const GuardedCommand *c);
         logic::FormulaPtr assignment(const Assignment *a, logic::TermPtr index, logic::TermPtr indexPlusOne);
@@ -102,8 +94,6 @@ namespace program {
         //update predicates of arrays
         void updatePredicatesOfArrays();
         
-        //logic::FormulaPtr iter(logic::TermPtr i);
-        
         logic::FormulaPtr arrayUpdatePredicate(const PVariable *A,
                                                logic::TermPtr i,
                                                logic::TermPtr p,
@@ -116,6 +106,23 @@ namespace program {
         logic::FormulaPtr stabilityAxiom(const PVariable *v);
         logic::FormulaPtr uniqueUpdateAxiom(const PVariable *v);
         logic::FormulaPtr lastUpdateAxiom(const PVariable *v);
+
+        void preconditionsSatisfied();
+
+        // the loop counter ($counter) corresponding to a skolem
+        // symbol. Used for in verification and invariant generation
+        // modes
+        logic::FuncTermPtr loopCounterSymbol();
+        void loopCounterNonNegative();
+        void loopCondition();
+        void loopExit();
+
+        void symbolEliminationAxioms();
+        void addSymbolEliminationAxioms(const PVariable *v);
+
+        void verificationGoal();
+
+        void terminationGoal();
     };
 }
 
