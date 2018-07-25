@@ -499,17 +499,7 @@ namespace program {
         
         assert(conj.size() > 0);
 
-        FormulaPtr f1;
-        if (util::Configuration::instance().timepoints().getValue())
-        {
-            f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i) });
-        }
-        else
-        {
-            FormulaPtr ige0 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                                                         { i, Theory::integerConstant(0) } ));
-            f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i), ige0 });
-        }
+        FormulaPtr f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i) });
         FormulaPtr f2 = Formulas::conjunctionFormula(conj);
         
         return timepointQuantified({i}, Formulas::implicationFormula(f1, f2));
