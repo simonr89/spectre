@@ -80,11 +80,11 @@ namespace logic {
         }
         else if (name == "array_select")
         {
-            return "$select";
+            return "select";
         }
         else if (name == "array_store")
         {
-            return "$store";
+            return "store";
         }
         else if (name == "bool_true")
         {

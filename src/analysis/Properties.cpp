@@ -56,7 +56,7 @@ namespace program {
         // output sort declarations
         for(const auto& pair : Sorts::nameToSort())
         {
-            ostr << declareSortTPTP(*pair.second);
+            ostr << pair.second->declareSortTPTP();
         }
         
         // output symbol definitions
@@ -92,7 +92,7 @@ namespace program {
         // output sort declarations
         for(const auto& pair : Sorts::nameToSort())
         {
-                ostr << declareSortSMTLIB(*pair.second);
+            ostr << pair.second->declareSortSMTLIB();
         }
         
         // output symbol definitions
@@ -467,8 +467,10 @@ namespace program {
                          ++itAsg) {
                         a = *itAsg;
                         if (a->hasLhs(*v))
+                        {
                             store = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_STORE),
                                                     { store, a->lhs->child(0)->toTerm(i), a->rhs->toTerm(i) });
+                        }
                     }
                     conj.push_back(Formulas::equalityFormula(true,
                                                        v->toTerm(iPlusOne),

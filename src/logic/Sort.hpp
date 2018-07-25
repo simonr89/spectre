@@ -10,7 +10,7 @@ namespace logic {
 #pragma mark - Sort
 
     class Sort
-    {
+    {        
         // we need each sort to be unique.
         // We therefore use the Sorts-class below as a manager-class for Sort-objects
         friend class Sorts;
@@ -25,13 +25,12 @@ namespace logic {
         bool operator==(Sort& o);
         
         std::string toTPTP() const;
-        
         std::string toSMTLIB() const;
+
+        std::string declareSortTPTP() const;
+        std::string declareSortSMTLIB() const;
     };
     std::ostream& operator<<(std::ostream& ostr, const Sort& s);
-    
-    std::string declareSortTPTP(const Sort& s);
-    std::string declareSortSMTLIB(const Sort& s);
 
 
 #pragma mark - Sorts

@@ -38,38 +38,38 @@ namespace logic {
         }
     }
     
-    std::string declareSortTPTP(const Sort& s)
+    std::string Sort::declareSortTPTP() const
     {        
-        if (s.toTPTP() == "$o" || s.toTPTP() == "$int")
+        if (name == "int" || name == "bool")
         {
             // TPTP already knows bool and int.
             return "";
         }
-        else if (s.toTPTP() == "Time")
+        else if (name == "Time")
         {
             assert(false); // TPTP doesn't support term algebras
             return "";
         }
         else
         {
-            return "tff(sort_" + s.toTPTP() + ", type, " + s.toTPTP() + " : $tType).\n";
+            return "tff(sort_" + name + ", type, " + name + " : $tType).\n";
         }
     }
     
-    std::string declareSortSMTLIB(const Sort& s)
+    std::string Sort::declareSortSMTLIB() const
     {        
-        if (s.toSMTLIB() == "Int" || s.toSMTLIB() == "Bool")
+        if (name == "int" || name == "bool")
         {
             // SMTLIB already knows Int and Bool.
             return "";
         }
-        else if (s.toSMTLIB() == "Time")
+        else if (name == "Time")
         {
             return "(declare-datatypes ((Time 0)) (( (zero) (s (p Time)) )) )\n";
         }
         else
         {
-            return "(declare-sort " + s.toSMTLIB() + " 0)\n";
+            return "(declare-sort " + name + " 0)\n";
         }
     }
     
