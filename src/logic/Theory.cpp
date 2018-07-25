@@ -27,17 +27,17 @@ namespace logic {
             case InterpretedSymbol::INT_LESS_EQUAL:
                 return Signature::fetchOrDeclare("int_less_eq", { Sorts::intSort(), Sorts::intSort() }, Sorts::boolSort(), true);
             case InterpretedSymbol::ARRAY_SELECT:
-                return Signature::fetchOrDeclare("array_select", { Sorts::intArraySort(), Sorts::intSort() }, Sorts::intSort(), true);
+                return Signature::fetchOrDeclare("array_select", { Sorts::intArraySort(), Sorts::intSort() }, Sorts::intSort(), false);
             case InterpretedSymbol::ARRAY_STORE:
-                return Signature::fetchOrDeclare("array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), true);
+                return Signature::fetchOrDeclare("array_store", { Sorts::intArraySort(), Sorts::intSort(), Sorts::intSort() }, Sorts::intArraySort(), false);
             case InterpretedSymbol::TIME_ZERO:
-                return Signature::fetchOrDeclare("time_zero", Sorts::timeSort(), true, true);
+                return Signature::fetchOrDeclare("time_zero", Sorts::timeSort(), true);
             case InterpretedSymbol::TIME_SUCC:
-                return Signature::fetchOrDeclare("time_succ", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
+                return Signature::fetchOrDeclare("time_succ", {Sorts::timeSort()}, Sorts::timeSort(), true);
             case InterpretedSymbol::TIME_PRE:
-                return Signature::fetchOrDeclare("time_pre", {Sorts::timeSort()}, Sorts::timeSort(), true, true);
+                return Signature::fetchOrDeclare("time_pre", {Sorts::timeSort()}, Sorts::timeSort(), true);
             case InterpretedSymbol::TIME_SUB:
-                return Signature::fetchOrDeclare("time_sub", {Sorts::timeSort(), Sorts::timeSort()}, Sorts::boolSort(), true, true);
+                return Signature::fetchOrDeclare("time_sub", {Sorts::timeSort(), Sorts::timeSort()}, Sorts::boolSort(), false);
             default:
                 assert(0); //unreachable
                 return nullptr;
@@ -101,6 +101,64 @@ namespace logic {
                       : getSymbol(InterpretedSymbol::INT_LESS));
         return Terms::predTerm(lt, {t1,t2});
     }
-    
+
+    // forall i, sub(i, s(i))
+    FormulaPtr Theory::timeSubAxiom1()
+    {
+        assert(util::Configuration::instance().timepoints().getValue());
+        
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        
+        return Formulas::universalFormula({i}, Formulas::predicateFormula(timeLt(i, timeSucc(i))));
+    }
+
+    // forall i j, sub(i, j) -> sub(i, s(j))
+    FormulaPtr Theory::timeSubAxiom2()
+    {
+        assert(util::Configuration::instance().timepoints().getValue());
+        
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        
+        return Formulas::universalFormula({i, j},
+                                          Formulas::implicationFormula(Formulas::predicateFormula(timeLt(i, j)),
+                                                                       Formulas::predicateFormula(timeLt(i, timeSucc(j)))));
+    }
+
+    // forall a, p, v, select(store(a,p,v), p) = v
+    FormulaPtr Theory::selectOverStoreAxiom1()
+    {
+        LVariablePtr a = Terms::lVariable(Sorts::intArraySort(), "A");
+        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+        LVariablePtr v = Terms::lVariable(Sorts::intSort(), "V");
+        
+        FuncTermPtr s = Terms::funcTerm(getSymbol(InterpretedSymbol::ARRAY_STORE),
+                                        {a, p, v});
+        FuncTermPtr t = Terms::funcTerm(getSymbol(InterpretedSymbol::ARRAY_SELECT),
+                                        {s, p});
+        
+        return Formulas::universalFormula({a, p, v},
+                                          Formulas::equalityFormula(true, t, v));
+    }
+
+    // forall a, p1, p2 v, p1 != p2 -> select(store(a,p2,v), p1) = select(a, p1)
+    FormulaPtr Theory::selectOverStoreAxiom2()
+    {
+        LVariablePtr a = Terms::lVariable(Sorts::intArraySort(), "A");
+        LVariablePtr p1 = Terms::lVariable(Sorts::intSort(), "P1");
+        LVariablePtr p2 = Terms::lVariable(Sorts::intSort(), "P2");
+        LVariablePtr v = Terms::lVariable(Sorts::intSort(), "V");
+        
+        FuncTermPtr s = Terms::funcTerm(getSymbol(InterpretedSymbol::ARRAY_STORE),
+                                        {a, p2, v});
+        FuncTermPtr t = Terms::funcTerm(getSymbol(InterpretedSymbol::ARRAY_SELECT),
+                                        {s, p1});
+        FuncTermPtr u = Terms::funcTerm(getSymbol(InterpretedSymbol::ARRAY_SELECT),
+                                        {a, p1});
+        
+        return Formulas::universalFormula({a, p1, p2, v},
+                                          Formulas::implicationFormula(Formulas::equalityFormula(false, p1, p2),
+                                                                       Formulas::equalityFormula(true, t, u)));
+    }
 }
 

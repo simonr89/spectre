@@ -109,15 +109,6 @@ namespace logic {
 
     std::string Symbol::declareSymbolSMTLIB() const
     {
-        // hack since Vampire currently doesn't add the sub-predicate itself
-        // declare and define the symbol time_sub
-        if (name == "time_sub")
-        {
-            std::string ret = "(declare-fun Sub (Time Time) Bool)\n";
-            ret += "(assert (forall ((it Time)) (Sub it (s it))) )\n";
-            ret += "(assert (forall ((it1 Time)(it2 Time)) (=> (Sub it1 it2) (Sub it1 (s it2))) ))\n";
-            return ret;
-        }
         if (interpreted)
         {
             return ""; // don't  need to declare symbols, which are already known to TPTP-solvers.
@@ -178,13 +169,11 @@ namespace logic {
         }
         else if (name == "array_select")
         {
-            assert(false); // TODO: not implemented yet
-            return "$select";
+            return "array_select";
         }
         else if (name == "array_store")
         {
-            assert(false); // TODO: not implemented yet
-            return "$store";
+            return "array_store";
         }
         else if (name == "bool_true")
         {
@@ -208,7 +197,7 @@ namespace logic {
         }
         else if (name == "time_sub")
         {
-            return "Sub";
+            return "sub";
         }
         // if non-negative integer constant
         else if (std::all_of(name.begin(), name.end(), ::isdigit))
@@ -243,6 +232,8 @@ namespace logic {
     
     std::string Symbol::declareSymbolColorSMTLIB() const
     {
+        assert(!interpreted);
+        
         return colored ? "(color-symbol " + toSMTLIB() + " :left)\n" : "";
     }
     

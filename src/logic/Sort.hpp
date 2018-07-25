@@ -44,7 +44,7 @@ namespace logic {
         // construct various sorts
         static Sort* boolSort() { return fetchOrDeclare("bool"); }
         static Sort* intSort() { return fetchOrDeclare("int"); }
-        static Sort* intArraySort() { return fetchOrDeclare("array(int,int)"); }
+        static Sort* intArraySort() { return fetchOrDeclare("array_int"); }
         // time can either be represented by int or by a dedicated term algebra sort
         static Sort* timeSort();
 

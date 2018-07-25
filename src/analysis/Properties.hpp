@@ -68,6 +68,8 @@ namespace program {
         logic::FormulaPtr timepointQuantified(std::vector<logic::LVariablePtr> vars, logic::FormulaPtr f);
                 
         void stepAxiom();
+
+        void theoryAxioms();
         
         void constnessProps();
 

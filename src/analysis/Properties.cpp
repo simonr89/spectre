@@ -26,7 +26,7 @@ namespace program {
         updatePredicatesOfArrays();
 
         // theory axioms
-        // TODO
+        theoryAxioms();
 
         // goal
         if (util::Configuration::instance().mainMode().getValue() == "verification")
@@ -128,6 +128,20 @@ namespace program {
         //TODO
     }
 
+    void Properties::theoryAxioms()
+    {
+        if (util::Configuration::instance().arrayTheory().getValue())
+        {
+            addProperty("select_over_store_1", Theory::selectOverStoreAxiom1());
+            addProperty("select_over_store_2", Theory::selectOverStoreAxiom2());
+        }
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            addProperty("timesub_1", Theory::timeSubAxiom1());
+            addProperty("timesub_2", Theory::timeSubAxiom2());
+        }
+    }
+
 #pragma mark - General Properties
 
     FormulaPtr Properties::timepointQuantified(std::vector<LVariablePtr> vars, FormulaPtr f)
@@ -154,42 +168,38 @@ namespace program {
         {
             if (!updated.at(var))
             {
-                Sort* iterSort = (Sorts::timeSort());
-                LVariablePtr it = Terms::lVariable(iterSort, "It");
+                LVariablePtr it = Terms::lVariable(Sorts::timeSort(), "It");
                 
                 FormulaPtr eq;
-                // eq(it) := x(it) = x(0)
-                if (!isArrayType(var->type))
+                if (isArrayType(var->type)
+                    && !util::Configuration::instance().arrayTheory().getValue())
                 {
-                    
-                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "0", toSort(var->type));
-                    TermPtr var0 = Terms::funcTerm(var0Symbol, {});
-                    
-                    eq = Formulas::equalityFormula(true,
-                                             var->toTerm(it),
-                                             var0);
-                }
-                // eq(i) := forall p. x(i,p) = x(0,p)
-                else
-                {
-                    // TODO suppport for other options not implemented yet
-                    assert(!util::Configuration::instance().arrayTheory().getValue());
-                    
+                    // eq(i) := forall p. x(i,p) = x(0,p)
                     LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
                     
-                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"0", { Sorts::intSort() }, toSort(var->type));
-                    TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
+                    //Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"0", { Sorts::intSort() }, toSort(var->type));
+                    //TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
                     
                     FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true,
                                                                                 var->toTerm(it, p),
-                                                                                var0);
+                                                                                var->toTerm(Theory::timeZero(), p));
                     eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
+                }
+                else
+                {
+                    // eq(it) := x(it) = x(0)
+                    //Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "0", toSort(var->type));
+                    //TermPtr var0 = Terms::funcTerm(var0Symbol, {});
+                    
+                    eq = Formulas::equalityFormula(true,
+                                                   var->toTerm(it),
+                                                   var->toTerm(Theory::timeZero()));
                 }
                 
                 FormulaPtr f = timepointQuantified({it}, eq);
                 
                 // add property
-                addProperty("notupdated_" + var->name, f);
+                addProperty("constant_" + var->name, f);
             }
         }
     }
@@ -257,7 +267,7 @@ namespace program {
         assert(strict.at(v));
         assert(!util::Configuration::instance().timepoints().getValue());
         
-        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         
         InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_PLUS
@@ -277,9 +287,8 @@ namespace program {
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(strict.at(v));
 
-        Sort* iterSort = (Sorts::timeSort());
-        LVariablePtr i = Terms::lVariable(iterSort, "It1");
-        LVariablePtr j = Terms::lVariable(iterSort, "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
 
         FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
 
@@ -299,9 +308,8 @@ namespace program {
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(!strict.at(v));
 
-        Sort* iterSort = (Sorts::timeSort());
-        LVariablePtr i = Terms::lVariable(iterSort, "It1");
-        LVariablePtr j = Terms::lVariable(iterSort, "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
 
         FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
 
@@ -460,7 +468,7 @@ namespace program {
                         a = *itAsg;
                         if (a->hasLhs(*v))
                             store = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_STORE),
-                                                 { store, a->lhs->child(0)->toTerm(i), a->rhs->toTerm(i) });
+                                                    { store, a->lhs->child(0)->toTerm(i), a->rhs->toTerm(i) });
                     }
                     conj.push_back(Formulas::equalityFormula(true,
                                                        v->toTerm(iPlusOne),

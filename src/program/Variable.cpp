@@ -16,21 +16,19 @@ namespace program {
     /** the main constructors */
     PVariable::PVariable(const std::string& name, Type ty) : Variable(name, ty)
     {
-        Sort* sortToDescribeTime = (util::Configuration::instance().timepoints().getValue()) ? logic::Sorts::timeSort() : logic::Sorts::intSort();
-
         if (isArrayType(ty)) {
             if (util::Configuration::instance().arrayTheory().getValue()) {
                 // representation of arrays using array axioms
                 _symbol = Signature::fetchOrDeclare(name + "_nonext", {}, logic::Sorts::intArraySort());
-                _extendedSymbol = Signature::fetchOrDeclare(name, { sortToDescribeTime }, logic::Sorts::intArraySort(), false, true);
+                _extendedSymbol = Signature::fetchOrDeclare(name, { logic::Sorts::timeSort() }, logic::Sorts::intArraySort(), false, true);
             } else {
                 // representation of arrays as functions
                 _symbol = Signature::fetchOrDeclare(name + "_nonext", { logic::Sorts::intSort() }, toSort(ty));
-                _extendedSymbol = Signature::fetchOrDeclare(name, { sortToDescribeTime, logic::Sorts::intSort() }, toSort(ty), false, true);
+                _extendedSymbol = Signature::fetchOrDeclare(name, { logic::Sorts::timeSort(), logic::Sorts::intSort() }, toSort(ty), false, true);
             }
         } else {
             _symbol = Signature::fetchOrDeclare(name + "_nonext", {}, toSort(ty));
-            _extendedSymbol = Signature::fetchOrDeclare(name, { sortToDescribeTime }, toSort(ty), false, true);
+            _extendedSymbol = Signature::fetchOrDeclare(name, { logic::Sorts::timeSort() }, toSort(ty), false, true);
         }
     }
     
@@ -39,7 +37,8 @@ namespace program {
     
     TermPtr PVariable::toTerm(TermPtr index) const
     {
-        assert(!isArrayType(type));
+        assert(util::Configuration::instance().arrayTheory().getValue()
+               || !isArrayType(type));
 
         if (index)
         {

@@ -2,6 +2,7 @@
 #define __Theory__
 
 #include <string>
+#include "Formula.hpp"
 #include "Term.hpp"
 
 namespace logic {
@@ -42,6 +43,11 @@ namespace logic {
         static FuncTermPtr timeSucc(TermPtr t);
         static FuncTermPtr timePred(TermPtr t);
         static PredTermPtr timeLt(TermPtr t1, TermPtr t2);
+
+        static FormulaPtr timeSubAxiom1();
+        static FormulaPtr timeSubAxiom2();
+        static FormulaPtr selectOverStoreAxiom1();
+        static FormulaPtr selectOverStoreAxiom2();
     };
     
 }
