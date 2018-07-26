@@ -144,11 +144,20 @@ namespace program {
 
 #pragma mark - General Properties
 
-    FormulaPtr Properties::timepointQuantified(std::vector<LVariablePtr> vars, FormulaPtr f)
+    FormulaPtr Properties::quantifyIterations(std::vector<LVariablePtr> vars,
+                                              FormulaPtr f,
+                                              bool exist)
     {
         if (util::Configuration::instance().timepoints().getValue())
         {
-            return Formulas::universalFormula(vars, f);
+            if (exist)
+            {
+                return Formulas::existentialFormula(vars, f);
+            }
+            else
+            {
+                return Formulas::universalFormula(vars, f);
+            }
         }
         else
         {
@@ -158,7 +167,15 @@ namespace program {
                 conjuncts.push_back(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
                                                                                { var, Theory::integerConstant(0) } )));
             }
-            return Formulas::universalFormula(vars, Formulas::implicationFormula(Formulas::conjunctionFormula(conjuncts), f));
+            if (exist)
+            {
+                conjuncts.push_back(f);
+                return Formulas::universalFormula(vars, Formulas::conjunctionFormula(conjuncts));
+            }
+            else
+            {
+                return Formulas::universalFormula(vars, Formulas::implicationFormula(Formulas::conjunctionFormula(conjuncts), f));
+            }
         }
     }
 
@@ -196,7 +213,7 @@ namespace program {
                                                    var->toTerm(Theory::timeZero()));
                 }
                 
-                FormulaPtr f = timepointQuantified({it}, eq);
+                FormulaPtr f = quantifyIterations({it}, eq);
                 
                 // add property
                 addProperty("constant_" + var->name, f);
@@ -276,7 +293,7 @@ namespace program {
         TermPtr lhsTerm = v->toTerm(i);
         TermPtr rhsTerm = Terms::funcTerm(Theory::getSymbol(interp), {v0, i});
         FormulaPtr eq = Formulas::equalityFormula(true, lhsTerm, rhsTerm);
-        return timepointQuantified({i}, eq);
+        return quantifyIterations({i}, eq);
     }
     
     /** forall i j, i < j => v(i) < v(j) [v(j) < v(i) if v is
@@ -297,7 +314,7 @@ namespace program {
                                     : InterpretedSymbol::INT_GREATER);
         FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
                                                                    { v->toTerm(i), v->toTerm(j) }));
-        return timepointQuantified({i, j}, Formulas::implicationFormula(f1, f2));
+        return quantifyIterations({i, j}, Formulas::implicationFormula(f1, f2));
     }
 
     /** forall i j, i < j => v(i) <= v(j) [v(j) <= v(i) if v is
@@ -318,7 +335,7 @@ namespace program {
                                     : InterpretedSymbol::INT_GREATER_EQUAL);
         FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
                                                                    { v->toTerm(i), v->toTerm(j) }));
-        return timepointQuantified({i,j}, Formulas::implicationFormula(f1, f2));
+        return quantifyIterations({i,j}, Formulas::implicationFormula(f1, f2));
     }
     
     /** forall i j, i < j => v(j) + i < v(i) + j [v(i) + i < v(j) + j
@@ -343,7 +360,7 @@ namespace program {
                                      { incr ? v->toTerm(i) : v->toTerm(j), j });
         FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
                                                                    { t1, t2 }));
-        return timepointQuantified({i,j}, Formulas::implicationFormula(f1, f2));
+        return quantifyIterations({i,j}, Formulas::implicationFormula(f1, f2));
     }
 
     /** forall i j. (v(i) = v(j) => i = j ) */
@@ -358,7 +375,7 @@ namespace program {
         
         FormulaPtr imp = Formulas::implicationFormula(Formulas::equalityFormula(true, v->toTerm(i), v->toTerm(j)),
                                                       Formulas::equalityFormula(true, i, j));
-        return timepointQuantified({i,j}, imp);
+        return quantifyIterations({i,j}, imp);
     }
     
     /*
@@ -369,9 +386,9 @@ namespace program {
      *  modified, then there exists a program point at which conditions
      *  for this change have been enabled.
      *
-     *  forall x, (x >= v(0) & v(n) > x => exists i, DISJ(u) (G_u(i) & pred))
-     *  where if v is dense pred <=> v(i) = x
-     *  and otherwise       pred <=> x >= v(i) & v(i+1) > x [resp. <=, < if decreasing]
+     *  forall x i, (v(0) <= x & x < v(i) => exists j, j < i & DISJ(u) (G_u(j) & pred))
+     *  where if v is dense pred <=> v(j) = x
+     *  and otherwise       pred <=> x >= v(j) & v(j+1) > x [resp. <=, < if decreasing]
      */
     FormulaPtr Properties::updatePropertyOfVar(const PVariable *v)
     {
@@ -379,8 +396,9 @@ namespace program {
         assert(monotonic.at(v) != Monotonicity::OTHER);
         
         LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
-        TermPtr iPlusOne = Theory::timeSucc(i);
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        TermPtr jPlusOne = Theory::timeSucc(j);
         
         InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER_EQUAL
@@ -397,17 +415,17 @@ namespace program {
             if (!(command)->findAssignment(*v))
                 continue;
             
-            std::vector<FormulaPtr> conj { (command)->guard->toFormula(i) } ;
+            std::vector<FormulaPtr> conj { (command)->guard->toFormula(j) } ;
             if (dense.at(v))
             {
-                conj.push_back(Formulas::equalityFormula(true, v->toTerm(i), x));
+                conj.push_back(Formulas::equalityFormula(true, v->toTerm(j), x));
             }
             else
             {
                 conj.push_back(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(geOrLe),
-                                                                 { x, v->toTerm(i) })));
+                                                                 { x, v->toTerm(j) })));
                 conj.push_back(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(gtOrLt),
-                                                                 { v->toTerm(iPlusOne), x })));
+                                                                 { v->toTerm(jPlusOne), x })));
             }
             disj.push_back(Formulas::conjunctionFormula(conj));
         }
@@ -415,16 +433,19 @@ namespace program {
         // since v is monotonic, there should be at least one guard that updates it
         assert(disj.size() > 0);
         
-        FormulaPtr f = Formulas::disjunctionFormula(disj);
+        FormulaPtr f1 = Formulas::disjunctionFormula(disj);
+        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, i)), f1 });
+        FormulaPtr succedent = quantifyIterations({ j }, f2, true);
         
-        PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
-                                         { x, v->toTerm(Theory::timeZero()) });
-        PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER),
-                                         { v->toTerm(loopCounterSymbol()), x });
-        std::vector<FormulaPtr> conds { Formulas::predicateFormula(p1), Formulas::predicateFormula(p2) };
+        PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
+                                         { v->toTerm(Theory::timeZero()), x });
+        PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
+                                         { x, v->toTerm(i) });
+        FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
+                                                               Formulas::predicateFormula(p2) });
         
-        return Formulas::universalFormula( { x }, Formulas::implicationFormula(Formulas::conjunctionFormula(conds),
-                                                                               Formulas::existentialFormula( { i } , f)));
+        return Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
+                                                                               succedent));
     }
     
 #pragma mark - Translation of Assignments
@@ -504,7 +525,7 @@ namespace program {
         FormulaPtr f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i) });
         FormulaPtr f2 = Formulas::conjunctionFormula(conj);
         
-        return timepointQuantified({i}, Formulas::implicationFormula(f1, f2));
+        return quantifyIterations({i}, Formulas::implicationFormula(f1, f2));
     }
     
     /** Given a scalar assignment v = e, return the formula v(i+1) = e(i) */
@@ -606,13 +627,13 @@ namespace program {
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         
-        FormulaPtr f1 = timepointQuantified({j}, Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
+        FormulaPtr f1 = quantifyIterations({j}, Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
         
         FormulaPtr f2 = Formulas::equalityFormula(true,
                                                   a->toTerm(Theory::timeZero(), p),
                                                   a->toTerm(i, p));
         
-        return timepointQuantified({i}, Formulas::universalFormula({p}, Formulas::implicationFormula(f1, f2)));
+        return quantifyIterations({i}, Formulas::universalFormula({p}, Formulas::implicationFormula(f1, f2)));
         
     }
     
@@ -641,7 +662,7 @@ namespace program {
                                                   v,
                                                   a->toTerm(k, p));
         
-        return timepointQuantified({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+        return quantifyIterations({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
     }
     
     
@@ -672,7 +693,7 @@ namespace program {
                                                   v,
                                                   a->toTerm(k, p));
         
-        return timepointQuantified({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+        return quantifyIterations({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
     }
     
     // if v is nullptr, updatePredicate with 2 args
@@ -759,7 +780,7 @@ namespace program {
 
         FormulaPtr f = Formulas::implicationFormula(Formulas::predicateFormula(Theory::timeLt(i, loopCounterSymbol())),
                                                     loop.loopCondition->toFormula(i));
-        addProperty("loop_condition", timepointQuantified({i}, f));
+        addProperty("loop_condition", quantifyIterations({i}, f));
     }
 
     // ~cond($counter)
@@ -835,7 +856,7 @@ namespace program {
     void Properties::terminationGoal()
     {
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
-        FormulaPtr goal = timepointQuantified({i}, loop.loopCondition->toFormula(i));
+        FormulaPtr goal = quantifyIterations({i}, loop.loopCondition->toFormula(i));
 
         // TODO mark this as negated conjecture
         addProperty("loop_termination", goal);

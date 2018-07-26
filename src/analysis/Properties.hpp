@@ -64,8 +64,12 @@ namespace program {
         unsigned toVampireSort(Type t);
 
         // return [forall vars, var_1 >= 0 & ... & var_n => f] if time
-        // is represented with integers, [forall vars, f] otherwise
-        logic::FormulaPtr timepointQuantified(std::vector<logic::LVariablePtr> vars, logic::FormulaPtr f);
+        // is represented with integers, [forall vars, f] otherwise.
+        // Respectively, [exists vars, var_1 >= 0 & ... & var_n & f]
+        // if exist is set to true
+        logic::FormulaPtr quantifyIterations(std::vector<logic::LVariablePtr> vars,
+                                             logic::FormulaPtr f,
+                                             bool exist = false);
                 
         void stepAxiom();
 
