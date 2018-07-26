@@ -9,113 +9,120 @@
 namespace util {
     
     class Option {
-    public:
-        std::string name() { return _name; }
-        
+    public:       
         // return true if the value was succesfully set
         virtual bool setValue(std::string v) = 0;
+
+        virtual std::string help() const = 0;
+
+        const std::string name;
         
     protected:
         Option(std::string name) :
-        _name(name)
-        {}
-        
-        std::string _name;
+            name(name)
+            {}
+       
     };
     
     class BooleanOption : public Option {
     public:
         BooleanOption(std::string name, bool defaultValue) :
-        Option(name),
-        _value(defaultValue)
-        {}
+            Option(name),
+            value(defaultValue)
+            {}
         
         bool setValue(std::string v);
-        
-        bool getValue() { return _value; }
+        bool getValue() const { return value; }
+
+        std::string help() const;
         
     protected:
-        bool _value;
+        bool value;
     };
     
-    class StringOption : public Option {
+    class PathOption : public Option {
     public:
-        StringOption(std::string name, std::string defaultValue) :
-        Option(name),
-        _value(defaultValue)
-        {}
+        PathOption(std::string name, std::string defaultValue) :
+            Option(name),
+            value(defaultValue)
+            {}
         
-        bool setValue(std::string v) { _value = v; return true; }
-        
-        std::string getValue() { return _value; }
+        bool setValue(std::string v) { value = v; return true; }
+        std::string getValue() const { return value; }
+
+        std::string help() const;
         
     protected:
-        std::string _value;
+        std::string value;
     };
     
     class MultiChoiceOption : public Option {
     public:
         MultiChoiceOption(std::string name, std::initializer_list<std::string> choices, std::string defaultValue) :
-        Option(name),
-        _value(defaultValue),
-        _choices(choices)
-        {}
+            Option(name),
+            value(defaultValue),
+            choices(choices)
+            {}
         
         bool setValue(std::string v);
-        
-        std::string getValue() { return _value; }
+        std::string getValue() const { return value; }
+
+        std::string help() const;
         
     protected:
-        std::string _value;
+        std::string value;
         
-        std::vector<std::string> _choices;
+        const std::vector<std::string> choices;
     };
     
     class Configuration {
     public:
         Configuration() :
-        _outputFile("output", ""),
-        _outputFormat("output-format", {"tptp", "smtlib"}, "smtlib"),
-        _mainMode("mode", { "generation", "verification", "termination" }, "verification"),
-        _timepoints("timepoints", false),
-        _arrayTheory("arraytheory", false),
-        _existentialAxioms("eaxioms", true),
-        _allOptions()
-        {
-            registerOption(&_outputFile);
-            registerOption(&_outputFormat);
-            registerOption(&_mainMode);
-            registerOption(&_timepoints);
-            registerOption(&_arrayTheory);
-            registerOption(&_existentialAxioms);
-        }
+            outputFileOpt("output", ""),
+            outputFormatOpt("format", {"tptp", "smtlib"}, "smtlib"),
+            mainModeOpt("mode", { "generation", "verification", "termination" }, "verification"),
+            timepointsOpt("timepoints", false),
+            arrayTheoryOpt("arraytheory", false),
+            existentialAxiomsOpt("eaxioms", true),
+            allOptions()
+            {
+                registerOption(&outputFileOpt);
+                registerOption(&outputFormatOpt);
+                registerOption(&mainModeOpt);
+                registerOption(&timepointsOpt);
+                registerOption(&arrayTheoryOpt);
+                registerOption(&existentialAxiomsOpt);
+            }
         
         bool setAllValues(int argc, char *argv[]);
         
-        Option* getOption(std::string name);
+        Option* getOption(std::string name) const;
         
-        StringOption outputFile() { return _outputFile; }
-        MultiChoiceOption outputFormat() { return _outputFormat; }
-        MultiChoiceOption mainMode() { return _mainMode; }
-        BooleanOption timepoints() { return _timepoints; }
-        BooleanOption arrayTheory() { return _arrayTheory; }
-        BooleanOption existentialAxioms() { return _existentialAxioms; }
+        std::string help() const;
         
-        static Configuration instance() { return _instance; }
+        PathOption outputFile() { return outputFileOpt; }
+        MultiChoiceOption outputFormat() { return outputFormatOpt; }
+        MultiChoiceOption mainMode() { return mainModeOpt; }
+        BooleanOption timepoints() { return timepointsOpt; }
+        BooleanOption arrayTheory() { return arrayTheoryOpt; }
+        BooleanOption existentialAxioms() { return existentialAxiomsOpt; }
+
+        static Configuration instance() { return theInstance; };
         
     protected:
-        StringOption _outputFile;
-        MultiChoiceOption _outputFormat;
-        MultiChoiceOption _mainMode;
-        BooleanOption _timepoints;
-        BooleanOption _arrayTheory;
-        BooleanOption _existentialAxioms;
+
+        PathOption outputFileOpt;
+        MultiChoiceOption outputFormatOpt;
+        MultiChoiceOption mainModeOpt;
+        BooleanOption timepointsOpt;
+        BooleanOption arrayTheoryOpt;
+        BooleanOption existentialAxiomsOpt;
+
+        static Configuration theInstance;
         
-        std::map<std::string, Option*> _allOptions;
+        std::map<const std::string, Option*> allOptions;
         
         void registerOption(Option* o);
-        
-        static Configuration _instance;
     };
 }
 
