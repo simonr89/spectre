@@ -17,18 +17,46 @@ namespace program {
     PVariable::PVariable(const std::string& name, Type ty) : Variable(name, ty)
     {
         if (isArrayType(ty)) {
-            if (util::Configuration::instance().arrayTheory().getValue()) {
+            if (util::Configuration::instance().arrayTheory().getValue())
+            {
                 // representation of arrays using array axioms
-                _symbol = Signature::fetchOrDeclare(name + "_nonext", {}, logic::Sorts::intArraySort());
-                _extendedSymbol = Signature::fetchOrDeclare(name, { logic::Sorts::timeSort() }, logic::Sorts::intArraySort(), false, true);
+                if (util::Configuration::instance().mainMode().getValue() == "generation")
+                {
+                    _symbol = Signature::fetchOrDeclare(name + "_nonext",
+                                                        {},
+                                                        logic::Sorts::intArraySort());
+                }
+                _extendedSymbol = Signature::fetchOrDeclare(name,
+                                                            { logic::Sorts::timeSort() },
+                                                            logic::Sorts::intArraySort(),
+                                                            false,
+                                                            true);
             } else {
                 // representation of arrays as functions
-                _symbol = Signature::fetchOrDeclare(name + "_nonext", { logic::Sorts::intSort() }, toSort(ty));
-                _extendedSymbol = Signature::fetchOrDeclare(name, { logic::Sorts::timeSort(), logic::Sorts::intSort() }, toSort(ty), false, true);
+                if (util::Configuration::instance().mainMode().getValue() == "generation")
+                {
+                _symbol = Signature::fetchOrDeclare(name + "_nonext",
+                                                    { logic::Sorts::intSort() },
+                                                    toSort(ty));
+                }
+                _extendedSymbol = Signature::fetchOrDeclare(name,
+                                                            { logic::Sorts::timeSort(), logic::Sorts::intSort() },
+                                                            toSort(ty),
+                                                            false,
+                                                            true);
             }
         } else {
-            _symbol = Signature::fetchOrDeclare(name + "_nonext", {}, toSort(ty));
-            _extendedSymbol = Signature::fetchOrDeclare(name, { logic::Sorts::timeSort() }, toSort(ty), false, true);
+            if (util::Configuration::instance().mainMode().getValue() == "generation")
+            {
+            _symbol = Signature::fetchOrDeclare(name + "_nonext",
+                                                {},
+                                                toSort(ty));
+            }
+            _extendedSymbol = Signature::fetchOrDeclare(name,
+                                                        { logic::Sorts::timeSort() },
+                                                        toSort(ty),
+                                                        false,
+                                                        true);
         }
     }
     
