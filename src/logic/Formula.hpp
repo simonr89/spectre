@@ -12,10 +12,11 @@ namespace logic {
     public:
         std::string declareTPTP(std::string decl, bool conjecture = false) const;
         std::string declareSMTLIB(std::string decl, bool conjecture = false) const;
-        
+       
         virtual std::string toTPTP() const = 0;
         virtual std::string toSMTLIB(unsigned indentation = 0) const = 0;
         virtual std::string prettyString(unsigned indentation = 0) const = 0;
+        virtual unsigned occurrences(const Term& t) const = 0;
     };
 
     typedef std::shared_ptr<const Formula> FormulaPtr;
@@ -32,6 +33,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     class EqualityFormula : public Formula
@@ -52,6 +54,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     class ConjunctionFormula : public Formula
@@ -67,6 +70,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     class DisjunctionFormula : public Formula
@@ -82,6 +86,7 @@ namespace logic {
         std::string toTPTP() const override ;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     class NegationFormula : public Formula
@@ -96,6 +101,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
         
     };
     
@@ -113,6 +119,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     class UniversalFormula : public Formula
@@ -129,6 +136,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     class ImplicationFormula : public Formula
@@ -144,6 +152,7 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
+        unsigned occurrences(const Term& t) const override;
     };
     
     inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }

@@ -2,11 +2,36 @@
 
 namespace program
 {
-    Assignment *GuardedCommand::findAssignment(const PVariable &v) const
+
+    logic::FormulaPtr GuardedCommandCollection::weakestPrecondition(logic::FormulaPtr f) const
     {
-        for (auto it = assignments.begin(); it != assignments.end(); ++it) {
-            if ((*it)->hasLhs(v))
-                return *it;
+        std::vector<logic::FormulaPtr> conj;
+        for (GuardedCommand* c: commands)
+        {
+            conj.push_back(c->weakestPrecondition(f));
+        }
+        return logic::Formulas::conjunctionFormula(conj);
+    }
+
+    logic::FormulaPtr GuardedCommand::weakestPrecondition(logic::FormulaPtr f) const
+    {
+        logic::FormulaPtr g = f;
+        for (Assignment* a: assignments)
+        {
+            // TODO could be optimized to avoid copying the formulas so many times
+            g = a->weakestPrecondition(g);
+        }
+        return logic::Formulas::implicationFormula(guard->toFormula(nullptr), g);
+    }
+    
+    Assignment* GuardedCommand::findAssignment(const PVariable &v) const
+    {
+        for (Assignment* a : assignments)
+        {
+            if (a->hasLhs(v))
+            {
+                return a;
+            }
         }
         return nullptr;
     }

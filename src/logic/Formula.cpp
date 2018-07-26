@@ -33,6 +33,11 @@ namespace logic {
     {
         return std::string(indentation, ' ') + p->toSMTLIB();
     }
+
+    unsigned PredicateFormula::occurrences(const Term& t) const
+    {
+        return p->occurrences(t);
+    }
     
     std::string EqualityFormula::toTPTP() const
     {
@@ -53,7 +58,11 @@ namespace logic {
             return std::string(indentation, ' ')  + "(not (= " + left->toSMTLIB() + " " + right->toSMTLIB() + "))";
         }
     }
-    
+
+    unsigned EqualityFormula::occurrences(const Term& t) const
+    {
+        return left->occurrences(t) + right->occurrences(t);
+    }
  
     std::string ConjunctionFormula::toTPTP() const
     {
@@ -86,6 +95,15 @@ namespace logic {
         }
         str += std::string(indentation, ' ') + ")";
         return str;
+    }
+
+    unsigned ConjunctionFormula::occurrences(const Term& t) const
+    {
+        unsigned r = 0;
+        for (FormulaPtr f: conj) {
+            r += f->occurrences(t);
+        }
+        return r;
     }
     
     std::string DisjunctionFormula::toTPTP() const
@@ -120,6 +138,15 @@ namespace logic {
         str += std::string(indentation, ' ') + ")";
         return str;
     }
+
+    unsigned DisjunctionFormula::occurrences(const Term& t) const
+    {
+        unsigned r = 0;
+        for (FormulaPtr f: disj) {
+            r += f->occurrences(t);
+        }
+        return r;
+    }
     
     std::string NegationFormula::toTPTP() const
     {
@@ -132,6 +159,11 @@ namespace logic {
         str += f->toSMTLIB(indentation + 3) + "\n";
         str += std::string(indentation, ' ') + ")";
         return  str;
+    }
+
+    unsigned NegationFormula::occurrences(const Term& t) const
+    {
+        return f->occurrences(t);
     }
     
     std::string ExistentialFormula::toTPTP() const
@@ -163,6 +195,11 @@ namespace logic {
         str += std::string(indentation, ' ') + ")";
         return str;
     }
+
+    unsigned ExistentialFormula::occurrences(const Term& t) const
+    {
+        return f->occurrences(t);
+    }
     
     std::string UniversalFormula::toTPTP() const
     {
@@ -193,6 +230,11 @@ namespace logic {
         str += std::string(indentation, ' ') + ")";
         return str;
     }
+
+    unsigned UniversalFormula::occurrences(const Term& t) const
+    {
+        return f->occurrences(t);
+    }
     
     std::string ImplicationFormula::toTPTP() const
     {
@@ -206,6 +248,11 @@ namespace logic {
         str += f2->toSMTLIB(indentation + 3) + "\n";
         str += std::string(indentation, ' ') + ")";
         return  str;
+    }
+
+    unsigned ImplicationFormula::occurrences(const Term& t) const
+    {
+        return f1->occurrences(t) + f2->occurrences(t);
     }
 
 //    FormulaPtr Formula::quantify(bool univ) const

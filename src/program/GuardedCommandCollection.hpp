@@ -10,13 +10,16 @@
 
 #include <ostream>
 #include <vector>
-#include "Expression.hpp"
-#include "Type.hpp"
+
 #include "Assignment.hpp"
+#include "Expression.hpp"
+#include "Formula.hpp"
+#include "Type.hpp"
+
 
 namespace program {
 
-  class GuardedCommandCollection;
+    class GuardedCommandCollection;
 
     class GuardedCommand {
     public:
@@ -26,11 +29,10 @@ namespace program {
         const std::vector<Assignment*> assignments;
         
         /** Return nullptr if the variable is not assigned in the
-         command */
+            command */
         Assignment *findAssignment(const PVariable &v) const;
         
-        friend class GuardedCommandCollection;
-        friend std::ostream& operator<<(std::ostream&, const GuardedCommand&);
+        logic::FormulaPtr weakestPrecondition(logic::FormulaPtr f) const;
     };
 
     class GuardedCommandCollection {
@@ -39,14 +41,14 @@ namespace program {
         
         const std::vector<GuardedCommand*> commands;
         const FExpression* loopCondition;
-        
-        friend std::ostream& operator<<(std::ostream&, const GuardedCommandCollection&);        
+
+        logic::FormulaPtr weakestPrecondition(logic::FormulaPtr f) const;
     };
 
-  /** pretty-printer */
-  std::ostream& operator<<(std::ostream& ostr, const Assignment& a);
-  std::ostream& operator<<(std::ostream& ostr, const GuardedCommand& c);
-  std::ostream& operator<<(std::ostream& ostr, const GuardedCommandCollection& c);
+    /** pretty-printer */
+    std::ostream& operator<<(std::ostream& ostr, const Assignment& a);
+    std::ostream& operator<<(std::ostream& ostr, const GuardedCommand& c);
+    std::ostream& operator<<(std::ostream& ostr, const GuardedCommandCollection& c);
 
     // Hack: these function are needed for debugging bison
     std::ostream& operator<<(std::ostream& ostr, const std::vector<GuardedCommand*>& c);

@@ -21,6 +21,23 @@ namespace logic {
         return name;
     }
 
+    unsigned LVariable::occurrences(const Term& t) const
+    {
+        return (*this == t ? 1 : 0);
+    }
+
+    bool LVariable::operator ==(const Term& t) const
+    {
+        try
+        {
+            const LVariable& v = dynamic_cast<const LVariable&> (t);
+            return v.id == id;
+        }
+        catch (std::bad_cast e)
+        {
+            return false;
+        }
+    }
   
     std::string FuncTerm::toTPTP() const
     {
@@ -68,6 +85,47 @@ namespace logic {
                 str += (i == subterms.size() - 1) ? ")" : ",";
             }
             return str;
+        }
+    }
+
+    unsigned FuncTerm::occurrences(const Term& t) const
+    {
+        if (*this == t)
+        {
+            return 1;
+        }
+        else
+        {
+            unsigned n = 0;
+            for (TermPtr s: subterms)
+            {
+                n += s->occurrences(t);
+            }
+            return n;
+        }
+    }
+
+    bool FuncTerm::operator ==(const Term& t) const
+    {
+        try
+        {
+            const FuncTerm& f = dynamic_cast<const FuncTerm&> (t);
+            if (f.head != head)
+            {
+                return false;
+            }
+            for (unsigned i = 0; i < subterms.size(); i++)
+            {
+                if (*subterms[i] != *(f.subterms[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch (std::bad_cast e)
+        {
+            return false;
         }
     }
 
@@ -122,14 +180,55 @@ namespace logic {
         }
     }
 
-    bool compareLVarPointers(const LVariable* p1, const LVariable* p2)
+    unsigned PredTerm::occurrences(const Term& t) const
     {
-        return p1->id < p2->id;
+        if (*this == t)
+        {
+            return 1;
+        }
+        else
+        {
+            unsigned n = 0;
+            for (TermPtr s: subterms)
+            {
+                n += s->occurrences(t);
+            }
+            return n;
+        }
     }
+
+    bool PredTerm::operator ==(const Term& t) const
+    {
+        try
+        {
+            const PredTerm& p = dynamic_cast<const PredTerm&> (t);
+            if (p.head != head)
+            {
+                return false;
+            }
+            for (unsigned i = 0; i < subterms.size(); i++)
+            {
+                if (*subterms[i] != *(p.subterms[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch (std::bad_cast e)
+        {
+            return false;
+        }
+    }
+
+    // bool compareLVarPointers(const LVariable* p1, const LVariable* p2)
+    // {
+    //     return p1->id < p2->id;
+    // }
     
-    bool eqLVarPointers(const LVariable* p1, const LVariable* p2) {
-        return p1->id == p2->id;
-    }
+    // bool eqLVarPointers(const LVariable* p1, const LVariable* p2) {
+    //     return p1->id == p2->id;
+    // }
 
 //    std::vector<LVariablePtr> LVariable::freeVariables() const
 //    {

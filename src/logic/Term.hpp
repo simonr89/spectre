@@ -25,6 +25,10 @@ namespace logic {
         virtual std::string toTPTP() const = 0;
         virtual std::string toSMTLIB() const = 0;
         virtual std::string prettyString() const = 0;
+        virtual unsigned occurrences(const Term& t) const = 0;
+
+        virtual bool operator ==(const Term& t) const = 0;
+        bool operator !=(const Term& t) const { return !(*this == t); }
     };
 
     typedef std::shared_ptr<const Term> TermPtr;
@@ -45,12 +49,12 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
+        unsigned occurrences(const Term& t) const override;
+
+        bool operator ==(const Term& t) const override;
         
         static unsigned freshId;
     };
-    
-    bool compareLVarPointers(const LVariable* p1, const LVariable* p2);
-    bool eqLVarPointers(const LVariable* p1, const LVariable* p2);
     
     class FuncTerm : public Term
     {
@@ -74,6 +78,9 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
+        unsigned occurrences(const Term& t) const override;
+
+        bool operator ==(const Term& t) const override;
     };
 
     typedef std::shared_ptr<const FuncTerm> FuncTermPtr;
@@ -101,6 +108,9 @@ namespace logic {
         std::string toTPTP() const override;
         std::string toSMTLIB() const override;
         virtual std::string prettyString() const override;
+        unsigned occurrences(const Term& t) const override;
+
+        bool operator ==(const Term& t) const override;
     };
 
     typedef std::shared_ptr<const PredTerm> PredTermPtr;

@@ -2,6 +2,7 @@
 #define __Assignment__
 
 #include "Expression.hpp"
+#include "Formula.hpp"
 
 namespace program
 {
@@ -13,9 +14,9 @@ namespace program
         const LocationExpression* lhs;
         const Expression* rhs;
        
-        bool hasLhs(const PVariable &v) { return lhs->varInfo() == &v; }
+        bool hasLhs(const PVariable &v) const { return lhs->varInfo() == &v; }
                 
-        friend std::ostream& operator<<(std::ostream&, const Assignment&);
+        logic::FormulaPtr weakestPrecondition(logic::FormulaPtr f) const;
     };
 }
 
