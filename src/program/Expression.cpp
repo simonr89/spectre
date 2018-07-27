@@ -376,11 +376,11 @@ namespace program {
         {
             return dynamic_cast<BooleanExpression*>(e1);
         }
-        if(e1->isFalse())
+        if (e1->isFalse())
         {
             return dynamic_cast<BooleanExpression*>(e1);
         }
-        if(e2->isFalse())
+        if (e2->isFalse())
         {
             return dynamic_cast<BooleanExpression*>(e2);
         }

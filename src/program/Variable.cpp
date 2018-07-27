@@ -20,12 +20,9 @@ namespace program {
             if (util::Configuration::instance().arrayTheory().getValue())
             {
                 // representation of arrays using array axioms
-                if (util::Configuration::instance().mainMode().getValue() == "generation")
-                {
-                    _symbol = Signature::fetchOrDeclare(name + "_nonext",
-                                                        {},
-                                                        logic::Sorts::intArraySort());
-                }
+                _symbol = Signature::fetchOrDeclare(name + "_nonext",
+                                                    {},
+                                                    logic::Sorts::intArraySort());
                 _extendedSymbol = Signature::fetchOrDeclare(name,
                                                             { logic::Sorts::timeSort() },
                                                             logic::Sorts::intArraySort(),
@@ -33,12 +30,9 @@ namespace program {
                                                             true);
             } else {
                 // representation of arrays as functions
-                if (util::Configuration::instance().mainMode().getValue() == "generation")
-                {
                 _symbol = Signature::fetchOrDeclare(name + "_nonext",
                                                     { logic::Sorts::intSort() },
                                                     toSort(ty));
-                }
                 _extendedSymbol = Signature::fetchOrDeclare(name,
                                                             { logic::Sorts::timeSort(), logic::Sorts::intSort() },
                                                             toSort(ty),
@@ -46,12 +40,9 @@ namespace program {
                                                             true);
             }
         } else {
-            if (util::Configuration::instance().mainMode().getValue() == "generation")
-            {
             _symbol = Signature::fetchOrDeclare(name + "_nonext",
                                                 {},
                                                 toSort(ty));
-            }
             _extendedSymbol = Signature::fetchOrDeclare(name,
                                                         { logic::Sorts::timeSort() },
                                                         toSort(ty),
