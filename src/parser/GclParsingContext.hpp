@@ -21,56 +21,55 @@
 
 namespace parser
 {
-using namespace program;
 
-class GclParsingContext
-{
-  public:
-    GclParsingContext()
-        : variables(), preconditions(), postconditions(), program(nullptr), negatedPreviousGuards(BooleanExpression::mkConstantBoolean(true)), errorFlag(false), _localScopes()
+    class GclParsingContext
     {
-    }
+    public:
+        GclParsingContext()
+            : variables(), preconditions(), postconditions(), program(nullptr), negatedPreviousGuards(program::BooleanExpression::mkConstantBoolean(true)), errorFlag(false), _localScopes()
+            {
+            }
 
-    /** symbol table */
-    std::map<std::string, PVariable *> variables;
-    std::vector<FExpression *> preconditions;
-    std::vector<FExpression *> postconditions;
-    std::unique_ptr<GuardedCommandCollection> program;
+        /** symbol table */
+        std::map<std::string, program::PVariable *> variables;
+        std::vector<program::FExpression *> preconditions;
+        std::vector<program::FExpression *> postconditions;
+        std::unique_ptr<program::GuardedCommandCollection> program;
 
-    // given the collection of commands, each guard has the negation
-    // of previous guard added to it so that the guards are exclusive
-    // the conjunction of the guards of all guarded-commands visited until now
-    BooleanExpression *negatedPreviousGuards;
-    std::string inputFile;
+        // given the collection of commands, each guard has the negation
+        // of previous guard added to it so that the guards are exclusive
+        // the conjunction of the guards of all guarded-commands visited until now
+        program::BooleanExpression *negatedPreviousGuards;
+        std::string inputFile;
 
-    bool errorFlag;
+        bool errorFlag;
 
-    //True if no variable with this name exists in the symbol table
-    bool available(const std::string &name);
-    PVariable *declareVariable(const std::string &name);
-    // looks for local scoped variables first (for quantified formulas) then program variables
-    Variable *getVariable(const std::string &name);
+        //True if no variable with this name exists in the symbol table
+        bool available(const std::string &name);
+        program::PVariable *declareVariable(const std::string &name);
+        // looks for local scoped variables first (for quantified formulas) then program variables
+        program::Variable *getVariable(const std::string &name);
 
-    void setTypeDeclarationContext(Type t) { _typeDeclCtx = t; }
-    Type typeDeclarationContext() { return _typeDeclCtx; }
+        void setTypeDeclarationContext(program::Type t) { _typeDeclCtx = t; }
+        program::Type typeDeclarationContext() { return _typeDeclCtx; }
 
-    // Scoped variables are used only in quantified formulas
-    QVariable *openLocalScope(const std::string &, Type t);
-    void closeLocalScope();
+        // Scoped variables are used only in quantified formulas
+        program::QVariable *openLocalScope(const std::string &, program::Type t);
+        void closeLocalScope();
 
-    void printInfo(GuardedCommandCollection &c);
+        void printInfo(program::GuardedCommandCollection &c);
 
-    bool containsAssignment(std::pair<FExpression *, std::vector<Assignment *>> assignmentList, Assignment *assignment);
-    void addAdditionalGuards(std::pair<FExpression *, std::vector<Assignment *>> pairGuardsAssignments, Assignment *assignment);
+        bool containsAssignment(std::pair<program::FExpression *, std::vector<program::Assignment *>> assignmentList, program::Assignment *assignment);
+        void addAdditionalGuards(std::pair<program::FExpression *, std::vector<program::Assignment *>> pairGuardsAssignments, program::Assignment *assignment);
 
-  protected:
-    /** type of symbols being declared */
-    Type _typeDeclCtx;
+    protected:
+        /** type of symbols being declared */
+        program::Type _typeDeclCtx;
 
-    std::vector<QVariable *> _localScopes;
+        std::vector<program::QVariable *> _localScopes;
 
-  public:
-    std::unique_ptr<Program> generateProgram();
-};
+    public:
+        std::unique_ptr<program::Program> generateProgram();
+    };
 }
 #endif
