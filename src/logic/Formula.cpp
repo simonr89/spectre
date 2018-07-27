@@ -38,6 +38,12 @@ namespace logic {
     {
         return p->occurrences(t);
     }
+
+    Formula* PredicateFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        PredTermPtr p = std::static_pointer_cast<const PredTerm>(Terms::replace(p, oldt, newt));
+        return new PredicateFormula(p);
+    }
     
     std::string EqualityFormula::toTPTP() const
     {
@@ -62,6 +68,13 @@ namespace logic {
     unsigned EqualityFormula::occurrences(const Term& t) const
     {
         return left->occurrences(t) + right->occurrences(t);
+    }
+
+    Formula* EqualityFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        TermPtr newleft = Terms::replace(left, oldt, newt);
+        TermPtr newright = Terms::replace(right, oldt, newt);
+        return new EqualityFormula(polarity, newleft, newright);
     }
  
     std::string ConjunctionFormula::toTPTP() const
@@ -105,6 +118,18 @@ namespace logic {
         }
         return r;
     }
+
+    Formula* ConjunctionFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        std::vector<FormulaPtr> newconj(conj.size());
+
+        for (unsigned i = 0; i < conj.size(); i++)
+        {
+            newconj[i] = Formulas::replace(conj[i], oldt, newt);
+        }
+        
+        return new ConjunctionFormula(newconj);
+    }
     
     std::string DisjunctionFormula::toTPTP() const
     {
@@ -147,6 +172,18 @@ namespace logic {
         }
         return r;
     }
+
+    Formula* DisjunctionFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        std::vector<FormulaPtr> newdisj(disj.size());
+
+        for (unsigned i = 0; i < disj.size(); i++)
+        {
+            newdisj[i] = Formulas::replace(disj[i], oldt, newt);
+        }
+        
+        return new DisjunctionFormula(newdisj);
+    }
     
     std::string NegationFormula::toTPTP() const
     {
@@ -164,6 +201,12 @@ namespace logic {
     unsigned NegationFormula::occurrences(const Term& t) const
     {
         return f->occurrences(t);
+    }
+
+    Formula* NegationFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        FormulaPtr newptr = Formulas::replace(f, oldt, newt);
+        return new NegationFormula(newptr);
     }
     
     std::string ExistentialFormula::toTPTP() const
@@ -200,6 +243,12 @@ namespace logic {
     {
         return f->occurrences(t);
     }
+
+    Formula* ExistentialFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        FormulaPtr newptr = Formulas::replace(f, oldt, newt);
+        return new ExistentialFormula(vars, newptr);
+    }
     
     std::string UniversalFormula::toTPTP() const
     {
@@ -235,6 +284,12 @@ namespace logic {
     {
         return f->occurrences(t);
     }
+
+    Formula* UniversalFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        FormulaPtr newptr = Formulas::replace(f, oldt, newt);
+        return new UniversalFormula(vars, newptr);
+    }
     
     std::string ImplicationFormula::toTPTP() const
     {
@@ -253,6 +308,13 @@ namespace logic {
     unsigned ImplicationFormula::occurrences(const Term& t) const
     {
         return f1->occurrences(t) + f2->occurrences(t);
+    }
+
+    Formula* ImplicationFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    {
+        FormulaPtr newptr1 = Formulas::replace(f1, oldt, newt);
+        FormulaPtr newptr2 = Formulas::replace(f2, oldt, newt);
+        return new ImplicationFormula(newptr1, newptr2);
     }
 
 //    FormulaPtr Formula::quantify(bool univ) const
@@ -591,8 +653,7 @@ namespace logic {
         }
         else
         {
-            //TODO
-            return f;
+            return FormulaPtr(f->replace(oldt, newt));
         }
     }
 }

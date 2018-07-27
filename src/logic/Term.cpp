@@ -1,6 +1,7 @@
-#include <algorithm>
-
 #include "Term.hpp"
+
+#include <algorithm>
+#include <cassert>
 
 namespace logic {
 
@@ -37,6 +38,13 @@ namespace logic {
         {
             return false;
         }
+    }
+
+    Term* LVariable::replace(const TermPtr oldsub, const TermPtr newsub) const
+    {
+        assert(false); // oldsub cannot be a subterm of this
+        
+        return nullptr;
     }
   
     std::string FuncTerm::toTPTP() const
@@ -127,6 +135,15 @@ namespace logic {
         {
             return false;
         }
+    }
+
+    Term* FuncTerm::replace(const TermPtr oldsub, const TermPtr newsub) const
+    {
+        std::vector<TermPtr> newsubs(subterms.size());
+        for (unsigned i; i < subterms.size(); i++) {
+            newsubs[i] = Terms::replace(subterms[i], oldsub, newsub);
+        }
+        return new FuncTerm(head, newsubs);
     }
 
     std::string PredTerm::toTPTP() const {
@@ -221,6 +238,15 @@ namespace logic {
         }
     }
 
+    Term* PredTerm::replace(const TermPtr oldsub, const TermPtr newsub) const
+    {
+        std::vector<TermPtr> newsubs(subterms.size());
+        for (unsigned i; i < subterms.size(); i++) {
+            newsubs[i] = Terms::replace(subterms[i], oldsub, newsub);
+        }
+        return new PredTerm(head, newsubs);
+    }
+
     // bool compareLVarPointers(const LVariable* p1, const LVariable* p2)
     // {
     //     return p1->id < p2->id;
@@ -286,6 +312,21 @@ namespace logic {
     PredTermPtr Terms::predTerm(const Symbol* head, std::initializer_list<TermPtr> subterms)
     {
         return PredTermPtr(new PredTerm(head, subterms));
+    }
+
+    TermPtr Terms::replace(const TermPtr t, const TermPtr oldsub, const TermPtr newsub)
+    {
+        if (t->occurrences(*oldsub) == 0)
+        {
+            return t;
+        }
+        else if (*t == *oldsub) {
+            return newsub;
+        }
+        else
+        {
+            return TermPtr(t->replace(oldsub, newsub));
+        }
     }
 }
 

@@ -105,10 +105,8 @@ namespace program {
      * understood by the user)
      */
     TermPtr ArithmeticExpression::toTerm(TermPtr index) const
-    {
-        using namespace logic;
-        
-        logic::InterpretedSymbol interp;
+    {       
+        InterpretedSymbol interp;
         
         switch (_kind) {
             case ArithExprKind::EXP_CST_INTEGER:
@@ -132,10 +130,10 @@ namespace program {
         
         switch (_arity) {
             case 1: {
-                return logic::Terms::funcTerm(Theory::getSymbol(interp), { _children[0]->toTerm(index) });
+                return Terms::funcTerm(Theory::getSymbol(interp), { _children[0]->toTerm(index) });
             }
             case 2: {
-                return logic::Terms::funcTerm(Theory::getSymbol(interp), { _children[0]->toTerm(index), _children[1]->toTerm(index) });
+                return Terms::funcTerm(Theory::getSymbol(interp), { _children[0]->toTerm(index), _children[1]->toTerm(index) });
             }
             default:
                 assert(0); // unreachable
@@ -180,49 +178,52 @@ namespace program {
     
     FormulaPtr LocationExpression::toFormula(TermPtr index) const
     {
+        //TODO looks fishy, double check the casts, add some asserts
+        
+        PredTermPtr p;
         switch (_kind) {
             case LocationExprKind::EXP_VAR_LOC:
-                return std::make_shared<logic::PredicateFormula>(logic::PredicateFormula(std::dynamic_pointer_cast<const logic::PredTerm>(_var->toTerm(index))));
+                p = std::static_pointer_cast<const PredTerm>(_var->toTerm(index));
+                return Formulas::predicateFormula(p);
             case LocationExprKind::EXP_ARRAY_LOC:
-                return std::make_shared<logic::PredicateFormula>(logic::PredicateFormula(std::dynamic_pointer_cast<const logic::PredTerm>(_var->toTerm(index, _children[0]->toTerm(index)))));
+                p = std::static_pointer_cast<const PredTerm>(_var->toTerm(index, _children[0]->toTerm(index)));
+                return Formulas::predicateFormula(p);
             case LocationExprKind::EXP_FIELD_LOC:
                 assert(false); // TODO: not supported yet
                 break;
         }
         
-        assert(0); // unreachable
+        assert(false); // unreachable
         return nullptr;
     }
     
     FormulaPtr BooleanExpression::toFormula(TermPtr index) const
     {
-        using namespace logic;
-        
         InterpretedSymbol interp;
         
         switch (_kind) {
             case BooleanExprKind::EXP_CST_BOOLEAN:
-                return std::make_shared<PredicateFormula>(Theory::booleanConstant(_constInfo));
+                return Formulas::predicateFormula(Theory::booleanConstant(_constInfo));
             case BooleanExprKind::EXP_NEG:
-                return std::make_shared<NegationFormula>(dynamic_cast<FExpression*>(_children[0])->toFormula(index));
+                return Formulas::negationFormula(dynamic_cast<FExpression*>(_children[0])->toFormula(index));
             case BooleanExprKind::EXP_AND:
             {
-                auto conjuncts = {dynamic_cast<FExpression*>(_children[0])->toFormula(index),
-                    dynamic_cast<FExpression*>(_children[1])->toFormula(index)};
-                return std::make_shared<ConjunctionFormula>(conjuncts);
+                auto conjuncts =
+                    { dynamic_cast<FExpression*>(_children[0])->toFormula(index),
+                      dynamic_cast<FExpression*>(_children[1])->toFormula(index) };
+                return Formulas::conjunctionFormula(conjuncts);
             }
             case BooleanExprKind::EXP_OR:
             {
-                auto disjuncts = {dynamic_cast<FExpression*>(_children[0])->toFormula(index),
-                    dynamic_cast<FExpression*>(_children[1])->toFormula(index)};
-                return std::make_shared<DisjunctionFormula>(disjuncts);
+                auto disjuncts =
+                    { dynamic_cast<FExpression*>(_children[0])->toFormula(index),
+                      dynamic_cast<FExpression*>(_children[1])->toFormula(index) };
+                return Formulas::disjunctionFormula(disjuncts);
             }
             case BooleanExprKind::EXP_EQ:
-            {
-                return std::make_shared<EqualityFormula>(true,
-                                           _children[0]->toTerm(index),
-                                           _children[1]->toTerm(index));
-            }
+                return Formulas::equalityFormula(true,
+                                                  _children[0]->toTerm(index),
+                                                  _children[1]->toTerm(index));
             case BooleanExprKind::EXP_LT:
                 interp = InterpretedSymbol::INT_LESS;
                 break;
@@ -238,9 +239,9 @@ namespace program {
         }
         if (_arity == 2)
         {
-            return std::make_shared<PredicateFormula>(Terms::predTerm(Theory::getSymbol(interp),
-                                                     { _children[0]->toTerm(index),
-                                                         _children[1]->toTerm(index) }));
+            return Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
+                                                              { _children[0]->toTerm(index),
+                                                                _children[1]->toTerm(index) }));
         }
         assert(0); // unreachable
         return nullptr;
@@ -248,7 +249,7 @@ namespace program {
     
     FormulaPtr VariableExpression::toFormula(TermPtr index) const
     {
-        return std::make_shared<const logic::PredicateFormula>(std::dynamic_pointer_cast<const logic::PredTerm>(_var->toTerm(index)));
+        return Formulas::predicateFormula(std::dynamic_pointer_cast<const PredTerm>(_var->toTerm(index)));
     }
     
     FormulaPtr QuantifiedExpression::toFormula(TermPtr index) const
@@ -259,11 +260,11 @@ namespace program {
         assert(_kind == QuantifiedExprKind::EXP_FORALL || _kind == QuantifiedExprKind::EXP_EXISTS);
         if (_kind == QuantifiedExprKind::EXP_FORALL)
         {
-            return std::make_shared<const logic::UniversalFormula>(vars, f);
+            return Formulas::universalFormula(vars, f);
         }
         else
         {
-            return std::make_shared<const logic::ExistentialFormula>(vars, f);
+            return Formulas::existentialFormula(vars, f);
         }
     }
     

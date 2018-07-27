@@ -10,6 +10,8 @@ namespace logic {
     
     class Formula {
     public:
+        friend class Formulas;
+        
         std::string declareTPTP(std::string decl, bool conjecture = false) const;
         std::string declareSMTLIB(std::string decl, bool conjecture = false) const;
        
@@ -17,35 +19,37 @@ namespace logic {
         virtual std::string toSMTLIB(unsigned indentation = 0) const = 0;
         virtual std::string prettyString(unsigned indentation = 0) const = 0;
         virtual unsigned occurrences(const Term& t) const = 0;
+
+    protected:
+        virtual Formula* replace(const TermPtr oldt, const TermPtr newt) const = 0;
     };
 
     typedef std::shared_ptr<const Formula> FormulaPtr;
     
     class PredicateFormula : public Formula
     {
+    public:
         friend class Formulas;
         
-    public:
-        PredicateFormula(PredTermPtr p) : p(p) {}
-
         const PredTermPtr p;
 
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        PredicateFormula(PredTermPtr p) :
+            p(p)
+            {}
+        
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     class EqualityFormula : public Formula
     {
-        friend class Formulas;
-        
     public:
-        EqualityFormula(bool polarity, TermPtr left, TermPtr right) :
-        polarity(polarity),
-        left(left),
-        right(right)
-        {}
+        friend class Formulas;
 
         const bool polarity;
         const TermPtr left;
@@ -55,31 +59,45 @@ namespace logic {
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        EqualityFormula(bool polarity, TermPtr left, TermPtr right) :
+            polarity(polarity),
+            left(left),
+            right(right)
+            {}
+        
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     class ConjunctionFormula : public Formula
     {
-        friend class Formulas;
-        
     public:
-        ConjunctionFormula(std::vector<FormulaPtr> conj) : conj(conj){}
-        ConjunctionFormula(std::initializer_list<FormulaPtr> conj) : conj(conj){}
-        
+        friend class Formulas;
+                
         const std::vector<FormulaPtr> conj;
 
         std::string toTPTP() const override;
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        ConjunctionFormula(std::vector<FormulaPtr> conj) :
+            conj(conj)
+            {}
+        
+        ConjunctionFormula(std::initializer_list<FormulaPtr> conj) :
+            conj(conj)
+            {}
+
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     class DisjunctionFormula : public Formula
     {
-        friend class Formulas;
-        
     public:
-        DisjunctionFormula(std::vector<FormulaPtr> disj) : disj(disj){}
-        DisjunctionFormula(std::initializer_list<FormulaPtr> disj) : disj(disj){}
+        friend class Formulas;
         
         const std::vector<FormulaPtr> disj;
 
@@ -87,14 +105,23 @@ namespace logic {
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        DisjunctionFormula(std::vector<FormulaPtr> disj) :
+            disj(disj)
+            {}
+        
+        DisjunctionFormula(std::initializer_list<FormulaPtr> disj) :
+            disj(disj)
+            {}
+
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     class NegationFormula : public Formula
     {
-        friend class Formulas;
-        
     public:
-        NegationFormula(FormulaPtr f) : f(f) {}
+        friend class Formulas;
         
         const FormulaPtr f;
 
@@ -102,16 +129,19 @@ namespace logic {
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        NegationFormula(FormulaPtr f) :
+            f(f)
+            {}
         
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;        
     };
     
     class ExistentialFormula : public Formula
     {
-        friend class Formulas;
-        
     public:
-        ExistentialFormula(std::vector<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
-        ExistentialFormula(std::initializer_list<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
+        friend class Formulas;
         
         const std::vector<LVariablePtr> vars;
         const FormulaPtr f;
@@ -120,16 +150,26 @@ namespace logic {
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        ExistentialFormula(std::vector<LVariablePtr> vars, FormulaPtr f) :
+            vars(vars),
+            f(f)
+            {}
+        
+        ExistentialFormula(std::initializer_list<LVariablePtr> vars, FormulaPtr f) :
+            vars(vars),
+            f(f)
+            {}
+
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     class UniversalFormula : public Formula
     {
+    public:
         friend class Formulas;
         
-    public:
-        UniversalFormula(std::vector<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
-        UniversalFormula(std::initializer_list<LVariablePtr> vars, FormulaPtr f) : vars(vars), f(f){}
-
         const std::vector<LVariablePtr> vars;
         const FormulaPtr f;
         
@@ -137,14 +177,25 @@ namespace logic {
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        UniversalFormula(std::vector<LVariablePtr> vars, FormulaPtr f) :
+            vars(vars),
+            f(f)
+            {}
+        
+        UniversalFormula(std::initializer_list<LVariablePtr> vars, FormulaPtr f) :
+            vars(vars),
+            f(f)
+            {}
+
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     class ImplicationFormula : public Formula
     {
-        friend class Formulas;
-        
     public:
-        ImplicationFormula(FormulaPtr f1, FormulaPtr f2) : f1(f1), f2(f2) {}
+        friend class Formulas;
         
         const FormulaPtr f1;
         const FormulaPtr f2;
@@ -153,6 +204,14 @@ namespace logic {
         std::string toSMTLIB(unsigned indentation = 0) const override;
         std::string prettyString(unsigned indentation = 0) const override;
         unsigned occurrences(const Term& t) const override;
+
+    protected:
+        ImplicationFormula(FormulaPtr f1, FormulaPtr f2) :
+            f1(f1),
+            f2(f2)
+            {}
+        
+        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
     };
     
     inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }
