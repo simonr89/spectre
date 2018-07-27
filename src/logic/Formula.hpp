@@ -164,21 +164,20 @@ namespace logic {
     {
     public:
         
-        // construct new terms
+        // construct new formulas
         static FormulaPtr predicateFormula(PredTermPtr p);
         static FormulaPtr equalityFormula(bool polarity, TermPtr left, TermPtr right);
-
         static FormulaPtr negationFormula(FormulaPtr f);
-
         static FormulaPtr conjunctionFormula(std::vector<FormulaPtr> conj);
         static FormulaPtr conjunctionFormula(std::initializer_list<FormulaPtr> conj);
         static FormulaPtr disjunctionFormula(std::vector<FormulaPtr> disj);
         static FormulaPtr disjunctionFormula(std::initializer_list<FormulaPtr> disj);
-        
         static FormulaPtr implicationFormula(FormulaPtr f1, FormulaPtr f2);
-        
         static FormulaPtr existentialFormula(std::vector<LVariablePtr> vars, FormulaPtr f);
         static FormulaPtr universalFormula(std::vector<LVariablePtr> vars, FormulaPtr f);
+
+        // term replacement
+        static FormulaPtr replace(const FormulaPtr f, const TermPtr oldt, const TermPtr newt);
     };
 }
 

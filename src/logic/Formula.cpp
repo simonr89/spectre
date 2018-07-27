@@ -583,5 +583,17 @@ namespace logic {
     {
         return FormulaPtr(new UniversalFormula(vars, f));
     }
+
+    FormulaPtr Formulas::replace(const FormulaPtr f, const TermPtr oldt, const TermPtr newt)
+    {
+        if (f->occurrences(*oldt) == 0) {
+            return f;
+        }
+        else
+        {
+            //TODO
+            return f;
+        }
+    }
 }
 

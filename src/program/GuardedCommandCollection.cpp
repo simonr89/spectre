@@ -16,6 +16,9 @@ namespace program
     logic::FormulaPtr GuardedCommand::weakestPrecondition(logic::FormulaPtr f) const
     {
         logic::FormulaPtr g = f;
+        // since the semantics are parallel assignment and the guard
+        // ensures that no location is assigned twice, the order of
+        // substitutions doesn't matter
         for (Assignment* a: assignments)
         {
             // TODO could be optimized to avoid copying the formulas so many times
