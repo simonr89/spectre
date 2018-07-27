@@ -102,7 +102,7 @@ namespace program
         void recordLhsInfo(Assignment* a);
         void recordScalarIncrement(PVariable *v, int n);
         
-        // methods for compting _dense and _strict
+        // methods for computing _dense and _strict
         void densityAndStrictness();
         void densityAndStrictness(const PVariable *v);
         bool isIncremented(const GuardedCommand *gc, const PVariable *v, int &incr);

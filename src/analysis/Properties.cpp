@@ -123,9 +123,42 @@ namespace program {
     
 #pragma mark - Main axiom
 
+    FormulaPtr Properties::lift(const FormulaPtr f, const TermPtr i)
+    {
+        FormulaPtr newf = f;
+        for (const PVariable* v : vars)
+        {
+            newf = Formulas::replace(newf, v->toTerm(nullptr), v->toTerm(i));
+        }
+
+        return newf;
+    }
+
     void Properties::stepAxiom()
     {
-        //TODO
+        // TODO time quantif
+        std::vector<FormulaPtr> conjuncts;
+        std::vector<LVariablePtr> quantif;
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        FuncTermPtr iPlusOne = Theory::timeSucc(i);
+
+        unsigned n = 0;
+        for (const PVariable* v : vars)
+        {
+            LVariablePtr x = Terms::lVariable(toSort(v->type), "X" + std::to_string(n++));
+            quantif.push_back(x);
+            conjuncts.push_back(Formulas::equalityFormula(true,
+                                                          v->toTerm(nullptr),
+                                                          x));
+        }
+
+        FormulaPtr f1 = Formulas::conjunctionFormula(conjuncts);
+        FormulaPtr f2 = loop.weakestPrecondition(f1);
+        FormulaPtr f3 = Formulas::implicationFormula(lift(f1, iPlusOne), lift(f2, i));
+        FormulaPtr stepAxiom = quantifyIterations({i},
+                                                  Formulas::universalFormula(quantif, f3));
+        
+        addProperty("step_axiom", stepAxiom);
     }
 
     void Properties::theoryAxioms()
@@ -398,7 +431,7 @@ namespace program {
         LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
-        TermPtr jPlusOne = Theory::timeSucc(j);
+        FuncTermPtr jPlusOne = Theory::timeSucc(j);
         
         InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER_EQUAL

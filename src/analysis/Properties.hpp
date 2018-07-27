@@ -70,6 +70,10 @@ namespace program {
         logic::FormulaPtr quantifyIterations(std::vector<logic::LVariablePtr> vars,
                                              logic::FormulaPtr f,
                                              bool exist = false);
+
+        // for every program variable x, replace the non-extended
+        // symbol x by the extend symbol x(i).
+        logic::FormulaPtr lift(const logic::FormulaPtr f, const logic::TermPtr i);
                 
         void stepAxiom();
 

@@ -82,7 +82,7 @@ namespace util {
             outputFormatOpt("format", {"tptp", "smtlib"}, "smtlib"),
             mainModeOpt("mode", { "generation", "verification", "termination" }, "verification"),
             timepointsOpt("timepoints", false),
-            arrayTheoryOpt("arraytheory", false),
+            arrayTheoryOpt("arraytheory", true),
             existentialAxiomsOpt("eaxioms", true),
             allOptions()
             {

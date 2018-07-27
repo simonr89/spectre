@@ -26,7 +26,9 @@ namespace program
             }
             else
             {
-                // TODO
+                // TODO weakest precondition of array assignment with
+                // functional representation of array requires
+                // introducing a new symbol
                 assert(0);
             }
         }
