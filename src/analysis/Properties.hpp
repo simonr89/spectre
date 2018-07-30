@@ -82,13 +82,12 @@ namespace program {
         void constnessProps();
 
         // translation of assignments
-        void translateAssignments();
-        
-        logic::FormulaPtr commandToFormula(const GuardedCommand *c);
-        logic::FormulaPtr assignment(const Assignment *a, logic::TermPtr index, logic::TermPtr indexPlusOne);
-        logic::FormulaPtr arrayAssignment(const Assignment *a, logic::TermPtr index, logic::TermPtr indexPlusOne);
-        logic::FormulaPtr nonAssignment(const PVariable *v, logic::TermPtr index, logic::TermPtr indexPlusOne);
-        logic::FormulaPtr arrayNonAssignment(const PVariable *v, const GuardedCommand *gc, logic::TermPtr index, logic::TermPtr indexPlusOne);
+        // void translateAssignments();
+        // logic::FormulaPtr commandToFormula(const GuardedCommand *c);
+        // logic::FormulaPtr assignment(const Assignment *a, logic::TermPtr index, logic::TermPtr indexPlusOne);
+        // logic::FormulaPtr arrayAssignment(const Assignment *a, logic::TermPtr index, logic::TermPtr indexPlusOne);
+        // logic::FormulaPtr nonAssignment(const PVariable *v, logic::TermPtr index, logic::TermPtr indexPlusOne);
+        // logic::FormulaPtr arrayNonAssignment(const PVariable *v, const GuardedCommand *gc, logic::TermPtr index, logic::TermPtr indexPlusOne);
         
         // properties derived from strictness and density of scalars
         void monotonicityProps();
