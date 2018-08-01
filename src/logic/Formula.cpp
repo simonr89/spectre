@@ -648,7 +648,7 @@ namespace logic {
 
     FormulaPtr Formulas::apply(const FormulaPtr f, const Substitution subst)
     {
-        bool occ;
+        bool occ = false;
         for (auto& p: subst) {
             // check occurrences (if one hasn't already been found)
             occ |= (f->occurrences(*p.first) > 0);
