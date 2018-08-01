@@ -42,7 +42,7 @@ namespace util {
 
     bool MultiChoiceOption::setValue(std::string v)
     {
-        for (const std::string s : choices)
+        for (const auto& s : choices)
         {
             if (s == v)
             {

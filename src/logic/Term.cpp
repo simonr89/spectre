@@ -140,7 +140,7 @@ namespace logic {
     Term* FuncTerm::apply(const Substitution subst) const
     {
         std::vector<TermPtr> newsubs(subterms.size());
-        for (unsigned i; i < subterms.size(); i++) {
+        for (unsigned i=0; i < subterms.size(); i++) {
             newsubs[i] = Terms::apply(subterms[i], subst);
         }
         return new FuncTerm(head, newsubs);
@@ -241,7 +241,7 @@ namespace logic {
     Term* PredTerm::apply(const Substitution subst) const
     {
         std::vector<TermPtr> newsubs(subterms.size());
-        for (unsigned i; i < subterms.size(); i++) {
+        for (unsigned i =0; i < subterms.size(); i++) {
             newsubs[i] = Terms::apply(subterms[i], subst);
         }
         return new PredTerm(head, newsubs);
