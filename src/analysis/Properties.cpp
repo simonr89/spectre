@@ -483,8 +483,8 @@ namespace program {
         FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
                                                                Formulas::predicateFormula(p2) });
         
-        return Formulas::universalFormula( { i }, Formulas::implicationFormula(antecedent,
-                                                                               succedent));
+        return quantifyIterations({i}, Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
+                                                                                                       succedent)));
     }
     
 #pragma mark - Translation of Assignments
