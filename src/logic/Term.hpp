@@ -15,6 +15,9 @@ namespace logic {
 
     class Term;    
     typedef std::shared_ptr<const Term> TermPtr;
+
+    // TODO implement as unorder_map (requires hash for terms)
+    typedef std::vector<std::pair<TermPtr, TermPtr>> Substitution;
        
     class Term
     {
@@ -31,9 +34,10 @@ namespace logic {
         bool operator !=(const Term& t) const { return !(*this == t); }
 
     protected:
-        // this should be called under the assumption this != *oldsub
-        // and this contains an occurrence of oldsub
-        virtual Term* replace(const TermPtr oldsub, const TermPtr newsub) const = 0;
+        // this should be called under the assumption this != *t for
+        // all the target terms t, and this contains an occurrence of
+        // at least one target term
+        virtual Term* apply(const Substitution subst) const = 0;
     };
     
     class LVariable : public Term
@@ -69,7 +73,7 @@ namespace logic {
             name(name)
             {}
         
-        Term* replace(const TermPtr oldsub, const TermPtr newsub) const;
+        Term* apply(const Substitution subst) const override;
     };
 
     typedef std::shared_ptr<const LVariable> LVariablePtr;
@@ -110,7 +114,7 @@ namespace logic {
                 assert(head->argSorts.size() == subterms.size());
             }
 
-        Term* replace(const TermPtr oldsub, const TermPtr newsub) const;
+        Term* apply(const Substitution subst) const override;
     };
 
     typedef std::shared_ptr<const FuncTerm> FuncTermPtr;
@@ -152,7 +156,7 @@ namespace logic {
                 assert(head->argSorts.size() == subterms.size());
             }
 
-        Term* replace(const TermPtr oldsub, const TermPtr newsub) const;
+        Term* apply(const Substitution subst) const override;
     };
 
     typedef std::shared_ptr<const PredTerm> PredTermPtr;
@@ -173,7 +177,7 @@ namespace logic {
         static FuncTermPtr funcTerm(const Symbol* head, std::initializer_list<TermPtr> subterms);
         static PredTermPtr predTerm(const Symbol* head, std::initializer_list<TermPtr> subterms);
 
-        static TermPtr replace(const TermPtr t, const TermPtr oldsub, const TermPtr newsub);
+        static TermPtr apply(const TermPtr t, const Substitution subst);
     };
 }
 #endif

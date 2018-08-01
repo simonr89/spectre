@@ -39,9 +39,9 @@ namespace logic {
         return p->occurrences(t);
     }
 
-    Formula* PredicateFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* PredicateFormula::apply(const Substitution subst) const
     {
-        PredTermPtr newp = std::static_pointer_cast<const PredTerm>(Terms::replace(p, oldt, newt));
+        PredTermPtr newp = std::static_pointer_cast<const PredTerm>(Terms::apply(p, subst));
         return new PredicateFormula(newp);
     }
     
@@ -70,10 +70,10 @@ namespace logic {
         return left->occurrences(t) + right->occurrences(t);
     }
 
-    Formula* EqualityFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* EqualityFormula::apply(const Substitution subst) const
     {
-        TermPtr newleft = Terms::replace(left, oldt, newt);
-        TermPtr newright = Terms::replace(right, oldt, newt);
+        TermPtr newleft = Terms::apply(left, subst);
+        TermPtr newright = Terms::apply(right, subst);
         return new EqualityFormula(polarity, newleft, newright);
     }
  
@@ -119,13 +119,13 @@ namespace logic {
         return r;
     }
 
-    Formula* ConjunctionFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* ConjunctionFormula::apply(const Substitution subst) const
     {
         std::vector<FormulaPtr> newconj(conj.size());
 
         for (unsigned i = 0; i < conj.size(); i++)
         {
-            newconj[i] = Formulas::replace(conj[i], oldt, newt);
+            newconj[i] = Formulas::apply(conj[i], subst);
         }
         
         return new ConjunctionFormula(newconj);
@@ -173,13 +173,13 @@ namespace logic {
         return r;
     }
 
-    Formula* DisjunctionFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* DisjunctionFormula::apply(const Substitution subst) const
     {
         std::vector<FormulaPtr> newdisj(disj.size());
 
         for (unsigned i = 0; i < disj.size(); i++)
         {
-            newdisj[i] = Formulas::replace(disj[i], oldt, newt);
+            newdisj[i] = Formulas::apply(disj[i], subst);
         }
         
         return new DisjunctionFormula(newdisj);
@@ -203,9 +203,9 @@ namespace logic {
         return f->occurrences(t);
     }
 
-    Formula* NegationFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* NegationFormula::apply(const Substitution subst) const
     {
-        FormulaPtr newf = Formulas::replace(f, oldt, newt);
+        FormulaPtr newf = Formulas::apply(f, subst);
         return new NegationFormula(newf);
     }
     
@@ -244,9 +244,9 @@ namespace logic {
         return f->occurrences(t);
     }
 
-    Formula* ExistentialFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* ExistentialFormula::apply(const Substitution subst) const
     {
-        FormulaPtr newf = Formulas::replace(f, oldt, newt);
+        FormulaPtr newf = Formulas::apply(f, subst);
         return new ExistentialFormula(vars, newf);
     }
     
@@ -285,9 +285,9 @@ namespace logic {
         return f->occurrences(t);
     }
 
-    Formula* UniversalFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* UniversalFormula::apply(const Substitution subst) const
     {
-        FormulaPtr newf = Formulas::replace(f, oldt, newt);
+        FormulaPtr newf = Formulas::apply(f, subst);
         return new UniversalFormula(vars, newf);
     }
     
@@ -310,10 +310,10 @@ namespace logic {
         return f1->occurrences(t) + f2->occurrences(t);
     }
 
-    Formula* ImplicationFormula::replace(const TermPtr oldt, const TermPtr newt) const
+    Formula* ImplicationFormula::apply(const Substitution subst) const
     {
-        FormulaPtr newf1 = Formulas::replace(f1, oldt, newt);
-        FormulaPtr newf2 = Formulas::replace(f2, oldt, newt);
+        FormulaPtr newf1 = Formulas::apply(f1, subst);
+        FormulaPtr newf2 = Formulas::apply(f2, subst);
         return new ImplicationFormula(newf1, newf2);
     }
 
@@ -646,14 +646,21 @@ namespace logic {
         return FormulaPtr(new UniversalFormula(vars, f));
     }
 
-    FormulaPtr Formulas::replace(const FormulaPtr f, const TermPtr oldt, const TermPtr newt)
+    FormulaPtr Formulas::apply(const FormulaPtr f, const Substitution subst)
     {
-        if (f->occurrences(*oldt) == 0) {
-            return f;
+        bool occ;
+        for (auto& p: subst) {
+            // check occurrences (if one hasn't already been found)
+            occ |= (f->occurrences(*p.first) > 0);
+        }
+        
+        if (occ)
+        {
+            return FormulaPtr(f->apply(subst));
         }
         else
         {
-            return FormulaPtr(f->replace(oldt, newt));
+            return f;
         }
     }
 }

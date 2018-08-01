@@ -21,7 +21,7 @@ namespace logic {
         virtual unsigned occurrences(const Term& t) const = 0;
 
     protected:
-        virtual Formula* replace(const TermPtr oldt, const TermPtr newt) const = 0;
+        virtual Formula* apply(const Substitution subst) const = 0;
     };
 
     typedef std::shared_ptr<const Formula> FormulaPtr;
@@ -43,7 +43,7 @@ namespace logic {
             p(p)
             {}
         
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+        Formula* apply(const Substitution subst) const override;
     };
     
     class EqualityFormula : public Formula
@@ -66,8 +66,8 @@ namespace logic {
             left(left),
             right(right)
             {}
-        
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+
+        Formula* apply(const Substitution subst) const override;
     };
     
     class ConjunctionFormula : public Formula
@@ -91,7 +91,7 @@ namespace logic {
             conj(conj)
             {}
 
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+        Formula* apply(const Substitution subst) const override;
     };
     
     class DisjunctionFormula : public Formula
@@ -115,7 +115,7 @@ namespace logic {
             disj(disj)
             {}
 
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+        Formula* apply(const Substitution subst) const override;
     };
     
     class NegationFormula : public Formula
@@ -135,7 +135,7 @@ namespace logic {
             f(f)
             {}
         
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;        
+        Formula* apply(const Substitution subst) const override;
     };
     
     class ExistentialFormula : public Formula
@@ -162,7 +162,7 @@ namespace logic {
             f(f)
             {}
 
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+        Formula* apply(const Substitution subst) const override;
     };
     
     class UniversalFormula : public Formula
@@ -189,7 +189,7 @@ namespace logic {
             f(f)
             {}
 
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+        Formula* apply(const Substitution subst) const override;
     };
     
     class ImplicationFormula : public Formula
@@ -210,8 +210,8 @@ namespace logic {
             f1(f1),
             f2(f2)
             {}
-        
-        Formula* replace(const TermPtr oldt, const TermPtr newt) const override;
+
+        Formula* apply(const Substitution subst) const override;
     };
     
     inline std::ostream& operator<<(std::ostream& ostr, const Formula& e) { ostr << e.toTPTP(); return ostr; }
@@ -236,7 +236,7 @@ namespace logic {
         static FormulaPtr universalFormula(std::vector<LVariablePtr> vars, FormulaPtr f);
 
         // term replacement
-        static FormulaPtr replace(const FormulaPtr f, const TermPtr oldt, const TermPtr newt);
+        static FormulaPtr apply(const FormulaPtr f, const Substitution subst);
     };
 }
 

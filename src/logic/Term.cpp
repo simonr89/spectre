@@ -40,9 +40,9 @@ namespace logic {
         }
     }
 
-    Term* LVariable::replace(const TermPtr oldsub, const TermPtr newsub) const
+    Term* LVariable::apply(const Substitution subst) const
     {
-        assert(false); // oldsub cannot be a subterm of this
+        assert(false); // target terms cannot be a subterm of this
         
         return nullptr;
     }
@@ -137,11 +137,11 @@ namespace logic {
         }
     }
 
-    Term* FuncTerm::replace(const TermPtr oldsub, const TermPtr newsub) const
+    Term* FuncTerm::apply(const Substitution subst) const
     {
         std::vector<TermPtr> newsubs(subterms.size());
         for (unsigned i; i < subterms.size(); i++) {
-            newsubs[i] = Terms::replace(subterms[i], oldsub, newsub);
+            newsubs[i] = Terms::apply(subterms[i], subst);
         }
         return new FuncTerm(head, newsubs);
     }
@@ -238,11 +238,11 @@ namespace logic {
         }
     }
 
-    Term* PredTerm::replace(const TermPtr oldsub, const TermPtr newsub) const
+    Term* PredTerm::apply(const Substitution subst) const
     {
         std::vector<TermPtr> newsubs(subterms.size());
         for (unsigned i; i < subterms.size(); i++) {
-            newsubs[i] = Terms::replace(subterms[i], oldsub, newsub);
+            newsubs[i] = Terms::apply(subterms[i], subst);
         }
         return new PredTerm(head, newsubs);
     }
@@ -314,18 +314,25 @@ namespace logic {
         return PredTermPtr(new PredTerm(head, subterms));
     }
 
-    TermPtr Terms::replace(const TermPtr t, const TermPtr oldsub, const TermPtr newsub)
+    TermPtr Terms::apply(const TermPtr t, const Substitution subst)
     {
-        if (t->occurrences(*oldsub) == 0)
-        {
-            return t;
+        bool occ = false;
+        for (auto& p: subst) {
+            if (p.first == t || *p.first == *t)
+            {
+                return p.second;
+            }
+            // check occurrences (if one hasn't already been found)
+            occ |= (t->occurrences(*p.first) > 0);
         }
-        else if (*t == *oldsub) {
-            return newsub;
+        
+        if (occ)
+        {
+            return TermPtr(t->apply(subst));
         }
         else
         {
-            return TermPtr(t->replace(oldsub, newsub));
+            return t;
         }
     }
 }

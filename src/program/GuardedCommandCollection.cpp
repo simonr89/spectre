@@ -3,7 +3,6 @@
 #include <cassert>
 
 #include "Options.hpp"
-#include "Term.hpp"
 #include "Theory.hpp"
 
 using namespace logic;
@@ -25,12 +24,14 @@ namespace program
     {
         FormulaPtr g = f;
         // TODO important: substitution must be parallel
+
+        Substitution subst;
+        
         for (Assignment* a: assignments)
         {
-            // TODO could be optimized to avoid copying the formulas so many times
-            g = a->weakestPrecondition(g);
+            subst.push_back(a->weakestPreconditionSubst());
         }
-        return Formulas::implicationFormula(guard->toFormula(nullptr), g);
+        return Formulas::implicationFormula(guard->toFormula(nullptr), Formulas::apply(f, subst));
     }
     
     Assignment* GuardedCommand::findAssignment(const PVariable &v) const
@@ -45,7 +46,7 @@ namespace program
         return nullptr;
     }
 
-    FormulaPtr Assignment::weakestPrecondition(FormulaPtr f) const
+    std::pair<TermPtr, TermPtr> Assignment::weakestPreconditionSubst() const
     {
         if (lhs->isArrayLocation())
         {
@@ -55,9 +56,7 @@ namespace program
                                                     { lhs->varInfo()->toTerm(nullptr),
                                                       lhs->child(0)->toTerm(nullptr),
                                                       rhs->toTerm(nullptr) });
-                return Formulas::replace(f,
-                                         lhs->varInfo()->toTerm(nullptr),
-                                         store);
+                return std::make_pair(lhs->varInfo()->toTerm(nullptr), store);
             }
             else
             {
@@ -65,13 +64,13 @@ namespace program
                 // functional representation of array requires
                 // introducing a new symbol
                 assert(0);
+                return std::make_pair(nullptr, nullptr);
             }
         }
         else
         {
-            return Formulas::replace(f,
-                                     lhs->varInfo()->toTerm(nullptr),
-                                     rhs->toTerm(nullptr));
+            return std::make_pair(lhs->varInfo()->toTerm(nullptr),
+                                  rhs->toTerm(nullptr));
         }
     }
     

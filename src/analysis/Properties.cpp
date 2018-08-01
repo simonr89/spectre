@@ -126,12 +126,13 @@ namespace program {
     FormulaPtr Properties::lift(const FormulaPtr f, const TermPtr i)
     {
         FormulaPtr newf = f;
+        Substitution subst;
         for (const PVariable* v : vars)
         {
-            newf = Formulas::replace(newf, v->toTerm(nullptr), v->toTerm(i));
+            subst.push_back(std::make_pair(v->toTerm(nullptr), v->toTerm(i)));
         }
 
-        return newf;
+        return Formulas::apply(f, subst);
     }
 
     void Properties::stepAxiom()
@@ -156,11 +157,12 @@ namespace program {
         f = loop.weakestPrecondition(f);
         f = lift(f, i);
 
+        Substitution subst;
         for (auto p : varMap)
         {
-            f = Formulas::replace(f, p.second, p.first->toTerm(iPlusOne));
+            subst.push_back(std::make_pair(p.second, p.first->toTerm(iPlusOne)));
         }
-        FormulaPtr stepAxiom = quantifyIterations({i}, f);
+        FormulaPtr stepAxiom = quantifyIterations({i}, Formulas::apply(f, subst));
         
         addProperty("step_axiom", stepAxiom);
     }

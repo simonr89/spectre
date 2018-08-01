@@ -13,6 +13,8 @@
 
 #include "Expression.hpp"
 #include "Formula.hpp"
+
+#include "Term.hpp"
 #include "Type.hpp"
 
 
@@ -20,6 +22,8 @@ namespace program {
 
     class Assignment {
     public:
+
+        friend class GuardedCommand;
         
         Assignment(LocationExpression* lhs, Expression* rhs) : lhs(lhs), rhs(rhs){}
         
@@ -27,8 +31,9 @@ namespace program {
         const Expression* rhs;
        
         bool hasLhs(const PVariable &v) const { return lhs->varInfo() == &v; }
-                
-        logic::FormulaPtr weakestPrecondition(logic::FormulaPtr f) const;
+
+    protected:
+        std::pair<logic::TermPtr, logic::TermPtr> weakestPreconditionSubst() const;
     };
 
     class GuardedCommand {
