@@ -677,7 +677,7 @@ namespace program {
         
     }
     
-    /** forall i k p v, (update_a(i, p, v) & (forall j, & j != i => !update_a(j, p)) & i < k) => a(k, p) = v */
+    /** forall i k p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < k) => a(k, p) = v */
     /* this is true only if the array is written at most once by the loop! */
     FormulaPtr Properties::uniqueUpdateAxiom(const PVariable *a)
     {
@@ -689,7 +689,7 @@ namespace program {
         LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It3");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
-        
+
         FormulaPtr f1 = Formulas::implicationFormula(Formulas::equalityFormula(false, i,j),
                                                      Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
         FormulaPtr f2 = Formulas::conjunctionFormula(
@@ -757,8 +757,19 @@ namespace program {
         
         // a is updated, this shouldn't be empty
         assert(!disj.empty());
-        
-        return Formulas::disjunctionFormula(disj);
+
+        if (util::Configuration::instance().timepoints().getValue())
+        {
+            return Formulas::disjunctionFormula(disj);
+        }
+        else
+        {
+            FormulaPtr nonNeg = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_GREATER_EQUAL),
+                                                                           { i, Theory::integerConstant(0) } ));
+            return Formulas::conjunctionFormula(
+                { Formulas::disjunctionFormula(disj),
+                  nonNeg});
+        }
     }
     
     FormulaPtr Properties::arrayAssignmentConditions(const Assignment *asg,
