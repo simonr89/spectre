@@ -298,7 +298,7 @@ namespace program {
                     } else {
                         addProperty("update_" + v->name, updatePropertyOfVar(v));
                         addProperty("nonstrict_" + v->name, nonStrictProp(v));
-                        addProperty("dense_nonstrict" + v->name, denseNonStrictProp(v));
+                        addProperty("dense_nonstrict_i" + v->name, denseNonStrictProp(v));
                     }
                 } else {
                     addProperty("update_" + v->name, updatePropertyOfVar(v));
@@ -481,7 +481,7 @@ namespace program {
         FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
                                                                Formulas::predicateFormula(p2) });
         
-        return Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
+        return Formulas::universalFormula( { i }, Formulas::implicationFormula(antecedent,
                                                                                succedent));
     }
     
