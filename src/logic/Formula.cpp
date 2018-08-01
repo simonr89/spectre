@@ -41,8 +41,8 @@ namespace logic {
 
     Formula* PredicateFormula::replace(const TermPtr oldt, const TermPtr newt) const
     {
-        PredTermPtr p = std::static_pointer_cast<const PredTerm>(Terms::replace(p, oldt, newt));
-        return new PredicateFormula(p);
+        PredTermPtr newp = std::static_pointer_cast<const PredTerm>(Terms::replace(p, oldt, newt));
+        return new PredicateFormula(newp);
     }
     
     std::string EqualityFormula::toTPTP() const
@@ -205,8 +205,8 @@ namespace logic {
 
     Formula* NegationFormula::replace(const TermPtr oldt, const TermPtr newt) const
     {
-        FormulaPtr newptr = Formulas::replace(f, oldt, newt);
-        return new NegationFormula(newptr);
+        FormulaPtr newf = Formulas::replace(f, oldt, newt);
+        return new NegationFormula(newf);
     }
     
     std::string ExistentialFormula::toTPTP() const
@@ -246,8 +246,8 @@ namespace logic {
 
     Formula* ExistentialFormula::replace(const TermPtr oldt, const TermPtr newt) const
     {
-        FormulaPtr newptr = Formulas::replace(f, oldt, newt);
-        return new ExistentialFormula(vars, newptr);
+        FormulaPtr newf = Formulas::replace(f, oldt, newt);
+        return new ExistentialFormula(vars, newf);
     }
     
     std::string UniversalFormula::toTPTP() const
@@ -287,8 +287,8 @@ namespace logic {
 
     Formula* UniversalFormula::replace(const TermPtr oldt, const TermPtr newt) const
     {
-        FormulaPtr newptr = Formulas::replace(f, oldt, newt);
-        return new UniversalFormula(vars, newptr);
+        FormulaPtr newf = Formulas::replace(f, oldt, newt);
+        return new UniversalFormula(vars, newf);
     }
     
     std::string ImplicationFormula::toTPTP() const
@@ -312,9 +312,9 @@ namespace logic {
 
     Formula* ImplicationFormula::replace(const TermPtr oldt, const TermPtr newt) const
     {
-        FormulaPtr newptr1 = Formulas::replace(f1, oldt, newt);
-        FormulaPtr newptr2 = Formulas::replace(f2, oldt, newt);
-        return new ImplicationFormula(newptr1, newptr2);
+        FormulaPtr newf1 = Formulas::replace(f1, oldt, newt);
+        FormulaPtr newf2 = Formulas::replace(f2, oldt, newt);
+        return new ImplicationFormula(newf1, newf2);
     }
 
 //    FormulaPtr Formula::quantify(bool univ) const
