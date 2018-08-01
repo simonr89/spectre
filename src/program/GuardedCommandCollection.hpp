@@ -11,7 +11,6 @@
 #include <ostream>
 #include <vector>
 
-#include "Assignment.hpp"
 #include "Expression.hpp"
 #include "Formula.hpp"
 #include "Type.hpp"
@@ -19,7 +18,18 @@
 
 namespace program {
 
-    class GuardedCommandCollection;
+    class Assignment {
+    public:
+        
+        Assignment(LocationExpression* lhs, Expression* rhs) : lhs(lhs), rhs(rhs){}
+        
+        const LocationExpression* lhs;
+        const Expression* rhs;
+       
+        bool hasLhs(const PVariable &v) const { return lhs->varInfo() == &v; }
+                
+        logic::FormulaPtr weakestPrecondition(logic::FormulaPtr f) const;
+    };
 
     class GuardedCommand {
     public:

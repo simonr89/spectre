@@ -3,7 +3,6 @@ set(SPECTRE_PROGRAM_SOURCES
     GuardedCommandCollection.cpp
     Type.cpp
     Variable.cpp
-    Assignment.cpp
     Program.cpp
 )
 
@@ -12,7 +11,6 @@ set(SPECTRE_PROGRAM_HEADERS
     GuardedCommandCollection.hpp
     Type.hpp
     Variable.hpp
-    Assignment.hpp
     Program.hpp
 )
 
