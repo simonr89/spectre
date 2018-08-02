@@ -142,7 +142,6 @@ namespace program {
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         FuncTermPtr iPlusOne = Theory::timeSucc(i);
 
-        unsigned n = 0;
         for (const PVariable* v : vars)
         {
             if (!isArrayType(v->type)
@@ -151,7 +150,7 @@ namespace program {
                 // if array are represented as function, the wp
                 // includes a formula describe the new value, no need
                 // for the substitution
-                LVariablePtr x = Terms::lVariable(toSort(v->type), "X" + std::to_string(n++));
+                LVariablePtr x = Terms::lVariable(toSort(v->type), "X");
                 varMap.push_back(std::make_pair(v, x));
                 conjuncts.push_back(Formulas::equalityFormula(true,
                                                               x,
@@ -348,8 +347,8 @@ namespace program {
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(strict.at(v));
 
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
 
         FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
 
@@ -369,8 +368,8 @@ namespace program {
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(!strict.at(v));
 
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
 
         FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
 
@@ -392,8 +391,8 @@ namespace program {
         assert(!strict.at(v));
         assert(!util::Configuration::instance().timepoints().getValue());
         
-        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::intSort(), "It");
         
         FormulaPtr f1 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
                                                                    { i, j }));
@@ -414,8 +413,8 @@ namespace program {
         assert(updated.at(v));
         assert(strict.at(v));
         
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
         
         FormulaPtr imp = Formulas::implicationFormula(Formulas::equalityFormula(true, v->toTerm(i), v->toTerm(j)),
                                                       Formulas::equalityFormula(true, i, j));
@@ -440,8 +439,8 @@ namespace program {
         assert(monotonic.at(v) != Monotonicity::OTHER);
         
         LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
         FuncTermPtr jPlusOne = Theory::timeSucc(j);
         
         InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
@@ -668,8 +667,8 @@ namespace program {
         assert(isArrayType(a->type));
         assert(updated.at(a));
 
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         
         FormulaPtr f1 = quantifyIterations({j}, Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
@@ -689,9 +688,9 @@ namespace program {
         assert(isArrayType(a->type));
         assert(updated.at(a));
         
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
-        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It3");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
 
@@ -720,9 +719,9 @@ namespace program {
         assert(isArrayType(a->type));
         assert(updated.at(a));
         
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It2");
-        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It3");
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
         

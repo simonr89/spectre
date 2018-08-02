@@ -213,7 +213,7 @@ namespace logic {
     {
         std::string str = "? [";
         for (unsigned i = 0; i < vars.size(); i++) {
-            str += vars[i]->name + " : " + vars[i]->sort->toTPTP();
+            str += vars[i]->toTPTP() + " : " + vars[i]->sort->toTPTP();
             if (i != vars.size() - 1) { str += ", "; }
         }
         str += "] : (" + f->toTPTP() + ")";
@@ -228,7 +228,7 @@ namespace logic {
         str += "(";
         for (const auto& var : vars)
         {
-            str += "(" + var->name + " " + var->sort->toSMTLIB() + ")";
+            str += "(" + var->toSMTLIB() + " " + var->sort->toSMTLIB() + ")";
         }
         str += ")\n";
         
@@ -254,7 +254,7 @@ namespace logic {
     {
         std::string str = "! [";
         for (unsigned i = 0; i < vars.size(); i++) {
-            str += vars[i]->name + " : " + vars[i]->sort->toTPTP();
+            str += vars[i]->toTPTP() + " : " + vars[i]->sort->toTPTP();
             if (i != vars.size() - 1) { str += ", "; }
         }
         str += "] : (" + f->toTPTP() + ")";
@@ -269,7 +269,7 @@ namespace logic {
         str += "(";
         for (const auto& var : vars)
         {
-            str += "(" + var->name + " " + var->sort->toSMTLIB() + ")";
+            str += "(" + var->toSMTLIB() + " " + var->sort->toSMTLIB() + ")";
         }
         str += ")\n";
         
@@ -567,7 +567,7 @@ namespace logic {
     {
         std::string str = std::string(indentation, ' ') + "EXISTS ";
         for (unsigned i = 0; i < vars.size(); i++) {
-            str += vars[i]->name + " : " + vars[i]->sort->name;
+            str += vars[i]->prettyString() + " : " + vars[i]->sort->prettyString();
             if (i != vars.size() - 1) { str += ", "; }
         }
         str += ".\n" + f->prettyString(indentation + 3);
@@ -578,7 +578,7 @@ namespace logic {
     {
         std::string str = std::string(indentation, ' ') + "FORALL ";
         for (unsigned i = 0; i < vars.size(); i++) {
-            str += vars[i]->name + " : " + vars[i]->sort->name;
+            str += vars[i]->prettyString() + " : " + vars[i]->sort->prettyString();
             if (i != vars.size() - 1) { str += ", "; }
         }
         str += ".\n";

@@ -26,6 +26,7 @@ namespace logic {
         
         std::string toTPTP() const;
         std::string toSMTLIB() const;
+        std::string prettyString() const { return name; }
 
         std::string declareSortTPTP() const;
         std::string declareSortSMTLIB() const;

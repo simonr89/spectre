@@ -9,17 +9,17 @@ namespace logic {
 
     std::string LVariable::toTPTP() const
     {
-        return name;
+        return name + std::to_string(id);
     }
     
     std::string LVariable::toSMTLIB() const
     {
-        return name;
+        return name + std::to_string(id);
     }
     
     std::string LVariable::prettyString() const
     {
-        return name;
+        return name + std::to_string(id);
     }
 
     unsigned LVariable::occurrences(const Term& t) const
