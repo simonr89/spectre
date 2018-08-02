@@ -17,8 +17,12 @@ namespace program {
     void Properties::analyze()
     {
         // main axiom
-        stepAxiom();
-
+        if (util::Configuration::instance().arrayTheory().getValue())
+        {
+            // TODO IMPORTANT make this work with arrays as functions
+            stepAxiom();
+        }
+        
         // trace lemmas to complement the axiom
         constnessProps();
         monotonicityProps();
