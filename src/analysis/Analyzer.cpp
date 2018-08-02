@@ -8,47 +8,58 @@
 
 namespace program {
 
-  void Analyzer::densityAndStrictness()
-  {
-    for (auto it = _variables.begin(); it != _variables.end(); ++it) {
-      densityAndStrictness((*it));
+    void Analyzer::densityAndStrictness()
+    {
+        for (auto v : _loop.variables)
+        {
+            densityAndStrictness((v));
+        }
     }
-  }
 
-  void Analyzer::densityAndStrictness(const PVariable *v) {
-      if (_monotonic.at(v) == Monotonicity::OTHER)
-      return;
+    void Analyzer::densityAndStrictness(const PVariable *v) {
+        if (_monotonic.at(v) == Monotonicity::OTHER)
+            return;
 
-    bool strict = true, dense = true;
-    int incr;
-    for (auto it = _loop.commands.begin(); it != _loop.commands.end(); ++it) {
-      if (isIncremented(*it, v, incr))
-        dense &= (incr == 1 || incr == -1);
-      else
-        strict = false;
-    }
+        bool strict = true, dense = true;
+        int incr;
+        for (auto c : _loop.commands)
+        {
+            if (isIncremented(c, v, incr))
+                dense &= (incr == 1 || incr == -1);
+            else
+                strict = false;
+        }
     
-    if (strict)
-        _strict[v] = true;
-    if (dense)
-        _dense[v] = true;
-  }
-
-  /** helper function, return true iff v is incremented by a constant
-      in the guard gc. The constant is then stored in incr */
-  bool Analyzer::isIncremented(const GuardedCommand *gc, const PVariable *v, int &incr)
-  {
-    for (auto it = gc->assignments.begin(); it != gc->assignments.end(); ++it) {
-      if ((*it)->hasLhs(*v))
-        return (isScalarIncrement(*it,incr) && incr != 0);
+        if (strict)
+        {
+            _strict[v] = true;
+        }
+        if (dense)
+        {
+            _dense[v] = true;
+        }
     }
-    return false;
-  }
+
+    /** helper function, return true iff v is incremented by a constant
+        in the guard gc. The constant is then stored in incr */
+    bool Analyzer::isIncremented(const GuardedCommand *gc, const PVariable *v, int &incr)
+    {
+        for (auto asg : gc->assignments)
+        {
+            if (asg->hasLhs(*v))
+            {
+                return (isScalarIncrement(asg,incr) && incr != 0);
+            }
+        }
+        return false;
+    }
 
     bool Analyzer::isScalarIncrement(Assignment* a, int &incr)
     {
         if (a->lhs->varInfo()->type != Type::TY_INTEGER)
+        {
             return false;
+        }
         
         incr = 0;
         return a->rhs->equivToVPlusX(a->lhs->varInfo(), incr);
@@ -59,7 +70,9 @@ namespace program {
         PVariable *v = a->lhs->varInfo();
         int incr;
         if (isScalarIncrement(a,incr))
+        {
             recordScalarIncrement(v, incr);
+        }
         else
         {
             _monotonic.at(v) = Monotonicity::OTHER;
@@ -73,16 +86,24 @@ namespace program {
         if (n > 0)
         {
             if (!_updated.at(v))
+            {
                 _monotonic.at(v) = Monotonicity::INC;
+            }
             else if (_monotonic.at(v) == Monotonicity::DEC)
+            {
                 _monotonic.at(v) = Monotonicity::OTHER;
+            }
         }
         else if (n < 0)
         {
             if (!_updated.at(v))
+            {
                 _monotonic.at(v) = Monotonicity::DEC;
+            }
             else if (_monotonic.at(v) == Monotonicity::INC)
+            {
                 _monotonic.at(v) = Monotonicity::OTHER;
+            }
         }
     }
     

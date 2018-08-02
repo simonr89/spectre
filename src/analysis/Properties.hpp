@@ -23,7 +23,7 @@ namespace program {
     public:
         Properties(const Program& program, const AnalyzerResult& aRes) :
         loop(*program.loop),
-        vars(program.variables),
+        vars(program.loop->variables),
         preconditions(program.preconditions),
         postconditions(program.postconditions),
         
@@ -42,9 +42,9 @@ namespace program {
     private:
         // used as input
         const GuardedCommandCollection& loop;
-        const std::vector<const PVariable*>& vars;
-        const std::vector<const FExpression*>& preconditions;
-        const std::vector<const FExpression*>& postconditions;
+        const std::vector<PVariable*>& vars;
+        const std::vector<FExpression*>& preconditions;
+        const std::vector<FExpression*>& postconditions;
 
         const std::map<const PVariable*,bool>& updated;
         const std::map<const PVariable*,Monotonicity>& monotonic;

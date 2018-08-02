@@ -17,11 +17,7 @@ namespace program {
     void Properties::analyze()
     {
         // main axiom
-        if (util::Configuration::instance().arrayTheory().getValue())
-        {
-            // TODO IMPORTANT make this work with arrays as functions
-            stepAxiom();
-        }
+        stepAxiom();
         
         // trace lemmas to complement the axiom
         constnessProps();
@@ -141,7 +137,6 @@ namespace program {
 
     void Properties::stepAxiom()
     {
-        // TODO time quantif
         std::vector<FormulaPtr> conjuncts;
         std::vector<std::pair<const PVariable*, LVariablePtr>> varMap;
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
@@ -150,16 +145,22 @@ namespace program {
         unsigned n = 0;
         for (const PVariable* v : vars)
         {
-            LVariablePtr x = Terms::lVariable(toSort(v->type), "X" + std::to_string(n++));
-            varMap.push_back(std::make_pair(v, x));
-            conjuncts.push_back(Formulas::equalityFormula(true,
-                                                          x,
-                                                          v->toTerm(nullptr)));
+            if (!isArrayType(v->type)
+                || util::Configuration::instance().arrayTheory().getValue())
+            {
+                // if array are represented as function, the wp
+                // includes a formula describe the new value, no need
+                // for the substitution
+                LVariablePtr x = Terms::lVariable(toSort(v->type), "X" + std::to_string(n++));
+                varMap.push_back(std::make_pair(v, x));
+                conjuncts.push_back(Formulas::equalityFormula(true,
+                                                              x,
+                                                              v->toTerm(i)));
+            }
         }
 
         FormulaPtr f = Formulas::conjunctionFormula(conjuncts);
-        f = loop.weakestPrecondition(f);
-        f = lift(f, i);
+        f = loop.weakestPrecondition(f, i);
 
         Substitution subst;
         for (auto p : varMap)

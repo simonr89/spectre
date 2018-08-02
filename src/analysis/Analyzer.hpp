@@ -64,11 +64,14 @@ namespace program
     class Analyzer
     {
     public:
-        Analyzer(const Program& program) : _loop(*program.loop), _preconditions(program.preconditions), _postconditions(program.postconditions), _variables(program.variables)
+        Analyzer(const Program& program) :
+            _loop(*program.loop),
+            _preconditions(program.preconditions),
+            _postconditions(program.postconditions)
         {
             // set all map-entries to false
             // TODO: is this really the correct start-value???
-            for (const auto& var : program.variables)
+            for (const auto& var : program.loop->variables)
             {
                 _updated[var] = false;
                 _monotonic[var] = Monotonicity::OTHER;
@@ -82,9 +85,8 @@ namespace program
     private:
         // used as input
         const GuardedCommandCollection& _loop;
-        const std::vector<const FExpression*> _preconditions;
-        const std::vector<const FExpression*> _postconditions;
-        const std::vector<const PVariable*> _variables;
+        const std::vector<FExpression*> _preconditions;
+        const std::vector<FExpression*> _postconditions;
         
         // the aim of this class is to compute the following 4 maps
         std::map<const PVariable*,bool> _updated;

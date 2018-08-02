@@ -5,7 +5,7 @@ namespace program
     std::ostream& operator<<(std::ostream& ostr, const Program& p)
     {
         ostr << "Vars:\n";
-        for (const auto& variable : p.variables)
+        for (const auto& variable : p.loop->variables)
         {
             ostr << *variable << "\n";
         }

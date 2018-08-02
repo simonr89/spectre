@@ -254,7 +254,7 @@ WHILE LPAR expr RPAR DO guarded_command_list OD
   {
     if (!gcla.errorFlag) 
     {
-      gcla.program = std::unique_ptr<GuardedCommandCollection>(new GuardedCommandCollection($6,dynamic_cast<FExpression*>($3)));
+        gcla.program = std::unique_ptr<GuardedCommandCollection>(new GuardedCommandCollection($6,dynamic_cast<FExpression*>($3), gcla.listVariables()));
     }
   } 
   else 
@@ -265,7 +265,9 @@ WHILE LPAR expr RPAR DO guarded_command_list OD
 | DO guarded_command_list OD 
 { 
   if (!gcla.errorFlag)
-    gcla.program = std::unique_ptr<GuardedCommandCollection>(new GuardedCommandCollection($2,BooleanExpression::mkConstantBoolean(true)));
+  {
+      gcla.program = std::unique_ptr<GuardedCommandCollection>(new GuardedCommandCollection($2,BooleanExpression::mkConstantBoolean(true), gcla.listVariables()));
+  }
 }
 ;
 

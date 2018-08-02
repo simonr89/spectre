@@ -78,21 +78,21 @@ namespace parser {
         std::ostream& ostr = util::Output::stream();
         
         ostr << util::Output::comment
-        << "-------------------------------------------------\n"
-        << " This file was generated automatically by SPECTRE\n"
-        << "-------------------------------------------------\n"
-        << '\n'
-        << "------------------ Parsed loop ------------------\n"
-        << c
-        << "-------------------------------------------------\n"
-        << '\n'
-        << "--------------- Table of symbols ----------------\n";
+             << "-------------------------------------------------\n"
+             << " This file was generated automatically by SPECTRE\n"
+             << "-------------------------------------------------\n"
+             << '\n'
+             << "------------------ Parsed loop ------------------\n"
+             << c
+             << "-------------------------------------------------\n"
+             << '\n'
+             << "--------------- Table of symbols ----------------\n";
         for (auto it = variables.begin(); it != variables.end(); ++it) {
             ostr << *(*it).second << "\n";
         }
         ostr << "-------------------------------------------------\n"
-        << util::Output::nocomment
-        << std::endl;
+             << util::Output::nocomment
+             << std::endl;
     }
     
     // provide a wrapper around the parsing code, in order to hide
@@ -100,23 +100,32 @@ namespace parser {
     // TODO: refactor this at some point
     std::unique_ptr<Program> GclParsingContext::generateProgram()
     {
-        std::vector<const PVariable*> vars;
-        for (const auto& pairNameVar : variables)
-        {
-            vars.push_back(pairNameVar.second);
-        }
-        std::vector<const FExpression*> constPreconditions;
+        std::vector<FExpression*> constPreconditions;
         for (const auto& element : preconditions)
         {
             constPreconditions.push_back(element);
         }
-        std::vector<const FExpression*> constPostconditions;
+        std::vector<FExpression*> constPostconditions;
         for (const auto& element : postconditions)
         {
             constPostconditions.push_back(element);
         }
 
-        return std::unique_ptr<Program>(new Program(std::move(program), std::move(constPreconditions), std::move(constPostconditions), std::move(vars)));
+        return std::unique_ptr<Program>(new Program(std::move(program),
+                                                    std::move(constPreconditions),
+                                                    std::move(constPostconditions)));
+    }
+
+    std::vector<program::PVariable*> GclParsingContext::listVariables() const
+    {
+        std::vector<program::PVariable*> res;
+
+        for(const auto &p : variables)
+        {
+            res.push_back(p.second);
+        }
+
+        return res;
     }
 }
 

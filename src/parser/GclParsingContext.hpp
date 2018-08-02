@@ -26,7 +26,13 @@ namespace parser
     {
     public:
         GclParsingContext()
-            : variables(), preconditions(), postconditions(), program(nullptr), negatedPreviousGuards(program::BooleanExpression::mkConstantBoolean(true)), errorFlag(false), _localScopes()
+            : variables(),
+              preconditions(),
+              postconditions(),
+              program(nullptr),
+              negatedPreviousGuards(program::BooleanExpression::mkConstantBoolean(true)),
+              errorFlag(false),
+              _localScopes()
             {
             }
 
@@ -62,14 +68,15 @@ namespace parser
         bool containsAssignment(std::pair<program::FExpression *, std::vector<program::Assignment *>> assignmentList, program::Assignment *assignment);
         void addAdditionalGuards(std::pair<program::FExpression *, std::vector<program::Assignment *>> pairGuardsAssignments, program::Assignment *assignment);
 
+        std::vector<program::PVariable*> listVariables() const;
+
+        std::unique_ptr<program::Program> generateProgram();
+
     protected:
         /** type of symbols being declared */
         program::Type _typeDeclCtx;
 
         std::vector<program::QVariable *> _localScopes;
-
-    public:
-        std::unique_ptr<program::Program> generateProgram();
     };
 }
 #endif
