@@ -231,31 +231,36 @@ namespace program {
                 LVariablePtr it = Terms::lVariable(Sorts::timeSort(), "It");
                 
                 FormulaPtr eq;
-                if (isArrayType(var->type)
-                    && !util::Configuration::instance().arrayTheory().getValue())
+                if(util::Configuration::instance().arrayTheory().getValue())
                 {
-                    // eq(i) := forall p. x(i,p) = x(0,p)
-                    LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
-                    
-                    //Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"0", { Sorts::intSort() }, toSort(var->type));
-                    //TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
-                    
-                    FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true,
-                                                                                var->toTerm(it, p),
-                                                                                var->toTerm(Theory::timeZero(), p));
-                    eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
-                }
-                else
-                {
-                    // eq(it) := x(it) = x(0)
-                    //Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "0", toSort(var->type));
-                    //TermPtr var0 = Terms::funcTerm(var0Symbol, {});
-                    
                     eq = Formulas::equalityFormula(true,
                                                    var->toTerm(it),
                                                    var->toTerm(Theory::timeZero()));
                 }
-                
+                else
+                {
+                    if (isArrayType(var->type))
+                    {
+                        // eq(it) := forall p. x(it,p) = x_0(p)
+                        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+                        
+                        Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"0", { Sorts::intSort() }, toSort(var->type));
+                        TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
+                        
+                        FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true, var->toTerm(it, p), var0);
+                        eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
+                    }
+                    else
+                    {
+                        // eq(it) := x(it) = x_0
+                        Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "0", toSort(var->type));
+                        TermPtr var0 = Terms::funcTerm(var0Symbol, {});
+                        
+                        eq = Formulas::equalityFormula(true, var->toTerm(it), var0);
+                    }
+                }
+
+                assert(eq);
                 FormulaPtr f = quantifyIterations({it}, eq);
                 
                 // add property
@@ -477,13 +482,13 @@ namespace program {
         assert(disj.size() > 0);
         
         FormulaPtr f1 = Formulas::disjunctionFormula(disj);
-        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, i)), f1 });
+        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, loopCounterSymbol())), f1 });
         FormulaPtr succedent = quantifyIterations({ j }, f2, true);
         
         PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
                                          { v->toTerm(Theory::timeZero()), x });
         PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
-                                         { x, v->toTerm(i) });
+                                         { x, v->toTerm(loopCounterSymbol()) });
         FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
                                                                Formulas::predicateFormula(p2) });
         
@@ -690,7 +695,7 @@ namespace program {
         
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
+        auto k = loopCounterSymbol();
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
 
@@ -706,7 +711,7 @@ namespace program {
                                                   v,
                                                   a->toTerm(k, p));
         
-        return quantifyIterations({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+        return quantifyIterations({i}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
     }
     
     
