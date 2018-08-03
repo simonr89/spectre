@@ -119,6 +119,8 @@ namespace program {
             Property p = *it;
             ostr << p.second->declareSMTLIB(p.first) << std::endl;
         }
+
+        ostr << "(check-sat)" << std::endl;
     }
     
 #pragma mark - Main axiom
