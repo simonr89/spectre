@@ -83,7 +83,7 @@ namespace util {
             mainModeOpt("mode", { "generation", "verification", "termination" }, "verification"),
             timepointsOpt("timepoints", false),
             arrayTheoryOpt("arraytheory", true),
-            existentialAxiomsOpt("eaxioms", true),
+            traceLemmasOpt("lemmas", true),
             allOptions()
             {
                 registerOption(&outputFileOpt);
@@ -91,7 +91,7 @@ namespace util {
                 registerOption(&mainModeOpt);
                 registerOption(&timepointsOpt);
                 registerOption(&arrayTheoryOpt);
-                registerOption(&existentialAxiomsOpt);
+                registerOption(&traceLemmasOpt);
             }
         
         bool setAllValues(int argc, char *argv[]);
@@ -105,7 +105,7 @@ namespace util {
         MultiChoiceOption mainMode() { return mainModeOpt; }
         BooleanOption timepoints() { return timepointsOpt; }
         BooleanOption arrayTheory() { return arrayTheoryOpt; }
-        BooleanOption existentialAxioms() { return existentialAxiomsOpt; }
+        BooleanOption traceLemmas() { return traceLemmasOpt; }
 
         static Configuration instance() { return theInstance; };
         
@@ -116,7 +116,7 @@ namespace util {
         MultiChoiceOption mainModeOpt;
         BooleanOption timepointsOpt;
         BooleanOption arrayTheoryOpt;
-        BooleanOption existentialAxiomsOpt;
+        BooleanOption traceLemmasOpt;
 
         static Configuration theInstance;
         
