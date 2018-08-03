@@ -1,10 +1,9 @@
 int [] a, b;
-int i;
+int i, length;
 
 requires i == 0;
-ensures b[i] == 0;
 ensures forall int j, 0 <= j & j < i ==> a[j] == b[j];
 
-while (b[i] != 0) do
+while (i < length & b[i] != 0) do
 :: true -> a[i] = b[i]; i = i + 1;
 od

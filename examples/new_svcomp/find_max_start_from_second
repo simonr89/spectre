@@ -1,0 +1,18 @@
+// find the maximal element in the array
+// https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/sanfoundry_27_true-unreach-call_ground.c
+
+int [] a;
+int i, alength, max;
+
+requires alength >= 0;
+
+requires max == a[0];
+
+requires i == 1;
+
+ensures forall int j, 0 <= j & j < alength ==> max >= a[j];
+
+while (i < alength) do
+:: a[i] > max -> max = a[i]; i = i + 1;
+:: true       -> i = i + 1;
+od
