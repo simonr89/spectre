@@ -18,13 +18,16 @@ namespace program {
     {
         // main axiom
         stepAxiom();
-        
-        // trace lemmas to complement the axiom
-        constnessProps();
-        monotonicityProps();
-        //translateAssignments();
-        updatePredicatesOfArrays();
 
+        if (util::Configuration::instance().traceLemmas().getValue())
+        {
+            // trace lemmas to complement the axiom
+            constnessProps();
+            monotonicityProps();
+            //translateAssignments();
+            updatePredicatesOfArrays();
+        }
+        
         // theory axioms
         theoryAxioms();
 
@@ -659,12 +662,9 @@ namespace program {
             if (!isArrayType(v->type) || !updated.at(v))
                 continue;
             
-            if (util::Configuration::instance().existentialAxioms().getValue())
-            {
-                // these axioms introduce skolem symbols
-                addProperty("stability_" + v->name, stabilityAxiom(v));
-                addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v));
-            }
+            // these axioms introduce skolem symbols
+            addProperty("stability_" + v->name, stabilityAxiom(v));
+            addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v));
         }
     }
     
