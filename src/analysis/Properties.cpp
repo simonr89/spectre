@@ -815,7 +815,7 @@ namespace program {
     {
         // initialization note that the syntax of the guarded command
         // language does not allow special characters such as $
-        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::timeSort(), false, true);
+        Symbol* s = Signature::fetchOrDeclare("$n", Sorts::timeSort(), false, false);
         
         return Terms::funcTerm(s, {});
     }
