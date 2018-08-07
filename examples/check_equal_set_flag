@@ -14,7 +14,7 @@ requires i == 0;
 
 requires r != 1;
 
-ensures forall int p, ((r != 1) ==> ( 0 <= p & p < length  ==> a[p]==b[p]));
+ensures forall int pos, ((r != 1) ==> ( 0 <= pos & pos < length  ==> a[pos]==b[pos]));
 
 while (i < length) do
 :: a[i] != b[i] -> r = 1; i = i + 1;

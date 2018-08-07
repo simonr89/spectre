@@ -1,0 +1,11 @@
+int [] a, b, c;
+int i, alength;
+
+requires 0 <= alength;
+requires i == 0;
+
+ensures forall int j, 0 <= j & j < alength ==> c[j * 2 + 1] == b[j];
+
+while (i < alength) do
+:: true -> c[i * 2] = a[i]; c[i * 2 + 1] = b[i]; i = i + 1;
+od

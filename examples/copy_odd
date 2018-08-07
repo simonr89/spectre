@@ -1,0 +1,12 @@
+int [] a, b;
+int i, blength;
+
+requires 0 <= blength;
+
+requires i == 0;
+
+ensures forall int pos, 0 <= pos & pos < (blength / 2) ==> a[pos] == b[pos * 2];
+
+while (i < (blength / 2)) do
+:: true -> a[i] = b[i * 2]; i = i + 1;
+od

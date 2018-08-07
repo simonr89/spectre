@@ -7,7 +7,7 @@ requires blength == alength;
 requires i == 0;
 requires forall int i, 0 <= i & i < alength ==> a[i] == olda[i];
 requires forall int i, 0 <= i & i < blength ==> b[i] == oldb[i];
-ensures forall int i, 0 <= i & i < blength ==> a[i] == oldb[i];
+
 ensures forall int i, 0 <= i & i < blength ==> b[i] == olda[i];
 
 while (i < alength) do
