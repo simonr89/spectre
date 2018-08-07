@@ -879,7 +879,7 @@ namespace program {
         TermPtr  rhsInit;
         
         if (isArrayType(v->type)
-            && util::Configuration::instance().arrayTheory().getValue())
+            && !util::Configuration::instance().arrayTheory().getValue())
         {
             LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
             vars.push_back(p);
