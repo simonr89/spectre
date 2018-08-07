@@ -386,7 +386,7 @@ namespace program {
         return quantifyIterations({i,j}, Formulas::implicationFormula(f1, f2));
     }
     
-    /** forall i j, i < j => v(j) + i < v(i) + j [v(i) + i < v(j) + j
+    /** forall i j, i < j => v(j) + i <= v(i) + j [v(i) + i <= v(j) + j
         if v is decreasing] */
     FormulaPtr Properties::denseNonStrictProp(const PVariable *v)
     {
@@ -406,7 +406,7 @@ namespace program {
                                      { incr ? v->toTerm(j) : v->toTerm(i) , i });
         TermPtr t2 = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
                                      { incr ? v->toTerm(i) : v->toTerm(j), j });
-        FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
+        FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
                                                                    { t1, t2 }));
         return quantifyIterations({i,j}, Formulas::implicationFormula(f1, f2));
     }
