@@ -9,21 +9,3 @@ while (i < alength) do
 :: a[i] == v -> i = i + 1;
 :: true      -> a[i] = v; i = i + 1;
 od
-
-
-
-
-(assert
-	(forall ((It1 Time))
-		(=>
-			(forall ((It2 Time))
-				(=>
-					(< It1 It2)
-					(not 
-						(= (i It1) P)
-					)
-				)
-			)
-		)
-	)
-)

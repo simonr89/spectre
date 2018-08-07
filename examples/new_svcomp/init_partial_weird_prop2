@@ -8,6 +8,6 @@ requires j == 0;
 ensures forall int k, 0 <= k & k < j ==> c[k] >= k;
 
 while (i < length) do
-:: a[i]==b[i] -> c[j] = i; i = i + 1, j = j + 1;	
+:: a[i]==b[i] -> c[j] = i; i = i + 1; j = j + 1;	
 :: true -> i = i + 1;	
 od
