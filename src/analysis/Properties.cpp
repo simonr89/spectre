@@ -868,10 +868,6 @@ namespace program {
         if (!updated.at(v))
             return; // v's symbol won't be eliminated, no need for axiom
         
-        TermPtr empty = nullptr;
-        unsigned arity = isArrayType(v->type) ? 1 : 0;
-        std::vector<LVariablePtr> vars;
-        
         TermPtr lhsCounter;
         TermPtr  rhsCounter;
         Symbol* s;
@@ -882,24 +878,36 @@ namespace program {
             && !util::Configuration::instance().arrayTheory().getValue())
         {
             LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
-            vars.push_back(p);
             // array symbol
-            assert (arity == 1);
             rhsCounter = v->toTerm(nullptr, p);
             lhsCounter = v->toTerm(loopCounterSymbol(), p);
             s = Signature::fetchOrDeclare(v->name + "$init", { Sorts::intSort() }, toSort(v->type));
             lhsInit = v->toTerm(Theory::integerConstant(0), p);
-            rhsInit = Terms::funcTerm(s, {p});            
+            rhsInit = Terms::funcTerm(s, {p});
+            addProperty("final_value_" + v->name,
+                        Formulas::universalFormula({p}, Formulas::equalityFormula(true,
+                                                                                  lhsCounter,
+                                                                                  rhsCounter)));
+            addProperty("initial_value_" + v->name,
+                        Formulas::universalFormula({p}, Formulas::equalityFormula(true,
+                                                                                  lhsInit,
+                                                                                  rhsInit)));
         } else {
-            rhsCounter = v->toTerm(empty);
+            rhsCounter = v->toTerm(nullptr);
             lhsCounter = v->toTerm(loopCounterSymbol());
-            s = Signature::fetchOrDeclare(v->name + "$init", toSort(v->type));
+            Sort* sort = isArrayType(v->type) ? Sorts::intArraySort() : toSort(v->type);
+            s = Signature::fetchOrDeclare(v->name + "$init", sort);
             lhsInit = v->toTerm(Theory::integerConstant(0));
             rhsInit = Terms::funcTerm(s, {});
+            
+            addProperty("final_value_" + v->name, Formulas::equalityFormula(true,
+                                                                            lhsCounter,
+                                                                            rhsCounter));
+            addProperty("initial_value_" + v->name, Formulas::equalityFormula(true,
+                                                                              lhsInit,
+                                                                              rhsInit));
         }
         
-        addProperty("final_value_" + v->name, Formulas::universalFormula(vars, Formulas::equalityFormula(true, lhsCounter, rhsCounter)));
-        addProperty("initial_value_" + v->name, Formulas::universalFormula(vars, Formulas::equalityFormula(true, lhsInit, rhsInit)));
     }
 
     void Properties::verificationGoal()
