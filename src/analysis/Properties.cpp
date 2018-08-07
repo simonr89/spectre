@@ -91,6 +91,7 @@ namespace program {
     void Properties::outputSMTLIB()
     {
         std::ostream& ostr = util::Output::stream();
+        ostr << "(set-logic ALL)\n";
         
         // output sort declarations
         for(const auto& pair : Sorts::nameToSort())
