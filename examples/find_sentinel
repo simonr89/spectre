@@ -1,0 +1,20 @@
+// start with an array which contains v at index j. Go through array until v is found at index i.
+// Prove that i <= j (j and i don't need to be equal since there could be multiple v in the array).
+// similar to https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_sentinel_true-unreach-call_true-termination.c 
+
+int [] a;
+int i, alength, v, j;
+
+requires 0 <= alength;
+
+requires i == 0;
+
+requires 0 <= j;
+requires j < alength;
+requires a[j] == v;
+
+ensures i <= j;
+
+while (i < alength & a[i] != v) do
+:: true -> i = i + 1;
+od

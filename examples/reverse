@@ -1,9 +1,7 @@
 int [] a, b;
-int i, alength, blength;
+int i, alength;
 
 requires 0 <= alength;
-requires 0 <= blength;
-requires blength == alength;
 requires i == 0;
 ensures forall int j, 0 <= j & j < alength ==> a[j] == b[alength - 1 - j];
 
