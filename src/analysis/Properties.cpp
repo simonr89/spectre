@@ -227,6 +227,9 @@ namespace program {
         }
     }
 
+    // this lemma introduces new symbols for constant program
+    // symbols. This is incidentally the same symbol used to denotate
+    // the initial values in loop invariants
     void Properties::constnessProps()
     {
         for (const auto& var : vars)
@@ -236,33 +239,26 @@ namespace program {
                 LVariablePtr it = Terms::lVariable(Sorts::timeSort(), "It");
                 
                 FormulaPtr eq;
-                if(util::Configuration::instance().arrayTheory().getValue())
+                if (isArrayType(var->type)
+                    && !util::Configuration::instance().arrayTheory().getValue())
                 {
-                    eq = Formulas::equalityFormula(true,
-                                                   var->toTerm(it),
-                                                   var->toTerm(Theory::timeZero()));
+                    // eq(it) := forall p. x(it,p) = x_0(p)
+                    LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+
+                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"$init", { Sorts::intSort() }, toSort(var->type));
+                    TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
+                        
+                    FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true, var->toTerm(it, p), var0);
+                    eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
                 }
                 else
                 {
-                    if (isArrayType(var->type))
-                    {
-                        // eq(it) := forall p. x(it,p) = x_0(p)
-                        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+                    // eq(it) := x(it) = x_0
+                    Sort* sort = isArrayType(var->type) ? Sorts::intArraySort() : toSort(var->type);
+                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "$init", sort);
+                    TermPtr var0 = Terms::funcTerm(var0Symbol, {});
                         
-                        Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"0", { Sorts::intSort() }, toSort(var->type));
-                        TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
-                        
-                        FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true, var->toTerm(it, p), var0);
-                        eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
-                    }
-                    else
-                    {
-                        // eq(it) := x(it) = x_0
-                        Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "0", toSort(var->type));
-                        TermPtr var0 = Terms::funcTerm(var0Symbol, {});
-                        
-                        eq = Formulas::equalityFormula(true, var->toTerm(it), var0);
-                    }
+                    eq = Formulas::equalityFormula(true, var->toTerm(it), var0);
                 }
 
                 assert(eq);
