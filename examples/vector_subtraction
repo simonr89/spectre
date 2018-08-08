@@ -1,0 +1,16 @@
+// for each position, subtract the element of array b from the element of array a and save the result in array c.
+// similar to https://github.com/sosy-lab/sv-benchmarks/blob/master/c/array-examples/standard_seq_init_true-unreach-call_ground.c,
+// but subtraction replaced by addition
+
+int [] a, b, c;
+int i, length;
+
+requires 0 <= length;
+
+requires i == 0;
+
+ensures forall int j, 0 <= j & j < length ==> c[j] == a[j] - b[j];
+
+while (i < length) do
+:: true -> c[i] = a[i] - b[i]; i = i + 1;
+od
