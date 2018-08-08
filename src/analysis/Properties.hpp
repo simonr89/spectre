@@ -114,6 +114,8 @@ namespace program {
                                                     logic::TermPtr v);
         logic::FormulaPtr stabilityAxiom(const PVariable *v);
         logic::FormulaPtr uniqueUpdateAxiom(const PVariable *v);
+        logic::FormulaPtr uniqueUpdateAxiomGeneralized(const PVariable *a);
+
         logic::FormulaPtr lastUpdateAxiom(const PVariable *v);
 
         void preconditionsSatisfied();

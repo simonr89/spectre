@@ -661,7 +661,15 @@ namespace program {
             
             // these axioms introduce skolem symbols
             addProperty("stability_" + v->name, stabilityAxiom(v));
-            addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v));
+            
+            if (util::Configuration::instance().mainMode().getValue() != "termination")
+            {
+                addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v));
+            }
+            else
+            {
+                addProperty("unique_update_generalized_" + v->name, uniqueUpdateAxiomGeneralized(v));
+            }
         }
     }
     
@@ -685,7 +693,7 @@ namespace program {
         
     }
     
-    /** forall i k p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < k) => a(k, p) = v */
+    /** forall i p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < n) => a(n, p) = v */
     /* this is true only if the array is written at most once by the loop! */
     FormulaPtr Properties::uniqueUpdateAxiom(const PVariable *a)
     {
@@ -710,9 +718,36 @@ namespace program {
                                                   v,
                                                   a->toTerm(k, p));
         
-        return quantifyIterations({i}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+        return Formulas::universalFormula({i, p, v}, Formulas::implicationFormula(f2, f3));
     }
     
+    /** forall i k p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < k) => a(k, p) = v */
+    /* this is true only if the array is written at most once by the loop! */
+    FormulaPtr Properties::uniqueUpdateAxiomGeneralized(const PVariable *a)
+    {
+        assert(isArrayType(a->type));
+        assert(updated.at(a));
+        
+        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+        LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
+        
+        FormulaPtr f1 = Formulas::implicationFormula(Formulas::equalityFormula(false, i,j),
+                                                     Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
+        FormulaPtr f2 = Formulas::conjunctionFormula(
+                                                     { Formulas::universalFormula({j}, f1),
+                                                         arrayUpdatePredicate(a, i, p, v),
+                                                         Formulas::predicateFormula(Theory::timeLt(i, k)) }
+                                                     );
+        
+        FormulaPtr f3 = Formulas::equalityFormula(true,
+                                                  v,
+                                                  a->toTerm(k, p));
+        
+        return Formulas::universalFormula({i, k, p, v}, Formulas::implicationFormula(f2, f3));
+    }
     
     /** forall i k p v, (update_a(i, p, v) & (forall j, i < j => !update_a(j, p)) & i < k) =>
         a(k, p) = v
