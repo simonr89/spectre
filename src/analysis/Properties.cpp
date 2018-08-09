@@ -339,7 +339,7 @@ namespace program {
         InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
                                     ? InterpretedSymbol::INT_PLUS
                                     : InterpretedSymbol::INT_MINUS);
-        TermPtr v0 = v->toTerm(Theory::integerConstant(0));
+        TermPtr v0 = v->toTerm(Theory::timeZero());
         TermPtr lhsTerm = v->toTerm(i);
         TermPtr rhsTerm = Terms::funcTerm(Theory::getSymbol(interp), {v0, i});
         FormulaPtr eq = Formulas::equalityFormula(true, lhsTerm, rhsTerm);
@@ -780,7 +780,7 @@ namespace program {
             rhsCounter = v->toTerm(nullptr, p);
             lhsCounter = v->toTerm(loopCounterSymbol(), p);
             s = Signature::fetchOrDeclare(v->name + "$init", { Sorts::intSort() }, toSort(v->type));
-            lhsInit = v->toTerm(Theory::integerConstant(0), p);
+            lhsInit = v->toTerm(Theory::timeZero(), p);
             rhsInit = Terms::funcTerm(s, {p});
             addProperty("final_value_" + v->name,
                         Formulas::universalFormula({p}, Formulas::equalityFormula(true,
@@ -795,7 +795,7 @@ namespace program {
             lhsCounter = v->toTerm(loopCounterSymbol());
             Sort* sort = isArrayType(v->type) ? Sorts::intArraySort() : toSort(v->type);
             s = Signature::fetchOrDeclare(v->name + "$init", sort);
-            lhsInit = v->toTerm(Theory::integerConstant(0));
+            lhsInit = v->toTerm(Theory::timeZero());
             rhsInit = Terms::funcTerm(s, {});
             
             addProperty("final_value_" + v->name, Formulas::equalityFormula(true,
