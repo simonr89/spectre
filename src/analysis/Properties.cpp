@@ -513,12 +513,11 @@ namespace program {
                 continue;
             }
             
-            addProperty("stability_" + v->name, stabilityAxiom(v));
             if (util::Configuration::instance().mainMode().getValue() == "verification"
                 || util::Configuration::instance().mainMode().getValue() == "generation")
             {
                 addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v, loopCounterSymbol()));
-                //addProperty("stability_" + v->name, stabilityAxiom(v, loopCounterSymbol()));  
+                addProperty("stability_" + v->name, stabilityAxiom(v, loopCounterSymbol()));  
             }
             else
             {
@@ -597,7 +596,7 @@ namespace program {
                                                      Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
         FormulaPtr f2 = Formulas::conjunctionFormula(
             { quantifyIterations({j}, f1),
-              arrayUpdatePredicate(a, k, p, v),
+              arrayUpdatePredicate(a, i, p, v),
               Formulas::predicateFormula(Theory::timeLt(i, k)) }
             );
         
