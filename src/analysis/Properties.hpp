@@ -112,9 +112,8 @@ namespace program {
                                                     logic::TermPtr i,
                                                     logic::TermPtr p,
                                                     logic::TermPtr v);
-        logic::FormulaPtr stabilityAxiom(const PVariable *v);
-        logic::FormulaPtr uniqueUpdateAxiom(const PVariable *v);
-        logic::FormulaPtr uniqueUpdateAxiomGeneralized(const PVariable *a);
+        logic::FormulaPtr stabilityAxiom(const PVariable *v, const logic::TermPtr t = nullptr);
+        logic::FormulaPtr uniqueUpdateAxiom(const PVariable *v, const logic::TermPtr t = nullptr);
 
         logic::FormulaPtr lastUpdateAxiom(const PVariable *v);
 

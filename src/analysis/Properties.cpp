@@ -497,155 +497,7 @@ namespace program {
         return quantifyIterations({i}, Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
                                                                                                        succedent)));
     }
-    
-#pragma mark - Translation of Assignments
-
-    /*
-     * Translation of guarded assignments
-     */
-
-    // // TODO subsumed by stepAxiom, experiment and remove if warranted
-    // void Properties::translateAssignments()
-    // {
-    //     static unsigned i = 0;
-    //     for (auto it = loop.commands.begin(); it != loop.commands.end(); ++it) {
-    //         addProperty("assignment_" + std::to_string(i++), commandToFormula(*it));
-    //     }
-    // }
-
-    // // TODO subsumed by stepAxiom, experiment and remove if warranted
-    // FormulaPtr Properties::commandToFormula(const GuardedCommand *c)
-    // {
-    //     Assignment *a;
-    //     std::vector<FormulaPtr> conj;
-
-    //     LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It1");
-    //     TermPtr iPlusOne = Theory::timeSucc(i);
         
-    //     for (auto it = vars.begin(); it != vars.end(); ++it)
-    //     {
-    //         const PVariable* v = (*it);
-    //         // constant variables are constant symbols in formulas, nothing
-    //         // to do then
-    //         if (!updated.at(v))
-    //             continue;
-            
-    //         if (isArrayType(v->type)) {
-    //             if (util::Configuration::instance().arrayTheory().getValue()) {
-    //                 // representation using array axiomatization
-    //                 TermPtr store = v->toTerm(i);
-    //                 for (auto itAsg = c->assignments.begin();
-    //                      itAsg != c->assignments.end();
-    //                      ++itAsg) {
-    //                     a = *itAsg;
-    //                     if (a->hasLhs(*v))
-    //                     {
-    //                         store = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::ARRAY_STORE),
-    //                                                 { store, a->lhs->child(0)->toTerm(i), a->rhs->toTerm(i) });
-    //                     }
-    //                 }
-    //                 conj.push_back(Formulas::equalityFormula(true,
-    //                                                    v->toTerm(iPlusOne),
-    //                                                    store));
-    //             } else {
-    //                 // representation of arrays as functions
-    //                 for (auto itAsg = c->assignments.begin();
-    //                      itAsg != c->assignments.end();
-    //                      ++itAsg) {
-    //                     a = *itAsg;
-    //                     if (a->hasLhs(*v))
-    //                         conj.push_back(arrayAssignment(a, i, iPlusOne));
-    //                 }
-    //                 conj.push_back(arrayNonAssignment(v, c, i, iPlusOne));
-    //             }
-    //         } else {
-    //             // only one assignment to a given scalar variable is possible
-    //             // in a command (unlike array variables)
-    //             a = c->findAssignment(*v);
-    //             if (a) {
-    //                 conj.push_back(assignment(a, i, iPlusOne));
-    //             } else {
-    //                 // no assignment to v in this command
-    //                 conj.push_back(nonAssignment(v, i, iPlusOne));
-    //             }
-    //         }
-    //     }
-        
-    //     assert(conj.size() > 0);
-
-    //     FormulaPtr f1 = Formulas::conjunctionFormula({ c->guard->toFormula(i) });
-    //     FormulaPtr f2 = Formulas::conjunctionFormula(conj);
-        
-    //     return quantifyIterations({i}, Formulas::implicationFormula(f1, f2));
-    // }
-    
-    // /** Given a scalar assignment v = e, return the formula v(i+1) = e(i) */
-    // FormulaPtr Properties::assignment(const Assignment *a,
-    //                                 TermPtr index,
-    //                                 TermPtr indexPlusOne)
-    // {
-    //     PVariable * lhsVar = a->lhs->varInfo();
-    //     assert(updated.at(lhsVar));
-        
-    //     return Formulas::equalityFormula(true,
-    //                                lhsVar->toTerm(indexPlusOne),
-    //                                a->rhs->toTerm(index));
-    // }
-    
-    // /** Given an array assignment v[x] = e, return the formula v(i+1, x(i)) = e(i) */
-    // FormulaPtr Properties::arrayAssignment(const Assignment *a,
-    //                                      TermPtr index,
-    //                                      TermPtr indexPlusOne)
-    // {
-    //     PVariable * lhsVar = a->lhs->varInfo();
-    //     assert(updated.at(lhsVar));
-        
-    //     return Formulas::equalityFormula(true,
-    //                                lhsVar->toTerm(indexPlusOne,
-    //                                               a->lhs->child(0)->toTerm(index)),
-    //                                a->rhs->toTerm(index));
-    // }
-    
-    // /** Given a scalar variable v, return the formula v(i+1) = v(i) */
-    // FormulaPtr Properties::nonAssignment(const PVariable *v,
-    //                                    TermPtr index,
-    //                                    TermPtr indexPlusOne)
-    // {
-    //     assert(updated.at(v));
-        
-    //     return Formulas::equalityFormula(true,
-    //                                v->toTerm(indexPlusOne),
-    //                                v->toTerm(index));
-    // }
-    
-    // /** Given an array variable v, return the formula forall p, cond => v(i+1, p) = v(i, p) */
-    // FormulaPtr Properties::arrayNonAssignment(const PVariable *v,
-    //                                         const GuardedCommand *gc,
-    //                                         TermPtr index,
-    //                                         TermPtr indexPlusOne)
-    // {
-    //     assert(updated.at(v));
-    //     assert(isArrayType(v->type));
-        
-    //     LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
-    //     std::vector<FormulaPtr> conj;
-    //     for (const auto& assignment : gc->assignments)
-    //     {
-    //         if (assignment->hasLhs(*v))
-    //         {
-    //             conj.push_back(Formulas::equalityFormula(false, p, assignment->lhs->child(0)->toTerm(index)));
-    //         }
-    //     }
-        
-    //     FormulaPtr eq = Formulas::equalityFormula(true,
-    //                                               v->toTerm(indexPlusOne, p),
-    //                                               v->toTerm(index, p));
-        
-    //     FormulaPtr f = Formulas::implicationFormula(Formulas::conjunctionFormula(conj), eq);
-        
-    //     return Formulas::universalFormula({p}, f);
-    // }
-    
 #pragma mark - Update predicates of arrays
 
     /*
@@ -657,127 +509,142 @@ namespace program {
             const PVariable *v = (*it);
             // only check updates array variables
             if (!isArrayType(v->type) || !updated.at(v))
-                continue;
-            
-            // these axioms introduce skolem symbols
-            addProperty("stability_" + v->name, stabilityAxiom(v));
-            
-            if (util::Configuration::instance().mainMode().getValue() != "termination")
             {
-                addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v));
+                continue;
+            }
+            
+            addProperty("stability_" + v->name, stabilityAxiom(v));
+            if (util::Configuration::instance().mainMode().getValue() == "verification"
+                || util::Configuration::instance().mainMode().getValue() == "generation")
+            {
+                addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v, loopCounterSymbol()));
+                //addProperty("stability_" + v->name, stabilityAxiom(v, loopCounterSymbol()));  
             }
             else
             {
-                addProperty("unique_update_generalized_" + v->name, uniqueUpdateAxiomGeneralized(v));
+                addProperty("unique_update_" + v->name, uniqueUpdateAxiom(v));
+                addProperty("stability_" + v->name, stabilityAxiom(v));
             }
         }
     }
     
     /** forall i p, (forall j, !update_a(j, p)) => a(i, p) = a(0, p) */
-    FormulaPtr Properties::stabilityAxiom(const PVariable *a)
+    // if a TermPtr t is provided, the axiom is specialized to that
+    // term (instead of quantified over i). While weaker, this can
+    // help the prover
+    FormulaPtr Properties::stabilityAxiom(const PVariable *a, const TermPtr t)
     {
         assert(isArrayType(a->type));
         assert(updated.at(a));
 
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+        LVariablePtr i;
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+        TermPtr finalValue;
+        if (t)
+        {
+            finalValue = a->toTerm(t, p);
+        }
+        else
+        {
+            i = Terms::lVariable(Sorts::timeSort(), "It");
+            finalValue = a->toTerm(i, p);
+        }
+
         
         FormulaPtr f1 = quantifyIterations({j}, Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
-        
         FormulaPtr f2 = Formulas::equalityFormula(true,
                                                   a->toTerm(Theory::timeZero(), p),
-                                                  a->toTerm(i, p));
-        
-        return quantifyIterations({i}, Formulas::universalFormula({p}, Formulas::implicationFormula(f1, f2)));
-        
+                                                  finalValue);
+        FormulaPtr f3 = Formulas::universalFormula({p}, Formulas::implicationFormula(f1, f2));
+        if (t)
+        {
+            return f3;
+        }
+        else
+        {
+            return quantifyIterations({i}, f3);
+        }        
     }
     
-    /** forall i p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < n) => a(n, p) = v */
-    /* this is true only if the array is written at most once by the loop! */
-    FormulaPtr Properties::uniqueUpdateAxiom(const PVariable *a)
+    /** forall i k p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < k) => a(k, p) = v */
+    // if a TermPtr t is provided, the axiom is specialized to that
+    // term (instead of quantified over k). While weaker, this can
+    // help the prover
+    FormulaPtr Properties::uniqueUpdateAxiom(const PVariable *a, const TermPtr t)
     {
         assert(isArrayType(a->type));
         assert(updated.at(a));
         
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
-        auto k = loopCounterSymbol();
+        LVariablePtr kvar;
+        TermPtr k;
         LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
         LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
+        if (t)
+        {
+            k = t;
+        }
+        else
+        {
+            kvar = Terms::lVariable(Sorts::timeSort(), "It");
+            k = kvar;
+        }
+
 
         FormulaPtr f1 = Formulas::implicationFormula(Formulas::equalityFormula(false, i,j),
                                                      Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
         FormulaPtr f2 = Formulas::conjunctionFormula(
-            { Formulas::universalFormula({j}, f1),
-              arrayUpdatePredicate(a, i, p, v),
+            { quantifyIterations({j}, f1),
+              arrayUpdatePredicate(a, k, p, v),
               Formulas::predicateFormula(Theory::timeLt(i, k)) }
             );
         
         FormulaPtr f3 = Formulas::equalityFormula(true,
                                                   v,
                                                   a->toTerm(k, p));
-        
-        return Formulas::universalFormula({i, p, v}, Formulas::implicationFormula(f2, f3));
-    }
-    
-    /** forall i k p v, (update_a(i, p, v) & (forall j, j != i => !update_a(j, p)) & i < k) => a(k, p) = v */
-    /* this is true only if the array is written at most once by the loop! */
-    FormulaPtr Properties::uniqueUpdateAxiomGeneralized(const PVariable *a)
-    {
-        assert(isArrayType(a->type));
-        assert(updated.at(a));
-        
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
-        LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
-        
-        FormulaPtr f1 = Formulas::implicationFormula(Formulas::equalityFormula(false, i,j),
-                                                     Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
-        FormulaPtr f2 = Formulas::conjunctionFormula(
-                                                     { Formulas::universalFormula({j}, f1),
-                                                         arrayUpdatePredicate(a, i, p, v),
-                                                         Formulas::predicateFormula(Theory::timeLt(i, k)) }
-                                                     );
-        
-        FormulaPtr f3 = Formulas::equalityFormula(true,
-                                                  v,
-                                                  a->toTerm(k, p));
-        
-        return Formulas::universalFormula({i, k, p, v}, Formulas::implicationFormula(f2, f3));
+        FormulaPtr f4 = Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3));
+
+        if (t)
+        {
+            return quantifyIterations({i}, f4);
+        }
+        else
+        {
+            return quantifyIterations({i, kvar}, f4);
+        }
     }
     
     /** forall i k p v, (update_a(i, p, v) & (forall j, i < j => !update_a(j, p)) & i < k) =>
         a(k, p) = v
      * Not used currently! (instead the weaker but more efficient uniqueUpdateAxiom)
      */
-    FormulaPtr Properties::lastUpdateAxiom(const PVariable *a)
-    {
-        assert(isArrayType(a->type));
-        assert(updated.at(a));
+    // FormulaPtr Properties::lastUpdateAxiom(const PVariable *a)
+    // {
+    //     assert(isArrayType(a->type));
+    //     assert(updated.at(a));
         
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
-        LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
-        LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
+    //     LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+    //     LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
+    //     LVariablePtr k = Terms::lVariable(Sorts::timeSort(), "It");
+    //     LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
+    //     LVariablePtr v = Terms::lVariable(toSort(a->type), "V");
         
-        FormulaPtr f1 = Formulas::implicationFormula(Formulas::predicateFormula(Theory::timeLt(i, j)),
-                                                     Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
-        FormulaPtr f2 = Formulas::conjunctionFormula(
-            { Formulas::universalFormula({j}, f1),
-              arrayUpdatePredicate(a, i, p, v),
-              Formulas::predicateFormula(Theory::timeLt(i, k)) }
-            );
+    //     FormulaPtr f1 = Formulas::implicationFormula(Formulas::predicateFormula(Theory::timeLt(i, j)),
+    //                                                  Formulas::negationFormula(arrayUpdatePredicate(a, j, p, nullptr)));
+    //     FormulaPtr f2 = Formulas::conjunctionFormula(
+    //         { qunaitfyIterations({j}, f1),
+    //           arrayUpdatePredicate(a, i, p, v),
+    //           Formulas::predicateFormula(Theory::timeLt(i, k)) }
+    //         );
         
-        FormulaPtr f3 = Formulas::equalityFormula(true,
-                                                  v,
-                                                  a->toTerm(k, p));
+    //     FormulaPtr f3 = Formulas::equalityFormula(true,
+    //                                               v,
+    //                                               a->toTerm(k, p));
         
-        return quantifyIterations({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
-    }
+    //     return quantifyIterations({i, k}, Formulas::universalFormula({p, v}, Formulas::implicationFormula(f2, f3)));
+    // }
     
     // if v is nullptr, updatePredicate with 2 args
     FormulaPtr Properties::arrayUpdatePredicate(const PVariable *a,
