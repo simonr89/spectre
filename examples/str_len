@@ -2,6 +2,7 @@ int [] a;
 int i;
 
 requires i == 0;
+requires exists int pos, pos >= 0 & a[pos] == 0;
 ensures forall int j, 0 <= j & j < i ==> a[j] != 0;
 
 while (a[i] != 0) do
