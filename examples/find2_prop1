@@ -6,7 +6,7 @@ int i, alength, v;
 
 requires 0 <= alength;
 requires i == 0;
-ensures i < alength ==> a[i]==v;
+ensures exists int pos, i < alength ==> a[pos]==v;
 
 while (i < alength & a[i] != v) do
 :: true      -> i = i + 1;
