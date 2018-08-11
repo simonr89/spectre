@@ -39,6 +39,8 @@ namespace program {
         void outputTPTP();
         void outputSMTLIB();
         
+        void outputPostConditionForInvariantMode();
+
     private:
         // used as input
         const GuardedCommandCollection& loop;
@@ -71,7 +73,7 @@ namespace program {
                                              logic::FormulaPtr f,
                                              bool exist = false);
 
-        // for every program variable x, replace the non-extended
+        // for every program variable x, src/analysis/Properties.cpp  the non-extended
         // symbol x by the extend symbol x(i).
         logic::FormulaPtr lift(const logic::FormulaPtr f, const logic::TermPtr i);
                 

@@ -829,5 +829,26 @@ namespace program {
         // TODO mark this as negated conjecture
         addProperty("loop_termination", goal);
     }
+    
+    void Properties::outputPostConditionForInvariantMode()
+    {
+        std::vector<FormulaPtr> conjuncts;
+        for (const auto& postcondition : postconditions)
+        {
+            conjuncts.push_back(postcondition->toFormula(nullptr));
+        }
+        FormulaPtr goal = Formulas::conjunctionFormula(conjuncts);
+        
+//        Substitution subst;
+//        for (auto p : varMap)
+//        {
+//            subst.push_back(std::make_pair(p.second, p.first->toTerm(iPlusOne)));
+//        }
+//        FormulaPtr stepAxiom = quantifyIterations({i}, Formulas::apply(f, subst));
+//
+        
+        
+        util::Output::stream() << goal->declareTPTP("loop_termination", true) << std::endl;
+    }
 }
 

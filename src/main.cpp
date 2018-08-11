@@ -90,7 +90,14 @@ int main(int argc, char *argv[])
 
                 // create properties and dump them to TPTP/SMTLIB
                 program::Properties props(*p, aRes);
+                if (util::Configuration::instance().mainMode().getValue() == "postcondition")
+                {
+                    props.outputPostConditionForInvariantMode();
+                    return 0;
+                }
+                
                 props.analyze();
+
                 if (util::Configuration::instance().outputFormat().getValue() == "tptp")
                 {
                     props.outputTPTP();

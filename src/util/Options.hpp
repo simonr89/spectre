@@ -80,7 +80,7 @@ namespace util {
         Configuration() :
             outputFileOpt("output", ""),
             outputFormatOpt("format", {"tptp", "smtlib"}, "smtlib"),
-            mainModeOpt("mode", { "generation", "verification", "termination", "soundness" }, "verification"),
+            mainModeOpt("mode", { "generation", "verification", "termination", "soundness", "postcondition" }, "verification"),
             timepointsOpt("timepoints", false),
             arrayTheoryOpt("arraytheory", true),
             traceLemmasOpt("lemmas", true),
