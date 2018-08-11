@@ -848,7 +848,7 @@ namespace program {
 //
         
         
-        util::Output::stream() << goal->declareTPTP("loop_termination", true) << std::endl;
+        util::Output::stream() << goal->declareTPTP("postcondition_for_invariant_mode", true) << std::endl;
     }
 }
 
