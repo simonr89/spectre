@@ -490,7 +490,7 @@ namespace program {
         PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
                                          { v->toTerm(Theory::timeZero()), x });
         PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
-                                         { x, v->toTerm(loopCounterSymbol()) });
+                                         { x, v->toTerm(i) });
         FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
                                                                Formulas::predicateFormula(p2) });
         
