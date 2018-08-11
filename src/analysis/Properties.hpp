@@ -61,8 +61,9 @@ namespace program {
          */
         typedef std::pair<std::string, logic::FormulaPtr> Property;
         std::vector<Property> properties;
+        std::vector<Property> conjectures;
         void addProperty(std::string s, logic::FormulaPtr f) { properties.push_back(std::make_pair(s, f)); }
-        
+        void addConjecture(std::string s, logic::FormulaPtr f) { conjectures.push_back(std::make_pair(s, f)); }
         unsigned toVampireSort(Type t);
 
         // return [forall vars, var_1 >= 0 & ... & var_n => f] if time

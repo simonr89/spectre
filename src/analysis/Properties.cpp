@@ -86,6 +86,15 @@ namespace program {
             Property p = *it;
             ostr << p.second->declareTPTP(p.first) << std::endl;
         }
+        
+        // output all conjectures
+        for (auto it = conjectures.begin(); it != conjectures.end(); ++it)
+        {
+            assert(conjectures.size() <= 1);
+
+            Property p = *it;
+            ostr << p.second->declareTPTP(p.first, true) << std::endl;
+        }
     }
 
     void Properties::outputSMTLIB()
@@ -122,6 +131,14 @@ namespace program {
         {
             Property p = *it;
             ostr << p.second->declareSMTLIB(p.first) << std::endl;
+        }
+        
+        // output all conjectures
+        for (auto it = conjectures.begin(); it != conjectures.end(); ++it)
+        {
+            assert(conjectures.size() <= 1);
+            Property p = *it;
+            ostr << p.second->declareSMTLIB(p.first, true) << std::endl;
         }
 
         ostr << "(check-sat)" << std::endl;
@@ -815,19 +832,17 @@ namespace program {
         {
             conjuncts.push_back(postcondition->toFormula(loopCounterSymbol()));
         }
-        FormulaPtr goal = Formulas::negationFormula(Formulas::conjunctionFormula(conjuncts));
+        FormulaPtr conjecture = Formulas::conjunctionFormula(conjuncts);
 
-        // TODO mark this as negated conjecture in TPTP output
-        addProperty("post_condition", goal);
+        addConjecture("post_condition", conjecture);
     }
 
     void Properties::terminationGoal()
     {
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
-        FormulaPtr goal = quantifyIterations({i}, loop.loopCondition->toFormula(i));
+        FormulaPtr conjecture = Formulas::negationFormula(quantifyIterations({i}, loop.loopCondition->toFormula(i)));
 
-        // TODO mark this as negated conjecture
-        addProperty("loop_termination", goal);
+        addConjecture("loop_termination", conjecture);
     }
     
     void Properties::outputPostConditionForInvariantMode()
@@ -838,16 +853,7 @@ namespace program {
             conjuncts.push_back(postcondition->toFormula(nullptr));
         }
         FormulaPtr goal = Formulas::conjunctionFormula(conjuncts);
-        
-//        Substitution subst;
-//        for (auto p : varMap)
-//        {
-//            subst.push_back(std::make_pair(p.second, p.first->toTerm(iPlusOne)));
-//        }
-//        FormulaPtr stepAxiom = quantifyIterations({i}, Formulas::apply(f, subst));
-//
-        
-        
+
         util::Output::stream() << goal->declareTPTP("postcondition_for_invariant_mode", true) << std::endl;
     }
 }
