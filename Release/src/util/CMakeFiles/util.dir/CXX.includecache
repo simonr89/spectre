@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/simon/Workspace/spectre/src/util/Options.cpp
+Options.hpp
+/home/simon/Workspace/spectre/src/util/Options.hpp
+iostream
+-
+
+/home/simon/Workspace/spectre/src/util/Options.hpp
+initializer_list
+-
+map
+-
+vector
+-
+string
+-
+
+/home/simon/Workspace/spectre/src/util/Output.cpp
+Output.hpp
+/home/simon/Workspace/spectre/src/util/Output.hpp
+cassert
+-
+fstream
+-
+ios
+-
+iostream
+-
+sstream
+-
+Options.hpp
+/home/simon/Workspace/spectre/src/util/Options.hpp
+
+/home/simon/Workspace/spectre/src/util/Output.hpp
+ostream
+-
+streambuf
+-
+

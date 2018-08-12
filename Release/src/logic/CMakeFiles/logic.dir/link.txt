@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblogic.a  CMakeFiles/logic.dir/Formula.cpp.o CMakeFiles/logic.dir/Signature.cpp.o CMakeFiles/logic.dir/Sort.cpp.o CMakeFiles/logic.dir/Term.cpp.o CMakeFiles/logic.dir/Theory.cpp.o
+/usr/bin/ranlib liblogic.a

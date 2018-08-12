@@ -1,0 +1,2 @@
+/usr/bin/ar qc libanalysis.a  CMakeFiles/analysis.dir/Properties.cpp.o CMakeFiles/analysis.dir/Analyzer.cpp.o
+/usr/bin/ranlib libanalysis.a

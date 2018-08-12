@@ -1,0 +1,2 @@
+/usr/bin/ar qc libutil.a  CMakeFiles/util.dir/Options.cpp.o CMakeFiles/util.dir/Output.cpp.o
+/usr/bin/ranlib libutil.a
