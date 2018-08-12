@@ -472,13 +472,70 @@ namespace program {
      *  where if v is dense pred <=> v(j) = x
      *  and otherwise       pred <=> x >= v(j) & v(j+1) > x [resp. <=, < if decreasing]
      */
+    // FormulaPtr Properties::updatePropertyOfVar2(const PVariable *v)
+    // {
+    //     assert(updated.at(v));
+    //     assert(monotonic.at(v) != Monotonicity::OTHER);
+        
+    //     LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
+    //     LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
+    //     LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
+    //     FuncTermPtr jPlusOne = Theory::timeSucc(j);
+        
+    //     InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
+    //                                 ? InterpretedSymbol::INT_GREATER_EQUAL
+    //                                 : InterpretedSymbol::INT_LESS_EQUAL);
+    //     InterpretedSymbol gtOrLt = (monotonic.at(v) == Monotonicity::INC
+    //                                 ? InterpretedSymbol::INT_GREATER
+    //                                 : InterpretedSymbol::INT_LESS);
+        
+    //     // build the disjunction
+    //     std::vector<FormulaPtr> disj {};
+    //     for (const auto& command : loop.commands)
+    //     {
+    //         // only take into account commands that do affect v
+    //         if (!(command)->findAssignment(*v))
+    //             continue;
+            
+    //         std::vector<FormulaPtr> conj { (command)->guard->toFormula(j) } ;
+    //         if (dense.at(v))
+    //         {
+    //             conj.push_back(Formulas::equalityFormula(true, v->toTerm(j), x));
+    //         }
+    //         else
+    //         {
+    //             conj.push_back(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(geOrLe),
+    //                                                              { x, v->toTerm(j) })));
+    //             conj.push_back(Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(gtOrLt),
+    //                                                              { v->toTerm(jPlusOne), x })));
+    //         }
+    //         disj.push_back(Formulas::conjunctionFormula(conj));
+    //     }
+        
+    //     // since v is monotonic, there should be at least one guard that updates it
+    //     assert(disj.size() > 0);
+        
+    //     FormulaPtr f1 = Formulas::disjunctionFormula(disj);
+    //     FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, i)), f1 });
+    //     FormulaPtr succedent = quantifyIterations({ j }, f2, true);
+        
+    //     PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
+    //                                      { v->toTerm(Theory::timeZero()), x });
+    //     PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
+    //                                      { x, v->toTerm(i) });
+    //     FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
+    //                                                            Formulas::predicateFormula(p2) });
+        
+    //     return quantifyIterations({i}, Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
+    //                                                                                                    succedent)));
+    // }
+
     FormulaPtr Properties::updatePropertyOfVar(const PVariable *v)
     {
         assert(updated.at(v));
         assert(monotonic.at(v) != Monotonicity::OTHER);
         
         LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
-        LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
         FuncTermPtr jPlusOne = Theory::timeSucc(j);
         
@@ -516,19 +573,19 @@ namespace program {
         assert(disj.size() > 0);
         
         FormulaPtr f1 = Formulas::disjunctionFormula(disj);
-        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, i)), f1 });
+        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, loopCounterSymbol())), f1 });
         FormulaPtr succedent = quantifyIterations({ j }, f2, true);
         
         PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
                                          { v->toTerm(Theory::timeZero()), x });
         PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
-                                         { x, v->toTerm(i) });
+                                         { x, v->toTerm(loopCounterSymbol()) });
         FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
                                                                Formulas::predicateFormula(p2) });
         
-        return quantifyIterations({i}, Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
-                                                                                                       succedent)));
-    }
+        return Formulas::universalFormula( { x }, Formulas::implicationFormula(antecedent,
+                                                                               succedent));
+    }    
         
 #pragma mark - Update predicates of arrays
 
@@ -868,7 +925,9 @@ namespace program {
             conjuncts.push_back(postcondition->toFormula(nullptr));
         }
         FormulaPtr goal = Formulas::conjunctionFormula(conjuncts);
+        FormulaPtr negatedLC = Formulas::negationFormula(loop.loopCondition->toFormula(nullptr));
 
+        util::Output::stream() << negatedLC->declareTPTP("negated_loop_condition") << std::endl;
         util::Output::stream() << goal->declareTPTP("postcondition_for_invariant_mode", true) << std::endl;
     }
 }

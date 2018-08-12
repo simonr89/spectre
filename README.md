@@ -53,7 +53,7 @@ Problems generated in 'invariant generation' mode rely on a symbol
 elimination mechanism. As of today, Vampire is the only prover able to
 perform symbol elimination. To use symbol elimination in Vampire, run
 ```
-$ vampire --show_symbol_elimination on -nm 0 -updr off <file>
+$ vampire --show_symbol_elimination on -avatar off -nm 0 -updr off <file>
 ```
 The clauses output by Vampire are loop invariants.
 
