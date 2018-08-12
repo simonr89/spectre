@@ -78,7 +78,6 @@ namespace program {
             _monotonic.at(v) = Monotonicity::OTHER;
         }
         // setUpdated must be called after recordScalarIncrement
-        _updated.at(v) = true;
         v->markAsUpdated();
     }
     
@@ -86,7 +85,7 @@ namespace program {
     {
         if (n > 0)
         {
-            if (!_updated.at(v))
+            if (!v->isUpdated())
             {
                 _monotonic.at(v) = Monotonicity::INC;
             }
@@ -97,7 +96,7 @@ namespace program {
         }
         else if (n < 0)
         {
-            if (!_updated.at(v))
+            if (!v->isUpdated())
             {
                 _monotonic.at(v) = Monotonicity::DEC;
             }
@@ -122,6 +121,6 @@ namespace program {
         // compute density and strictness
         densityAndStrictness();
         
-        return AnalyzerResult(std::move(_updated), std::move(_monotonic), std::move(_strict), std::move(_dense));
+        return AnalyzerResult(std::move(_monotonic), std::move(_strict), std::move(_dense));
     }
 }

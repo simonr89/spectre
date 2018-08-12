@@ -16,18 +16,16 @@ namespace program
     
     struct AnalyzerResult
     {
-        AnalyzerResult(std::map<const PVariable*,bool> updated,
-                       std::map<const PVariable*,Monotonicity> monotonic,
+        AnalyzerResult(std::map<const PVariable*,Monotonicity> monotonic,
                        std::map<const PVariable*,bool> strict,
                        std::map<const PVariable*,bool> dense
-                       ) : updated(std::move(updated)), monotonic(std::move(monotonic)), strict(std::move(strict)), dense(std::move(dense)){}
+                       ) : monotonic(std::move(monotonic)), strict(std::move(strict)), dense(std::move(dense)){}
         
-        const std::map<const PVariable*,bool> updated;
         const std::map<const PVariable*,Monotonicity> monotonic;
         const std::map<const PVariable*,bool> strict;
         const std::map<const PVariable*,bool> dense;
         
-        std::string toString()
+        /*std::string toString()
         {
             std::string result = "";
             for(const auto& keyValuePair : updated)
@@ -36,10 +34,6 @@ namespace program
                 result += var->name;
                 
                 result += " {";
-                if (updated.at(var))
-                    result += "updated,";
-                else
-                    result += "not updated,";
                 switch (monotonic.at(var))
                 {
                     case Monotonicity::DEC:
@@ -58,7 +52,7 @@ namespace program
                 result += "}\n";
             }
             return result + "\n";
-        }
+            }*/
     };
     
     class Analyzer
@@ -73,7 +67,6 @@ namespace program
             // TODO: is this really the correct start-value???
             for (const auto& var : program.loop->variables)
             {
-                _updated[var] = false;
                 _monotonic[var] = Monotonicity::OTHER;
                 _strict[var] = false;
                 _dense[var] = false;
@@ -89,7 +82,6 @@ namespace program
         const std::vector<FExpression*> _postconditions;
         
         // the aim of this class is to compute the following 4 maps
-        std::map<const PVariable*,bool> _updated;
         std::map<const PVariable*,Monotonicity> _monotonic;
         std::map<const PVariable*,bool> _strict;
         std::map<const PVariable*,bool> _dense;

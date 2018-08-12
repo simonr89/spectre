@@ -27,7 +27,6 @@ namespace program {
         preconditions(program.preconditions),
         postconditions(program.postconditions),
         
-        updated(aRes.updated),
         monotonic(aRes.monotonic),
         strict(aRes.strict),
         dense(aRes.dense),
@@ -48,7 +47,6 @@ namespace program {
         const std::vector<FExpression*>& preconditions;
         const std::vector<FExpression*>& postconditions;
 
-        const std::map<const PVariable*,bool>& updated;
         const std::map<const PVariable*,Monotonicity>& monotonic;
         const std::map<const PVariable*,bool>& strict;
         const std::map<const PVariable*,bool>& dense;

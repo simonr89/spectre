@@ -315,7 +315,7 @@ namespace program {
     /** forall i, v(i) = v(0) + i [v(0) - i if v is decreasing] */
     FormulaPtr Properties::denseStrictProp(const PVariable *v)
     {
-        assert(updated.at(v));
+        assert(v->isUpdated());
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(dense.at(v));
         assert(strict.at(v));
@@ -337,7 +337,7 @@ namespace program {
         decreasing] */
     FormulaPtr Properties::strictProp(const PVariable *v)
     {
-        assert(updated.at(v));
+        assert(v->isUpdated());
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(strict.at(v));
 
@@ -358,7 +358,7 @@ namespace program {
         decreasing] */
     FormulaPtr Properties::nonStrictProp(const PVariable *v)
     {
-        assert(updated.at(v));
+        assert(v->isUpdated());
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(!strict.at(v));
 
@@ -379,7 +379,7 @@ namespace program {
         if v is decreasing] */
     FormulaPtr Properties::denseNonStrictProp(const PVariable *v)
     {
-        assert(updated.at(v));
+        assert(v->isUpdated());
         assert(monotonic.at(v) != Monotonicity::OTHER);
         assert(dense.at(v));
         assert(!strict.at(v));
@@ -404,7 +404,7 @@ namespace program {
     FormulaPtr Properties::injectivityProp(const PVariable *v)
     {
         assert(monotonic.at(v) != Monotonicity::OTHER);
-        assert(updated.at(v));
+        assert(v->isUpdated());
         assert(strict.at(v));
         
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
@@ -429,7 +429,7 @@ namespace program {
      */
     // FormulaPtr Properties::updatePropertyOfVar2(const PVariable *v)
     // {
-    //     assert(updated.at(v));
+    //     assert(v->isUpdated());
     //     assert(monotonic.at(v) != Monotonicity::OTHER);
         
     //     LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
@@ -487,7 +487,7 @@ namespace program {
 
     FormulaPtr Properties::updatePropertyOfVar(const PVariable *v)
     {
-        assert(updated.at(v));
+        assert(v->isUpdated());
         assert(monotonic.at(v) != Monotonicity::OTHER);
         
         LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
@@ -552,7 +552,7 @@ namespace program {
         for (auto it = vars.begin(); it != vars.end(); ++it) {
             const PVariable *v = (*it);
             // only check updates array variables
-            if (!isArrayType(v->type) || !updated.at(v))
+            if (!isArrayType(v->type) || !v->isUpdated())
             {
                 continue;
             }
@@ -578,7 +578,7 @@ namespace program {
     FormulaPtr Properties::stabilityAxiom(const PVariable *a, const TermPtr t)
     {
         assert(isArrayType(a->type));
-        assert(updated.at(a));
+        assert(a->isUpdated());
 
         LVariablePtr i;
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
@@ -800,15 +800,16 @@ namespace program {
     {
         for (auto it = vars.begin(); it != vars.end(); ++it) {
             const PVariable *v = (*it);
-            if (updated.at(v))
+            if (v->isUpdated())
                 addSymbolEliminationAxioms(v);
         }
     }
     
     void Properties::addSymbolEliminationAxioms(const PVariable* v)
     {
-        if (!updated.at(v))
+        if (!v->isUpdated()) {
             return; // v's symbol won't be eliminated, no need for axiom
+        }
         
         TermPtr lhsCounter;
         TermPtr  rhsCounter;

@@ -45,7 +45,7 @@ namespace program {
         
         void recordScalarIncrement(int n);
         void markAsUpdated() { _updated = true; }
-        bool isUpdated() { return _updated; }
+        bool isUpdated() const { return _updated; }
         
         bool isBoolean() { return type == Type::TY_BOOLEAN || type == Type::TY_BOOLEAN_ARRAY; }
         

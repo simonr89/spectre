@@ -84,9 +84,7 @@ int main(int argc, char *argv[])
                 program::Analyzer a(*p);
                 program::AnalyzerResult aRes = a.computeVariableProperties();
 
-                util::Output::stream() << util::Output::comment;
-                util::Output::stream() << aRes.toString();
-                util::Output::stream() << util::Output::nocomment;
+                // TODO print result of analysis for each variable
 
                 // create properties and dump them to TPTP/SMTLIB
                 program::Properties props(*p, aRes);
