@@ -219,7 +219,7 @@ namespace program {
             if (exist)
             {
                 conjuncts.push_back(f);
-                return Formulas::universalFormula(vars, Formulas::conjunctionFormula(conjuncts));
+                return Formulas::existentialFormula(vars, Formulas::conjunctionFormula(conjuncts));
             }
             else
             {
