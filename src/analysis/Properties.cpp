@@ -134,11 +134,26 @@ namespace program {
         }
         
         // output all conjectures
-        for (auto it = conjectures.begin(); it != conjectures.end(); ++it)
+        // if the vampire-extension of smtlib can be used, then use assert-not for conjecture
+        if (util::Configuration::instance().outputFormat().getValue() == "smtlib-vext")
         {
-            assert(conjectures.size() <= 1);
-            Property p = *it;
-            ostr << p.second->declareSMTLIB(p.first, true) << std::endl;
+            for (auto it = conjectures.begin(); it != conjectures.end(); ++it)
+            {
+                assert(conjectures.size() <= 1);
+                Property p = *it;
+                ostr << p.second->declareSMTLIB(p.first, true) << std::endl;
+            }
+        }
+        // otherwise use standard assert with negated conjecture
+        else
+        {
+            for (auto it = conjectures.begin(); it != conjectures.end(); ++it)
+            {
+                assert(conjectures.size() <= 1);
+                Property p = *it;
+                auto negatedConjecture = Formulas::negationFormula(p.second);
+                ostr << negatedConjecture->declareSMTLIB(p.first) << std::endl;
+            }
         }
 
         ostr << "(check-sat)" << std::endl;

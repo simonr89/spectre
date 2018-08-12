@@ -101,7 +101,11 @@ int main(int argc, char *argv[])
                 if (util::Configuration::instance().outputFormat().getValue() == "tptp")
                 {
                     props.outputTPTP();
-                } else {
+                }
+                else
+                {
+                    assert(util::Configuration::instance().outputFormat().getValue() == "smtlib" ||
+                           util::Configuration::instance().outputFormat().getValue() == "smtlib-vext");
                     props.outputSMTLIB();
                 }
             }

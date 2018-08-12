@@ -71,7 +71,8 @@ namespace util {
             }
             else
             {
-                assert(util::Configuration::instance().outputFormat().getValue() == "smtlib");
+                assert(util::Configuration::instance().outputFormat().getValue() == "smtlib" ||
+                       util::Configuration::instance().outputFormat().getValue() == "smtlib-vext");
                 _dest->sputc(';');
             }
             _dest->sputc(' ');
