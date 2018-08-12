@@ -236,7 +236,7 @@ namespace program {
             if (exist)
             {
                 conjuncts.push_back(f);
-                return Formulas::universalFormula(vars, Formulas::conjunctionFormula(conjuncts));
+                return Formulas::existentialFormula(vars, Formulas::conjunctionFormula(conjuncts));
             }
             else
             {
@@ -501,13 +501,13 @@ namespace program {
         assert(disj.size() > 0);
         
         FormulaPtr f1 = Formulas::disjunctionFormula(disj);
-        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, loopCounterSymbol())), f1 });
+        FormulaPtr f2 = Formulas::conjunctionFormula({ Formulas::predicateFormula(Theory::timeLt(j, i)), f1 });
         FormulaPtr succedent = quantifyIterations({ j }, f2, true);
         
         PredTermPtr p1 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS_EQUAL),
                                          { v->toTerm(Theory::timeZero()), x });
         PredTermPtr p2 = Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
-                                         { x, v->toTerm(loopCounterSymbol()) });
+                                         { x, v->toTerm(i) });
         FormulaPtr antecedent = Formulas::conjunctionFormula({ Formulas::predicateFormula(p1),
                                                                Formulas::predicateFormula(p2) });
         
