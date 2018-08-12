@@ -1,2 +1,0 @@
-/usr/bin/ar qc libparser.a  CMakeFiles/parser.dir/GclParser.cpp.o CMakeFiles/parser.dir/GclScanner.cpp.o CMakeFiles/parser.dir/GclParsingContext.cpp.o
-/usr/bin/ranlib libparser.a
