@@ -22,9 +22,7 @@ namespace program {
         if (util::Configuration::instance().traceLemmas().getValue())
         {
             // trace lemmas to complement the axiom
-            constnessProps();
             monotonicityProps();
-            //translateAssignments();
             updatePredicatesOfArrays();
         }
         
@@ -256,49 +254,6 @@ namespace program {
             else
             {
                 return Formulas::universalFormula(vars, Formulas::implicationFormula(Formulas::conjunctionFormula(conjuncts), f));
-            }
-        }
-    }
-
-    // this lemma introduces new symbols for constant program
-    // symbols. This is incidentally the same symbol used to denotate
-    // the initial values in loop invariants
-    void Properties::constnessProps()
-    {
-        for (const auto& var : vars)
-        {
-            if (!updated.at(var))
-            {
-                LVariablePtr it = Terms::lVariable(Sorts::timeSort(), "It");
-                
-                FormulaPtr eq;
-                if (isArrayType(var->type)
-                    && !util::Configuration::instance().arrayTheory().getValue())
-                {
-                    // eq(it) := forall p. x(it,p) = x_0(p)
-                    LVariablePtr p = Terms::lVariable(Sorts::intSort(), "P");
-
-                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name+"$init", { Sorts::intSort() }, toSort(var->type));
-                    TermPtr var0 = Terms::funcTerm(var0Symbol, {p});
-                        
-                    FormulaPtr eqWithoutQuantifiers = Formulas::equalityFormula(true, var->toTerm(it, p), var0);
-                    eq = Formulas::universalFormula({p}, eqWithoutQuantifiers);
-                }
-                else
-                {
-                    // eq(it) := x(it) = x_0
-                    Sort* sort = isArrayType(var->type) ? Sorts::intArraySort() : toSort(var->type);
-                    Symbol* var0Symbol = Signature::fetchOrDeclare(var->name + "$init", sort);
-                    TermPtr var0 = Terms::funcTerm(var0Symbol, {});
-                        
-                    eq = Formulas::equalityFormula(true, var->toTerm(it), var0);
-                }
-
-                assert(eq);
-                FormulaPtr f = quantifyIterations({it}, eq);
-                
-                // add property
-                addProperty("constant_" + var->name, f);
             }
         }
     }

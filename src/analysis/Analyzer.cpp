@@ -79,6 +79,7 @@ namespace program {
         }
         // setUpdated must be called after recordScalarIncrement
         _updated.at(v) = true;
+        v->markAsUpdated();
     }
     
     void Analyzer::recordScalarIncrement(PVariable *v, int n)

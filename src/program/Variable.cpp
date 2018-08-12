@@ -14,7 +14,9 @@ namespace program {
     using namespace logic;
     
     /** the main constructors */
-    PVariable::PVariable(const std::string& name, Type ty) : Variable(name, ty)
+    PVariable::PVariable(const std::string& name, Type ty) :
+        Variable(name, ty),
+        _updated(false)
     {
         if (isArrayType(ty)) {
             if (util::Configuration::instance().arrayTheory().getValue())
@@ -59,7 +61,7 @@ namespace program {
         assert(util::Configuration::instance().arrayTheory().getValue()
                || !isArrayType(type));
 
-        if (index)
+        if (index && _updated)
         {
             // extended symbol
             if (type == Type::TY_BOOLEAN)
@@ -93,7 +95,7 @@ namespace program {
             // representation using array axioms
             TermPtr array;
             
-            if (index)
+            if (index && _updated)
             {
                 array = logic::Terms::funcTerm(_extendedSymbol, { index });
             }
@@ -115,7 +117,7 @@ namespace program {
         else
         {
             // representation of arrays as function
-            if (index)
+            if (index && _updated)
             {
                 if (type == Type::TY_BOOLEAN)
                 {

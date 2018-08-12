@@ -79,11 +79,8 @@ namespace program {
         logic::FormulaPtr lift(const logic::FormulaPtr f, const logic::TermPtr i);
                 
         void stepAxiom();
-
         void theoryAxioms();
         
-        void constnessProps();
-
         // translation of assignments
         // void translateAssignments();
         // logic::FormulaPtr commandToFormula(const GuardedCommand *c);

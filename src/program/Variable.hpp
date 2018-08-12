@@ -44,6 +44,8 @@ namespace program {
         
         
         void recordScalarIncrement(int n);
+        void markAsUpdated() { _updated = true; }
+        bool isUpdated() { return _updated; }
         
         bool isBoolean() { return type == Type::TY_BOOLEAN || type == Type::TY_BOOLEAN_ARRAY; }
         
@@ -74,6 +76,7 @@ namespace program {
          expressions */
         logic::Symbol* _symbol;
         logic::Symbol* _extendedSymbol;
+        bool _updated;
         
     }; // class PVariable
     
