@@ -32,6 +32,8 @@ namespace program {
     protected:
         Variable(const std::string& name, const Type ty) : name(name), type(ty) {}
     };
+
+    enum class Monotonicity {DEC, INC, OTHER};
     
     class PVariable : public Variable
     {
@@ -42,10 +44,15 @@ namespace program {
         
         bool isProgramVariable() override { return true; }
         
-        
         void recordScalarIncrement(int n);
-        void markAsUpdated() { _updated = true; }
+        void markUpdated() { _updated = true; }
         bool isUpdated() const { return _updated; }
+        void markDense() { _dense = true; }
+        bool isDense() const { return _dense; }
+        void markStrictMonotonic() { _strict = true; }
+        bool isStrictMonotonic() const { return _strict; }
+        void setMonotonicity(Monotonicity m) {_monotonicity = m; }
+        Monotonicity monotonicity() const { return _monotonicity; }
         
         bool isBoolean() { return type == Type::TY_BOOLEAN || type == Type::TY_BOOLEAN_ARRAY; }
         
@@ -67,6 +74,7 @@ namespace program {
         friend std::ostream& operator<<(std::ostream& ostr, const PVariable& v);
         
         std::string toString() const;
+        std::string monotonicityInfo() const;
     protected:
         
         /** the symbol associated to that variable in FOL terms. If extended
@@ -77,6 +85,9 @@ namespace program {
         logic::Symbol* _symbol;
         logic::Symbol* _extendedSymbol;
         bool _updated;
+        bool _dense;
+        bool _strict;
+        Monotonicity _monotonicity;
         
     }; // class PVariable
     

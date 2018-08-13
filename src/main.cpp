@@ -12,6 +12,7 @@
 #include "analysis/Properties.hpp"
 
 #include "program/Program.hpp"
+#include "program/Variable.hpp"
 
 extern FILE *yyin;
 extern bool yy_flex_debug;
@@ -81,13 +82,17 @@ int main(int argc, char *argv[])
                 util::Output::stream() << util::Output::nocomment;
 
                 // run lightweight analysis
-                program::Analyzer a(*p);
-                program::AnalyzerResult aRes = a.computeVariableProperties();
+                program::Analyzer::computeVariableProperties(*p);
 
-                // TODO print result of analysis for each variable
+                // print result of analysis for each variable
+                util::Output::stream() << util::Output::comment;
+                for (const program::PVariable* v : p->loop->variables) {
+                    util::Output::stream() << v->toString() << " " << v->monotonicityInfo() << std::endl;
+                }
+                util::Output::stream() << util::Output::nocomment;
 
                 // create properties and dump them to TPTP/SMTLIB
-                program::Properties props(*p, aRes);
+                program::Properties props(*p);
                 if (util::Configuration::instance().mainMode().getValue() == "postcondition")
                 {
                     props.outputPostConditionForInvariantMode();

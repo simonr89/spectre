@@ -16,7 +16,10 @@ namespace program {
     /** the main constructors */
     PVariable::PVariable(const std::string& name, Type ty) :
         Variable(name, ty),
-        _updated(false)
+        _updated(false),
+        _dense(false),
+        _strict(false),
+        _monotonicity(Monotonicity::OTHER)
     {
         if (isArrayType(ty)) {
             if (util::Configuration::instance().arrayTheory().getValue())
@@ -145,6 +148,11 @@ namespace program {
     std::string PVariable::toString() const
     {
         return name; // TODO: also print type
+    }
+
+    std::string PVariable::monotonicityInfo() const
+    {
+        return "{}"; //TODO
     }
     
     std::ostream& operator<<(std::ostream& ostr, const PVariable& v)

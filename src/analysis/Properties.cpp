@@ -268,7 +268,7 @@ namespace program {
     {
         for (auto it = vars.begin(); it != vars.end(); ++it) {
             const PVariable *v = (*it);
-            if(monotonic.at(v) == Monotonicity::OTHER)
+            if(v->monotonicity() == Monotonicity::OTHER)
                 continue;
 
             if (util::Configuration::instance().timepoints().getValue())
@@ -277,7 +277,7 @@ namespace program {
                 // different monotonicity props
                 addProperty("update_" + v->name, updatePropertyOfVar(v));
 
-                if (strict.at(v))
+                if (v->isStrictMonotonic())
                 {
                     addProperty("injectivity_" + v->name, injectivityProp(v));
                     addProperty("strict_" + v->name, strictProp(v));
@@ -287,9 +287,9 @@ namespace program {
                     addProperty("nonstrict_" + v->name, nonStrictProp(v));
                 }
             } else {
-                if (dense.at(v))
+                if (v->isDense())
                 {
-                    if (strict.at(v))
+                    if (v->isStrictMonotonic())
                     {
                         // don't add updatePropertyOfVar here since dense prop is
                         // stronger and does not have an existential quantifier
@@ -302,7 +302,7 @@ namespace program {
                     }
                 } else {
                     addProperty("update_" + v->name, updatePropertyOfVar(v));
-                    if (strict.at(v)) {
+                    if (v->isStrictMonotonic()) {
                         addProperty("strict_" + v->name, strictProp(v));
                     } else {
                         addProperty("nonstrict_" + v->name, nonStrictProp(v));
@@ -316,14 +316,14 @@ namespace program {
     FormulaPtr Properties::denseStrictProp(const PVariable *v)
     {
         assert(v->isUpdated());
-        assert(monotonic.at(v) != Monotonicity::OTHER);
-        assert(dense.at(v));
-        assert(strict.at(v));
+        assert(v->monotonicity() != Monotonicity::OTHER);
+        assert(v->isDense());
+        assert(v->isStrictMonotonic());
         assert(!util::Configuration::instance().timepoints().getValue());
         
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         
-        InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol interp = (v->monotonicity() == Monotonicity::INC
                                     ? InterpretedSymbol::INT_PLUS
                                     : InterpretedSymbol::INT_MINUS);
         TermPtr v0 = v->toTerm(Theory::timeZero());
@@ -338,15 +338,15 @@ namespace program {
     FormulaPtr Properties::strictProp(const PVariable *v)
     {
         assert(v->isUpdated());
-        assert(monotonic.at(v) != Monotonicity::OTHER);
-        assert(strict.at(v));
+        assert(v->monotonicity() != Monotonicity::OTHER);
+        assert(v->isStrictMonotonic());
 
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
 
         FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
 
-        InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol interp = (v->monotonicity() == Monotonicity::INC
                                     ? InterpretedSymbol::INT_LESS
                                     : InterpretedSymbol::INT_GREATER);
         FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
@@ -359,15 +359,15 @@ namespace program {
     FormulaPtr Properties::nonStrictProp(const PVariable *v)
     {
         assert(v->isUpdated());
-        assert(monotonic.at(v) != Monotonicity::OTHER);
-        assert(!strict.at(v));
+        assert(v->monotonicity() != Monotonicity::OTHER);
+        assert(!v->isStrictMonotonic());
 
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
 
         FormulaPtr f1 = Formulas::predicateFormula(Theory::timeLt(i, j));
 
-        InterpretedSymbol interp = (monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol interp = (v->monotonicity() == Monotonicity::INC
                                     ? InterpretedSymbol::INT_LESS_EQUAL
                                     : InterpretedSymbol::INT_GREATER_EQUAL);
         FormulaPtr f2 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(interp),
@@ -380,9 +380,9 @@ namespace program {
     FormulaPtr Properties::denseNonStrictProp(const PVariable *v)
     {
         assert(v->isUpdated());
-        assert(monotonic.at(v) != Monotonicity::OTHER);
-        assert(dense.at(v));
-        assert(!strict.at(v));
+        assert(v->monotonicity() != Monotonicity::OTHER);
+        assert(v->isDense());
+        assert(!v->isStrictMonotonic());
         assert(!util::Configuration::instance().timepoints().getValue());
         
         LVariablePtr i = Terms::lVariable(Sorts::intSort(), "It");
@@ -390,7 +390,7 @@ namespace program {
         
         FormulaPtr f1 = Formulas::predicateFormula(Terms::predTerm(Theory::getSymbol(InterpretedSymbol::INT_LESS),
                                                                    { i, j }));
-        bool incr = (monotonic.at(v) == Monotonicity::INC);
+        bool incr = (v->monotonicity() == Monotonicity::INC);
         TermPtr t1 = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
                                      { incr ? v->toTerm(j) : v->toTerm(i) , i });
         TermPtr t2 = Terms::funcTerm(Theory::getSymbol(InterpretedSymbol::INT_PLUS),
@@ -403,9 +403,9 @@ namespace program {
     /** forall i j. (v(i) = v(j) => i = j ) */
     FormulaPtr Properties::injectivityProp(const PVariable *v)
     {
-        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(v->monotonicity() != Monotonicity::OTHER);
         assert(v->isUpdated());
-        assert(strict.at(v));
+        assert(v->isStrictMonotonic());
         
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
@@ -430,17 +430,17 @@ namespace program {
     // FormulaPtr Properties::updatePropertyOfVar2(const PVariable *v)
     // {
     //     assert(v->isUpdated());
-    //     assert(monotonic.at(v) != Monotonicity::OTHER);
+    //     assert(v->monotonicity() != Monotonicity::OTHER);
         
     //     LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
     //     LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
     //     LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
     //     FuncTermPtr jPlusOne = Theory::timeSucc(j);
         
-    //     InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
+    //     InterpretedSymbol geOrLe = (v->monotonicity() == Monotonicity::INC
     //                                 ? InterpretedSymbol::INT_GREATER_EQUAL
     //                                 : InterpretedSymbol::INT_LESS_EQUAL);
-    //     InterpretedSymbol gtOrLt = (monotonic.at(v) == Monotonicity::INC
+    //     InterpretedSymbol gtOrLt = (v->monotonicity() == Monotonicity::INC
     //                                 ? InterpretedSymbol::INT_GREATER
     //                                 : InterpretedSymbol::INT_LESS);
         
@@ -488,16 +488,16 @@ namespace program {
     FormulaPtr Properties::updatePropertyOfVar(const PVariable *v)
     {
         assert(v->isUpdated());
-        assert(monotonic.at(v) != Monotonicity::OTHER);
+        assert(v->monotonicity() != Monotonicity::OTHER);
         
         LVariablePtr x = Terms::lVariable(Sorts::intSort(), "X");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");
         FuncTermPtr jPlusOne = Theory::timeSucc(j);
         
-        InterpretedSymbol geOrLe = (monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol geOrLe = (v->monotonicity() == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER_EQUAL
                                     : InterpretedSymbol::INT_LESS_EQUAL);
-        InterpretedSymbol gtOrLt = (monotonic.at(v) == Monotonicity::INC
+        InterpretedSymbol gtOrLt = (v->monotonicity() == Monotonicity::INC
                                     ? InterpretedSymbol::INT_GREATER
                                     : InterpretedSymbol::INT_LESS);
         
@@ -510,7 +510,7 @@ namespace program {
                 continue;
             
             std::vector<FormulaPtr> conj { (command)->guard->toFormula(j) } ;
-            if (dense.at(v))
+            if (v->isDense())
             {
                 conj.push_back(Formulas::equalityFormula(true, v->toTerm(j), x));
             }
@@ -617,7 +617,7 @@ namespace program {
     FormulaPtr Properties::uniqueUpdateAxiom(const PVariable *a, const TermPtr t)
     {
         assert(isArrayType(a->type));
-        assert(updated.at(a));
+        assert(a->isUpdated());
         
         LVariablePtr i = Terms::lVariable(Sorts::timeSort(), "It");
         LVariablePtr j = Terms::lVariable(Sorts::timeSort(), "It");

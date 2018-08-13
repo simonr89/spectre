@@ -21,16 +21,12 @@ namespace program {
     class Properties
     {
     public:
-        Properties(const Program& program, const AnalyzerResult& aRes) :
+        Properties(const Program& program) :
         loop(*program.loop),
         vars(program.loop->variables),
         preconditions(program.preconditions),
         postconditions(program.postconditions),
         
-        monotonic(aRes.monotonic),
-        strict(aRes.strict),
-        dense(aRes.dense),
-
         properties()
         {}
         
@@ -46,10 +42,6 @@ namespace program {
         const std::vector<PVariable*>& vars;
         const std::vector<FExpression*>& preconditions;
         const std::vector<FExpression*>& postconditions;
-
-        const std::map<const PVariable*,Monotonicity>& monotonic;
-        const std::map<const PVariable*,bool>& strict;
-        const std::map<const PVariable*,bool>& dense;
         
         /*
          * the main aim of this class is to collect all the properties

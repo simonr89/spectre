@@ -8,21 +8,23 @@
 
 namespace program {
 
-    void Analyzer::densityAndStrictness()
+    void Analyzer::densityAndStrictness(const Program& p)
     {
-        for (auto v : _loop.variables)
+        for (auto v : p.loop->variables)
         {
-            densityAndStrictness((v));
+            densityAndStrictness(p, v);
         }
     }
 
-    void Analyzer::densityAndStrictness(const PVariable *v) {
-        if (_monotonic.at(v) == Monotonicity::OTHER)
+    void Analyzer::densityAndStrictness(const Program& p, PVariable *v) {
+        if (v->monotonicity() == Monotonicity::OTHER)
+        {
             return;
+        }
 
         bool strict = true, dense = true;
         int incr;
-        for (auto c : _loop.commands)
+        for (auto c : p.loop->commands)
         {
             if (isIncremented(c, v, incr))
                 dense &= (incr == 1 || incr == -1);
@@ -32,11 +34,11 @@ namespace program {
     
         if (strict)
         {
-            _strict[v] = true;
+            v->markStrictMonotonic();
         }
         if (dense)
         {
-            _dense[v] = true;
+            v->markDense();
         }
     }
 
@@ -75,10 +77,10 @@ namespace program {
         }
         else
         {
-            _monotonic.at(v) = Monotonicity::OTHER;
+            v->setMonotonicity(Monotonicity::OTHER);
         }
         // setUpdated must be called after recordScalarIncrement
-        v->markAsUpdated();
+        v->markUpdated();
     }
     
     void Analyzer::recordScalarIncrement(PVariable *v, int n)
@@ -87,30 +89,30 @@ namespace program {
         {
             if (!v->isUpdated())
             {
-                _monotonic.at(v) = Monotonicity::INC;
+                v->setMonotonicity(Monotonicity::INC);
             }
-            else if (_monotonic.at(v) == Monotonicity::DEC)
+            else if (v->monotonicity() == Monotonicity::DEC)
             {
-                _monotonic.at(v) = Monotonicity::OTHER;
+                v->setMonotonicity(Monotonicity::OTHER);
             }
         }
         else if (n < 0)
         {
             if (!v->isUpdated())
             {
-                _monotonic.at(v) = Monotonicity::DEC;
+                v->setMonotonicity(Monotonicity::DEC);
             }
-            else if (_monotonic.at(v) == Monotonicity::INC)
+            else if (v->monotonicity() == Monotonicity::INC)
             {
-                _monotonic.at(v) = Monotonicity::OTHER;
+                v->setMonotonicity(Monotonicity::OTHER);
             }
         }
     }
     
-    AnalyzerResult Analyzer::computeVariableProperties()
+    void Analyzer::computeVariableProperties(const Program& p)
     {
         // compute updated and monotonicity
-        for (const auto& guardedCommandPtr : _loop.commands)
+        for (const auto& guardedCommandPtr : p.loop->commands)
         {
             for (const auto& a : guardedCommandPtr->assignments)
             {
@@ -119,8 +121,6 @@ namespace program {
         }
         
         // compute density and strictness
-        densityAndStrictness();
-        
-        return AnalyzerResult(std::move(_monotonic), std::move(_strict), std::move(_dense));
+        densityAndStrictness(p);
     }
 }
