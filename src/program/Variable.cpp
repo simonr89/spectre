@@ -152,7 +152,30 @@ namespace program {
 
     std::string PVariable::monotonicityInfo() const
     {
-        return "{}"; //TODO
+        if (!_updated)
+        {
+            return "{ constant }";
+        }
+        std::string s;
+        switch (_monotonicity)
+        {
+        case Monotonicity::INC:
+            s = "{ ";
+            s += (_dense ? "dense " : "");
+            s += (_strict ? "strictly " : "");
+            s += "increasing }";
+            break;
+        case Monotonicity::DEC:
+            s = "{ ";
+            s += (_dense ? "dense " : "");
+            s += (_strict ? "strictly " : "");
+            s += "decreasing }";
+            break;
+        case Monotonicity::OTHER:
+            s = "{ non-monotonic }";
+            break;
+        }
+        return s;
     }
     
     std::ostream& operator<<(std::ostream& ostr, const PVariable& v)
