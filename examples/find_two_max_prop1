@@ -17,4 +17,5 @@ ensures forall int j, 0 <= j & j < alength ==> max1 >= a[j];
 while (i < alength) do
 :: a[i] > max1 -> max2 = max1; max1 = a[i]; i = i + 1;
 :: a[i] > max2 -> max2 = a[i]; i = i + 1;
+:: true -> i = i + 1;
 od
