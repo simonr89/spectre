@@ -1,0 +1,13 @@
+int [] a, b;
+int i, m, alength;
+
+requires 0 <= alength;
+requires i == 0;
+requires m == 0;
+
+ensures forall int j, exists int k, 0 <= j & j < alength ==> b[j] == a[k];
+
+while (i < alength) do
+:: a[i] >= a[m] -> b[i] = a[i]; m = i; i = i + 1;
+:: true         -> b[i] = a[m]; i = i + 1;
+od
