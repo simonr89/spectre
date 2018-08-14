@@ -19,7 +19,7 @@ extern bool yy_flex_debug;
 
 void outputUsage()
 {
-    std::cout << "Usage: spectre <options> <filename>" << std::endl;
+    std::cout << "Usage: quit <options> <filename>" << std::endl;
     std::cout << std::endl;
     std::cout << "Options:" << std::endl;
     std::cout << util::Configuration::instance().help() << std::endl;

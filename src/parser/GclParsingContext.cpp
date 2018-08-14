@@ -79,7 +79,7 @@ namespace parser {
         
         ostr << util::Output::comment
              << "-------------------------------------------------\n"
-             << " This file was generated automatically by SPECTRE\n"
+             << " This file was generated automatically by QuIT\n"
              << "-------------------------------------------------\n"
              << '\n'
              << "------------------ Parsed loop ------------------\n"
