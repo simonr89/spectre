@@ -38,4 +38,4 @@ add_subdirectory(src/parser)
 add_subdirectory(src/program)
 add_subdirectory(src/util)
 
-target_link_libraries(spectre analysis logic parser program util)
+target_link_libraries(quit analysis logic parser program util)
