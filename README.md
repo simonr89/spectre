@@ -1,6 +1,6 @@
 # Overview
 
-SPECTRE is a program verification tool that parses programs and
+QuIt is a program verification tool that parses programs and
 produces first-order logic problems in TPTP syntax. It can be used to
 check termination of a loop, verify that a loop satisfies a given
 specification, or generate loop invariants.
